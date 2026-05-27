@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b0c0e" id="meta-theme-color">
-    <title>QuickCal Pro</title>
+    <title>QuickCal Pro v2.0.0</title>
     <style>
         :root {
             --m3-bg: #0b0c0e; 
@@ -20,7 +20,6 @@
             --m3-outline-variant: #2c313a;
             --m3-error: #ff453a; 
             --m3-muted: #9aa2b1;
-            --m3-success: #34c759;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -40,6 +39,17 @@
         .sys-clock { font-size: 15px; font-weight: 700; color: var(--m3-surf-text); cursor: pointer; letter-spacing: 0.5px; }
         .sys-qtr { background: var(--m3-primary); color: var(--m3-on-primary); padding: 3px 6px; border-radius: 6px; font-size: 10px; }
         
+        .config-trigger-btn { background: none; border: none; color: var(--m3-primary); font-size: 18px; cursor: pointer; padding: 4px; font-weight: bold; }
+        .bundle-trigger-btn { background: none; border: none; color: var(--m3-muted); font-size: 12px; font-weight: 800; cursor: pointer; padding: 4px 8px; border: 1px solid var(--m3-outline-variant); border-radius: 6px; }
+
+        #bundle-advice-panel { width: 100%; background-color: var(--m3-surface); border-bottom: 1px solid var(--m3-outline-variant); transform: translateY(-100%); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); position: absolute; top: 52px; left: 0; z-index: 999; padding: 14px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 6px; }
+        #bundle-advice-panel.open { transform: translateY(0); }
+        .coherence-badge { font-size: 12px; font-weight: 800; color: var(--m3-primary); letter-spacing: 0.5px; }
+        .guide-strip { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 13px; font-weight: 700; }
+        .strip-item.pickup { color: var(--m3-primary); }
+        .strip-item.drop { color: #2ed573; }
+        .strip-arrow { color: var(--m3-muted); font-size: 12px; }
+
         .main-toggle { display: inline-flex; background: var(--m3-surface-low); border-radius: 24px; padding: 4px; cursor: pointer; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); margin-bottom: 16px; }
         .main-toggle-btn { padding: 8px 24px; font-size: 13px; font-weight: 800; color: var(--m3-muted); border-radius: 20px; transition: all 0.3s; }
         .main-toggle-btn.active { background: var(--m3-surface); color: var(--m3-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
@@ -92,8 +102,6 @@
 
         .list-wrapper { flex: 1; overflow-y: auto; padding-bottom: 20px; }
         .order-card { background: var(--m3-surface); border-radius: 12px; padding: 14px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease; display:flex; flex-direction:column; }
-        .order-title { font-size: 14px; font-weight: 800; display:flex; justify-content:space-between; align-items:center; line-height: 1.4; flex:1; }
-        .order-num { color: var(--m3-muted); font-size: 11px; margin-right: 4px; font-weight: 700; }
         
         #lst-summary-bar { background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); text-align: center; font-size: 12px; font-weight: 800; padding: 8px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--m3-primary); }
         #bulk-action-bar { display: none; justify-content: space-between; align-items: center; background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); padding: 10px 16px; border-radius: 12px; margin-bottom: 12px; animation: fadeIn 0.2s ease; }
@@ -103,13 +111,9 @@
         .modal-body { background: var(--m3-surface); border-radius: 20px; padding: 20px; width: 100%; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); border: 1px solid var(--m3-outline-variant); transform: translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.show .modal-body { transform: translateY(0); }
         
-        .stats-box.current-qtr-border { border: 2px solid var(--m3-primary) !important; box-shadow: 0 0 8px var(--m3-primary); }
-
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
         .stats-box { background: var(--m3-surface-low); padding: 14px; border-radius: 16px; text-align: center; font-size: 12px; font-weight: 700; cursor:pointer; border: 1px solid transparent; }
         .stats-val { font-size: 20px; font-weight: 900; margin-top: 4px; }
-
-        .copyright-text { text-align: center; font-size: 10px; font-weight: 600; color: var(--m3-outline); padding: 8px 0; background: var(--m3-surface); border-top: 1px solid var(--m3-outline-variant); }
 
         .nav-bar { height: 64px; background: var(--m3-surface); display: flex; border-top: 1px solid var(--m3-outline-variant); flex-shrink: 0; z-index: 1000; padding-bottom: env(safe-area-inset-bottom); justify-content: space-around; align-items: center; padding-top: 4px; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--m3-muted); cursor: pointer; padding: 4px 0; border-radius: 16px; transition: color 0.3s; }
@@ -117,18 +121,6 @@
 
         #toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px); background: rgba(30, 30, 30, 0.95); color: #fff; border: 1px solid var(--m3-outline-variant); padding: 12px 24px; border-radius: 24px; font-size: 13px; font-weight: 700; z-index: 3000; opacity: 0; pointer-events: none; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.5); white-space: nowrap; }
         #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* 신설: GEOSTICS 하이브리드 어드바이저 가이드 패널 스타일 선언 */
-        .bundle-advisor-panel { background: var(--m3-surface-low); border: 1px solid var(--m3-outline-variant); margin: 12px 0; padding: 16px; border-radius: 12px; display: none; box-shadow: 0 4px 16px rgba(0,0,0,0.4); animation: fadeIn 0.2s ease; }
-        .advisor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--m3-outline-variant); padding-bottom: 8px; }
-        .advisor-label { font-size: 11px; font-weight: 900; color: var(--m3-primary); letter-spacing: 0.5px; }
-        .advisor-badge { font-size: 11px; padding: 3px 8px; background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); border-radius: 6px; font-weight: 800; }
-        .advisor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-        .advisor-box { background: var(--m3-surface); padding: 10px; border-radius: 8px; border: 1px solid var(--m3-outline-variant); }
-        .advisor-box-title { font-size: 10px; font-weight: 800; color: var(--m3-outline); margin-bottom: 2px; }
-        .advisor-box-value { font-size: 15px; font-weight: 900; color: var(--m3-surf-text); }
-        .advisor-strip { font-size: 11px; font-weight: 800; background: var(--m3-surface); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--m3-outline-variant); margin-bottom: 6px; }
-        .advisor-strip-title { font-size: 9px; font-weight: 800; color: var(--m3-outline); margin-bottom: 2px; }
     </style>
 </head>
 <body>
@@ -139,12 +131,22 @@
         <div class="sys-left">
             <div class="sys-clock" id="sysClock" onclick="openTimetableModal()">00:00</div>
             <div class="sys-qtr" id="sysQtrBadge">Q1</div>
+            <button class="bundle-trigger-btn" onclick="toggleBundlePanelState()">BUNDLE</button>
         </div>
         <div class="sys-mid">
             <div id="sysTotalRev">0.0k</div>
         </div>
         <div class="sys-right">
-            <div onclick="toggleModal('popSet')" style="font-size:14px; cursor:pointer; padding:4px; font-weight:bold; color:var(--m3-primary);">SETTINGS</div>
+            <button class="config-trigger-btn" onclick="toggleModal('popSet')">⚙️</button>
+        </div>
+    </div>
+
+    <div id="bundle-advice-panel">
+        <div class="coherence-badge" id="coherence-display">COHERENCE: 93%</div>
+        <div class="guide-strip" id="guide-strip-display">
+            <span class="strip-item pickup">[I] Sampyeong(P)</span>
+            <span class="strip-arrow">&#10142;</span>
+            <span class="strip-item drop">Jeongja(D)</span>
         </div>
     </div>
 
@@ -165,58 +167,20 @@
 
                 <div id="quicks-inputs" class="map-input-group">
                     <div class="map-input-row">
-                        <input type="text" id="in-pick-quicks" placeholder="PICKUP" oninput="triggerAdvisorInterruption()">
+                        <input type="text" id="in-pick-quicks" placeholder="PICKUP">
                     </div>
                     <div class="map-input-row">
-                        <input type="text" id="in-drop-quicks" placeholder="DROPOFF" oninput="triggerAdvisorInterruption()">
+                        <input type="text" id="in-drop-quicks" placeholder="DROPOFF">
                     </div>
                 </div>
 
                 <div id="eats-inputs" class="map-input-group" style="display:none;">
                     <div class="map-input-row">
-                        <input type="text" id="in-pick-eats" placeholder="PICKUP" oninput="cacheEatsInput(); triggerAdvisorInterruption();">
+                        <input type="text" id="in-pick-eats" placeholder="PICKUP" oninput="cacheEatsInput()">
                         <input type="checkbox" id="chkEatsPin" style="accent-color:var(--m3-primary); margin-left:8px; width:22px; height:22px;" onchange="cacheEatsInput()">
                     </div>
                     <div class="map-input-row">
-                        <input type="text" id="in-drop-eats" placeholder="DROPOFF" oninput="cacheEatsInput(); triggerAdvisorInterruption();">
-                    </div>
-                </div>
-
-                <div id="bundle-utility-panel" class="bundle-advisor-panel">
-                    <div class="advisor-header">
-                        <span class="advisor-label">⚡ GEOSTICS CORE BUNDLE ADVISOR</span>
-                        <span id="bu-route-coherence" class="advisor-badge">COHERENCE: 0%</span>
-                    </div>
-                    <div class="advisor-grid">
-                        <div class="advisor-box">
-                            <div class="advisor-box-title">ESTIMATED TIME</div>
-                            <div id="bu-total-time" class="advisor-box-value">0분</div>
-                        </div>
-                        <div class="advisor-box">
-                            <div class="advisor-box-title">HOURLY DELTA</div>
-                            <div id="bu-hourly-delta" class="advisor-box-value">+0원/h</div>
-                        </div>
-                    </div>
-                    <div class="advisor-strip">
-                        <div class="advisor-strip-title">ADMINISTRATIVE MATCH</div>
-                        <div style="display: flex; gap: 8px;" id="bu-admin-hierarchy">
-                            <span id="match-sigu" style="color: var(--m3-outline);">[시·구]</span>
-                            <span id="match-eupmyeondong" style="color: var(--m3-outline);">[읍·면·동]</span>
-                            <span id="match-dong" style="color: var(--m3-outline);">[리·행정동]</span>
-                        </div>
-                    </div>
-                    <div class="advisor-strip" id="bu-road-geometry" style="display: flex; align-items: center; gap: 6px;">
-                        <span id="bu-geo-icon">🛣️</span>
-                        <span id="bu-geo-text">분석 대기 중...</span>
-                    </div>
-                    <div class="advisor-strip" id="bu-dynamic-info" style="border-color: var(--m3-primary-cont);">
-                        <div class="advisor-strip-title" style="color: var(--m3-primary); font-weight:900;">DYNAMIC INFO</div>
-                        <div style="display: flex; flex-direction: column; gap: 4px; font-size:11px; font-weight:700; margin-top:4px;">
-                            <div id="dy-landmark">📍 랜드마크: -</div>
-                            <div id="dy-last-feet">🚶 건물 내부 실거리: -</div>
-                            <div id="dy-pedestrian">🚶 보행자 및 도로 특성: -</div>
-                            <div id="dy-traffic">🛣️ 실시간 교통 상황: -</div>
-                        </div>
+                        <input type="text" id="in-drop-eats" placeholder="DROPOFF" oninput="cacheEatsInput()">
                     </div>
                 </div>
 
@@ -226,7 +190,7 @@
                 </div>
 
                 <div class="input-row">
-                    <input type="number" step="0.1" inputmode="decimal" id="in-fare" class="input-box" placeholder="AMOUNT (k)" oninput="triggerAdvisorInterruption()">
+                    <input type="number" step="0.1" inputmode="decimal" id="in-fare" class="input-box" placeholder="AMOUNT (k)">
                     <input type="text" id="in-memo" class="input-box" placeholder="NOTE">
                 </div>
                 
@@ -275,6 +239,7 @@
                         <span class="chip" id="flt-quicks" style="padding:4px 8px; font-size:10px;" onclick="setTypeFilter('QUICKS')">QUICKS</span>
                         <span class="chip" id="flt-eats" style="padding:4px 8px; font-size:10px;" onclick="setTypeFilter('EATS')">EATS</span>
                     </div>
+                    <button class="btn-icon" id="sort-toggle-btn" style="border:none; background:transparent; font-size:16px; padding:0; margin:0;" onclick="toggleSortOrder()">⬇️</button>
                 </div>
                 
                 <div id="lst-summary-bar">ACTIVE: 0 | DONE: 0</div>
@@ -292,11 +257,12 @@
                 <table class="sheet-table">
                     <thead>
                         <tr>
-                            <th style="width:10%;">SEL</th>
-                            <th style="width:15%;">TIME</th> <th style="width:15%;">PLAT</th>
-                            <th style="width:35%;">ROUTE SUMMARY</th>
-                            <th style="width:13%;">FARE</th>
-                            <th style="width:12%;">ACTION</th>
+                            <th style="width:16%;">SEL</th>
+                            <th style="width:12%;">TIME</th>
+                            <th style="width:12%;">PLAT</th>
+                            <th style="width:32%;">ROUTE</th>
+                            <th style="width:14%;">FARE</th>
+                            <th style="width:14%;">ACT</th>
                         </tr>
                     </thead>
                     <tbody id="master-list-tbody"></tbody>
@@ -354,21 +320,10 @@
 
     </div>
 
-    <div class="copyright-text" style="line-height: 1.5; padding: 10px 0;">
-        <div>Powered by <span style="color: var(--m3-primary); font-weight: 800;">Geostics Base OS v1.0.0</span> Core Kernel [cite: 1, 2]</div>
-        <div>© 2026 <span style="font-weight: 800;">QuickCal Pro v2.0.0</span> & QuickSys Pro.Com. All rights reserved. [cite: 1, 2]</div>
-    </div>
-
     <div class="nav-bar">
-        <div class="nav-item active" style="flex: 2;" id="nav-ord" onclick="switchMainTab('ord', this)">
-            ORD
-        </div>
-        <div class="nav-item" style="flex: 2;" id="nav-lst" onclick="switchMainTab('lst', this)">
-            LST
-        </div>
-        <div class="nav-item" style="flex: 1; font-size: 20px; font-weight: 900;" onclick="toggleModal('popMore')">
-            ☰
-        </div>
+        <div class="nav-item active" style="flex: 2;" id="nav-ord" onclick="switchMainTab('ord', this)">ORD</div>
+        <div class="nav-item" style="flex: 2;" id="nav-lst" onclick="switchMainTab('lst', this)">LST</div>
+        <div class="nav-item" style="flex: 1; font-size: 20px; font-weight: 900;" onclick="toggleModal('popMore')">☰</div>
     </div>
 
     <div class="modal-overlay" id="popConfirm" style="z-index: 9999;">
@@ -401,10 +356,7 @@
         <div class="modal-body">
             <div class="flex-between mb-16">
                 <div class="text-bold" style="font-size:15px;">SETTINGS</div>
-                <div style="text-align: right;">
-                    <div class="text-bold" style="font-size:12px; color:var(--m3-primary);">QuickCal Pro v2.0.0</div>
-                    <div style="font-size:10px; color:var(--m3-outline); font-weight:700; margin-top:2px;">Geostics OS v1.0.0 Inside [cite: 1, 2]</div>
-                </div>
+                <div class="text-bold" style="font-size:12px; color:var(--m3-primary);">v2.0.0</div>
             </div>
 
             <div class="flex-between mb-16">
@@ -434,6 +386,11 @@
                 <button class="btn-icon" style="color:var(--m3-error); border-color:var(--m3-error); padding:6px 16px;" onclick="factoryReset()">FACTORY RESET</button>
                 <button class="btn-core" style="width:100px; height:36px; border-radius:12px; margin:0;" onclick="saveSystemConfig()">SAVE</button>
             </div>
+
+            <div class="text-center" style="margin-top:24px; font-size:10px; font-weight:700; color:var(--m3-muted);">
+                QuickCal Pro v2.0.0 <br>
+                <span style="opacity:0.6;">Powered by Geostics Base OS v1.0.0</span>
+            </div>
         </div>
     </div>
 
@@ -459,19 +416,16 @@
     </div>
 
     <script>
+        /* ==========================================================================
+           System Core & Geostics OS Core Kernel Bridge v2.0.0
+        ========================================================================== */
+        
         function loadDataSafely(key, defaultVal) {
             try {
                 let data = localStorage.getItem(key);
                 if (!data) return defaultVal;
                 let parsed = JSON.parse(data);
                 if (Array.isArray(defaultVal) && !Array.isArray(parsed)) return defaultVal;
-                
-                if (Array.isArray(parsed)) {
-                    parsed.forEach(o => {
-                        if (o.mode === 'QS') o.mode = 'QUICKS';
-                        if (o.mode === 'RT') o.mode = 'EATS';
-                    });
-                }
                 return parsed !== null ? parsed : defaultVal;
             } catch (e) { return defaultVal; }
         }
@@ -484,7 +438,10 @@
         
         let currentListFilter = 'RUN'; 
         let currentTypeFilter = 'ALL'; 
-        let currentMasterSort = 'DESC'; 
+        
+        // 정렬 모드 초기값 세팅 (과거->최신 기본)
+        let currentMasterSort = 'ASC'; 
+        
         let currentStatsMetric = 'AMT';
         let isSelectMode = false;
         let selectedSet = new Set();
@@ -535,9 +492,6 @@
                 } catch (err) { console.log("Wakelock Error", err); }
             } else { if(enable) showToast("NO WAKELOCK"); }
         }
-        document.addEventListener('visibilitychange', () => {
-            if (wakeLockObj !== null && document.visibilityState === 'visible') { toggleWakeLock(true); }
-        });
 
         function initAppMode() { 
             setAppMode('QUICKS'); 
@@ -548,30 +502,33 @@
         }
 
         function openTimetableModal() {
-            const now = new Date();
-            const h24 = now.getHours();
+            const now = new Date(); const h24 = now.getHours();
             const activeShift = SHIFTS.find(s => h24 >= s.start && h24 < s.end) || SHIFTS[0];
-
             document.getElementById('qtrPopupGrid').innerHTML = SHIFTS.map(s => {
                 const isCurrent = (s.id === activeShift.id) ? 'current-qtr-border' : '';
                 return `<div class="stats-box ${isCurrent}" style="padding:10px;"><div style="font-size:14px; color:var(--m3-primary);">${s.name}</div><div style="font-size:11px; margin-top:4px;">${s.start}:00 - ${s.end}:00</div></div>`;
             }).join('');
-            
             toggleModal('popQtr');
+        }
+
+        function toggleBundlePanelState() {
+            const panel = document.getElementById('bundle-advice-panel');
+            panel.classList.toggle('open');
+        }
+
+        /* 터치 시 오더 리스트 순서 역순-정순 스위칭 코어 로직 */
+        function toggleSortOrder() {
+            currentMasterSort = currentMasterSort === 'ASC' ? 'DESC' : 'ASC';
+            document.getElementById('sort-toggle-btn').innerText = currentMasterSort === 'ASC' ? '⬇️' : '⬆️';
+            renderMasterList();
         }
 
         function cacheEatsInput() {
             const isPinned = document.getElementById('chkEatsPin').checked;
             if (isPinned) {
-                const cacheData = {
-                    pick: document.getElementById('in-pick-eats').value,
-                    drop: document.getElementById('in-drop-eats').value,
-                    pinned: true
-                };
+                const cacheData = { pick: document.getElementById('in-pick-eats').value, drop: document.getElementById('in-drop-eats').value, pinned: true };
                 localStorage.setItem('qcp_eats_cache', JSON.stringify(cacheData));
-            } else {
-                localStorage.removeItem('qcp_eats_cache');
-            }
+            } else { localStorage.removeItem('qcp_eats_cache'); }
         }
 
         function restoreEatsInputCache() {
@@ -588,13 +545,14 @@
             appMode = mode;
             document.getElementById('btn-mode-quicks').classList.toggle('active', mode === 'QUICKS');
             document.getElementById('btn-mode-eats').classList.toggle('active', mode === 'EATS');
-            
             document.getElementById('quicks-inputs').style.display = mode === 'QUICKS' ? 'block' : 'none';
             document.getElementById('eats-inputs').style.display = mode === 'EATS' ? 'block' : 'none';
 
             if (mode === 'EATS') {
                 document.getElementById('normal-action-row').style.display = 'none';
                 document.getElementById('eats-keyboard-panel').style.display = 'block';
+                const panel = document.getElementById('bundle-advice-panel');
+                panel.classList.remove('open');
             } else {
                 document.getElementById('normal-action-row').style.display = 'flex';
                 document.getElementById('eats-keyboard-panel').style.display = 'none';
@@ -604,77 +562,30 @@
             selectedPlatform = pArray[0];
             const pContainer = document.getElementById('platform-chips');
             pContainer.innerHTML = pArray.map((p, i) => `<div class="chip ${i===0 ? 'active' : ''}" onclick="selectPlatform(this, '${p}')">${p}</div>`).join('');
-            triggerAdvisorInterruption();
         }
 
         function pressRetroKey(key) {
             const fareInput = document.getElementById('in-fare');
-            if (key === 'C') {
-                fareInput.value = '';
-            } else if (key === 'ENTER') {
-                commitOrder();
-            } else {
-                fareInput.value += key;
-            }
-            triggerAdvisorInterruption();
+            if (key === 'C') { fareInput.value = ''; } 
+            else if (key === 'ENTER') { commitOrder(); } 
+            else { fareInput.value += key; }
         }
 
         function selectPlatform(el, plat) {
             document.querySelectorAll('#platform-chips .chip').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            selectedPlatform = plat;
-            triggerAdvisorInterruption();
+            el.classList.add('active'); selectedPlatform = plat;
         }
 
         function calcNetFare(kVal, plat) {
             const is77 = (plat === 'Insung' || plat === 'Logi');
             const net = is77 ? (kVal * 0.77) : kVal;
-            let rounded = Math.round(net * 10) / 10;
-            return rounded;
+            return Math.round(net * 10) / 10;
         }
 
         function updateSysTotal() {
-            let totalRev = 0; 
-            orders.forEach(o => { totalRev += calcNetFare(o.fareK, o.platform); });
+            let totalRev = 0; orders.forEach(o => { totalRev += calcNetFare(o.fareK, o.platform); });
             let rounded = Math.round(totalRev * 10) / 10;
             document.getElementById('sysTotalRev').innerText = (rounded.toFixed(1).endsWith('.0') ? rounded.toString() : rounded.toFixed(1)) + 'k';
-        }
-
-        async function syncWithCloud(manual = false) {
-            const url = document.getElementById('sheet-url').value.trim();
-            if(!url || !url.startsWith('https://script.google.com/')) { if(manual) showToast("URL REQ"); return; }
-            if(manual) showToast("SYNCING...");
-
-            const now = new Date();
-            const dateStr = `${String(now.getMonth()+1).padStart(2,'0')}월 ${String(now.getDate()).padStart(2,'0')}일`;
-            
-            let todayOrders = orders.filter(o => o.state === 'FIN');
-            todayOrders.sort((a, b) => a.timestamp - b.timestamp);
-
-            let todayEXP = costs.filter(c => c.type === 'EXP'); 
-            
-            let revK = 0; todayOrders.forEach(o => revK += calcNetFare(o.fareK, o.platform)); 
-            let expK = todayEXP.reduce((acc, c) => acc + c.amountK, 0); 
-            
-            let pickMap = {}; let dropMap = {};
-            todayOrders.forEach(o => { 
-                let pWord = o.startDetail.split(' ')[0] || "None";
-                let dWord = o.endDetail ? o.endDetail.split(' ')[0] : "None";
-                pickMap[pWord] = (pickMap[pWord] || 0) + 1; 
-                if(o.endDetail) dropMap[dWord] = (dropMap[dWord] || 0) + 1; 
-            });
-
-            const payload = {
-                type: 'DAILY_SYNC', dateStr: dateStr,
-                summary: { income: Math.round(revK * 1000), expense: Math.round(expK * 1000), net: Math.round((revK - expK) * 1000) },
-                locations: { pickups: pickMap, dropoffs: dropMap },
-                orders: todayOrders.map(o => ({ 
-                    time: o.shift, plat: o.platform, pick: o.startDetail, drop: o.endDetail || '', 
-                    amount: Math.round(calcNetFare(o.fareK, o.platform) * 1000), note: o.memo || '' 
-                }))
-            };
-
-            try { await fetch(url, { method: 'POST', body: JSON.stringify(payload) }); if(manual) showToast("SYNC OK"); } catch(e) { if(manual) showToast("SYNC ERR"); }
         }
 
         function updateClockLoop() {
@@ -684,110 +595,15 @@
         }
         setInterval(updateClockLoop, 1000); updateClockLoop();
 
-        document.getElementById('tmap-key').value = localStorage.getItem('qcp_key_tmap') || '';
-        document.getElementById('sheet-url').value = localStorage.getItem('qcp_url_sheet') || '';
-        document.getElementById('oil-interval').value = localStorage.getItem('qcp_oil_interval') || '';
-
-        function saveSystemConfig() { 
-            localStorage.setItem('qcp_url_sheet', document.getElementById('sheet-url').value.trim()); 
-            localStorage.setItem('qcp_key_tmap', document.getElementById('tmap-key').value.trim()); 
-            localStorage.setItem('qcp_oil_interval', document.getElementById('oil-interval').value.trim());
-            closeModal('popSet'); showToast("SAVED"); 
-        }
-
-        function factoryReset() { openConfirm("RESET SYSTEM?", () => { localStorage.clear(); location.reload(); }); }
-        function toggleModal(id) { document.getElementById(id).classList.add('show'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-
-        function clearInputs() {
-            ['in-pick-quicks', 'in-drop-quicks', 'in-pick-eats', 'in-drop-eats', 'in-fare', 'in-memo'].forEach(id => document.getElementById(id).value = '');
-            if(!document.getElementById('chkEatsPin').checked) {
-                localStorage.removeItem('qcp_eats_cache');
-            }
-            document.getElementById('bundle-utility-panel').style.display = 'none';
-            showToast("CLEARED");
-        }
-
-        function searchTmapActive() {
-            if(appMode === 'QUICKS') searchTmap('in-pick-quicks', 'in-drop-quicks');
-            else searchTmap('in-pick-eats', 'in-drop-eats');
-        }
-
-        function openRouteMapActive() {
-            if(appMode === 'QUICKS') openRouteMap('in-pick-quicks', 'in-drop-quicks');
-            else openRouteMap('in-pick-eats', 'in-drop-eats');
-        }
-
-        async function searchTmap(pickId, dropId) {
-            const apiKey = localStorage.getItem('qcp_key_tmap');
-            if(!apiKey) { showToast("KEY REQ"); return; }
-            const pickIn = document.getElementById(pickId); const dropIn = document.getElementById(dropId);
-            
-            const doSearch = async (inputEl) => {
-                const keyword = inputEl.value.trim(); if(!keyword) return;
-                try {
-                    const res = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${encodeURIComponent(keyword)}&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&count=1`, { headers: { 'appKey': apiKey } });
-                    const data = await res.json();
-                    if(data && data.searchPoiInfo && data.searchPoiInfo.pois && data.searchPoiInfo.pois.poi.length > 0) {
-                        const poi = data.searchPoiInfo.pois.poi[0]; let addr = '';
-                        const nA = poi.newAddressList && poi.newAddressList.newAddress[0] ? poi.newAddressList.newAddress[0] : null;
-                        if (nA) {
-                            let bld = nA.bldNo1 + (nA.bldNo2 && nA.bldNo2 !== '0' ? '-' + nA.bldNo2 : '');
-                            addr = `${poi.upperAddrName} ${poi.middleAddrName} ${nA.roadName} ${bld}`;
-                            if(poi.lowerAddrName) addr += ` (${poi.lowerAddrName})`;
-                        } else { addr = `${poi.upperAddrName} ${poi.middleAddrName} ${poi.lowerAddrName}`; }
-                        inputEl.value = addr.trim().replace(/\s+/g, ' '); 
-                        cacheEatsInput();
-                    } else { showToast(`NO RES: ${keyword}`); }
-                } catch (e) { showToast("API ERR"); }
-            };
-
-            if(pickIn.value || dropIn.value) showToast("LOADING MAP");
-            if(pickIn.value) await doSearch(pickIn); if(dropIn.value) await doSearch(dropIn);
-            triggerAdvisorInterruption();
-        }
-
-        async function openRouteMap(startId, endId) {
-            const startStr = document.getElementById(startId).value.trim(); 
-            const endStr = document.getElementById(endId).value.trim();
-            if(!startStr || !endStr) { showToast("BAD INPUT"); return; }
-            
-            const apiKey = localStorage.getItem('qcp_key_tmap');
-            if(!apiKey) { showToast("KEY REQ"); return; }
-
-            showToast("LOADING MAP");
-
-            const getCoord = async (keyword) => {
-                try {
-                    const res = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${encodeURIComponent(keyword)}&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&count=1`, { headers: { 'appKey': apiKey } });
-                    const data = await res.json();
-                    if(data && data.searchPoiInfo && data.searchPoiInfo.pois && data.searchPoiInfo.pois.poi.length > 0) {
-                        const poi = data.searchPoiInfo.pois.poi[0];
-                        return { lat: poi.frontLat || poi.noorLat, lon: poi.frontLon || poi.noorLon };
-                    }
-                } catch (e) { console.error("Coordinate Fetch Error:", e); }
-                return null;
-            };
-
-            const startCoord = await getCoord(startStr);
-            const endCoord = await getCoord(endStr);
-
-            if(startCoord && endCoord) {
-                const scheme = `kakaomap://route?sp=${startCoord.lat},${startCoord.lon}&ep=${endCoord.lat},${endCoord.lon}&by=CAR`;
-                window.location.href = scheme;
-                
-                setTimeout(() => {
-                    if (document.hidden) return; 
-                    window.open(`https://map.kakao.com/link/to/${encodeURIComponent(endStr)},${endCoord.lat},${endCoord.lon}`, '_blank');
-                }, 1500);
-            } else { showToast("COORD ERR"); }
-        }
-
         function stripSido(str) { return str ? str.replace(/^(서울특별시|부산광역시|대구광역시|인천광역시|광주광역시|대전광역시|울산광역시|세종특별자치시|경기도|강원특별자치도|충청북도|충청남도|전북특별자치도|전라남도|경상북도|경상남도|제주특별자치도|서울|부산|대구|인천|광주|대전|울산|세종|경기|강원|충북|충남|전북|전남|경북|경남|제주)\s+/, "").trim() : ""; }
         function getDong(text) { const match = text ? text.match(/([가-힣]+[0-9]*[동읍면리])(?:[\s\(\),-]|$)/) : null; return match ? match[1] : null; }
+        
         function extractSummaryStr(currentText) {
-            let dong = getDong(currentText); if (dong) return dong; 
-            const clean = stripSido(currentText).replace(/[()]/g, ''); const parts = clean.split(' '); return parts[parts.length - 1]; 
+            let dong = getDong(currentText); 
+            if (dong) return dong.substring(0, 2); 
+            const clean = stripSido(currentText).replace(/[()]/g, ''); const parts = clean.split(' '); 
+            let word = parts[parts.length - 1];
+            return word ? word.substring(0, 2) : ""; 
         }
 
         function commitOrder() {
@@ -814,24 +630,126 @@
             const h = new Date().getHours(); const currentShift = SHIFTS.find(s => h >= s.start && h < s.end) || SHIFTS[0];
 
             orders.unshift({ 
-                id: Date.now().toString(), timestamp: Date.now(), mode: appMode, 
-                platform: selectedPlatform, 
+                id: Date.now().toString(), timestamp: Date.now(), mode: appMode, platform: selectedPlatform, 
                 startDetail: startTxt, endDetail: endTxt, routeSummary: rSumm, fareK: fareK, 
                 memo: memoStr, pickupTime: null, finishTime: null, state: initialState, shift: currentShift.id 
             });
             localStorage.setItem('qcp_orders_v130', JSON.stringify(orders));
 
-            const eatsPinned = document.getElementById('chkEatsPin').checked;
-            if (appMode === 'EATS' && eatsPinned) {
-                document.getElementById('in-fare').value = '';
-                document.getElementById('in-memo').value = '';
-            } else {
-                clearInputs();
-            }
+            if (appMode === 'EATS' && document.getElementById('chkEatsPin').checked) {
+                document.getElementById('in-fare').value = ''; document.getElementById('in-memo').value = '';
+            } else { clearInputs(); }
 
-            document.getElementById('bundle-utility-panel').style.display = 'none';
             renderMasterList(); updateSysTotal();
             switchMainTab('lst', document.getElementById('nav-lst')); showToast("SAVED");
+        }
+
+        function renderMasterList() {
+            let typeMatchedOrders = orders.filter(o => currentTypeFilter === 'ALL' ? true : o.mode === currentTypeFilter);
+            document.getElementById('lst-summary-bar').innerText = `ACTIVE: ${typeMatchedOrders.filter(o => o.state !== 'FIN').length} | DONE: ${typeMatchedOrders.filter(o => o.state === 'FIN').length}`;
+            
+            const tbody = document.getElementById('master-list-tbody'); tbody.innerHTML = '';
+            let filtered = typeMatchedOrders.filter(o => currentListFilter === 'RUN' ? o.state !== 'FIN' : o.state === 'FIN');
+            
+            // 사용자의 요청대로 ASC(과거에서 최신)와 DESC(최신에서 과거)를 능동적으로 스위칭
+            filtered.sort((a, b) => currentMasterSort === 'ASC' ? a.timestamp - b.timestamp : b.timestamp - a.timestamp); 
+
+            if(filtered.length === 0) { 
+                // 컬럼 개수에 맞춰서 빈 화면 테이블 병합 사이즈 6으로 확대
+                tbody.innerHTML = `<tr><td colspan="6" style="padding:30px; font-weight:800; color:var(--m3-outline);">EMPTY</td></tr>`; return; 
+            }
+
+            filtered.forEach((o) => {
+                const row = document.createElement('tr');
+                row.className = "sheet-row"; row.setAttribute('data-id', o.id);
+                row.setAttribute('onclick', `toggleDetailRow('${o.id}')`);
+                row.style.cursor = 'pointer';
+
+                let orderNum = orders.length - orders.indexOf(o);
+
+                let chkHtml = `<div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+                    <input type="checkbox" class="lst-checkbox" ${selectedSet.has(String(o.id)) ? 'checked' : ''} onchange="toggleSelect('${o.id}'); event.stopPropagation();" style="width:16px; height:16px; accent-color:var(--m3-primary);">
+                    <span style="font-size:10px; color:var(--m3-muted); font-weight:bold;">#${orderNum}</span>
+                </div>`;
+                
+                // 타임라인(근무 시프트) 출력 매립
+                let timeHtml = `<span style="font-size:10px; font-weight:800; color:var(--m3-muted);">${o.shift}</span>`;
+                
+                let platHtml = `<span style="font-weight:800; color:${o.mode === 'QUICKS' ? 'var(--m3-primary)' : 'var(--m3-error)'}">${o.platform}</span>`;
+                let routeHtml = `<div class="cell-left">${o.routeSummary}`;
+                if(o.memo) { routeHtml += ` <span style="color:var(--m3-primary); font-size:11px; font-weight:normal;">(${o.memo})</span>`; }
+                routeHtml += `</div>`;
+
+                let fareHtml = `<span style="font-weight:900; color:var(--m3-primary); font-size:13px;">${calcNetFare(o.fareK, o.platform).toFixed(1).replace('.0','')}k</span>`;
+
+                let actHtml = '';
+                if(o.state !== 'FIN') {
+                    if(o.mode === 'EATS') { actHtml = `<span class="chip-status" onclick="stepState('${o.id}', event)" style="background:var(--m3-primary); color:#fff; padding:2px 8px; border-radius:4px;">DONE</span>`; } 
+                    else {
+                        let btnTxt = (o.state === 'RUN' || o.state === 'READY') ? 'PICK' : 'DONE';
+                        let btnColor = (o.state === 'RUN' || o.state === 'READY') ? 'background:var(--m3-primary); color:#fff;' : 'background:var(--m3-error); color:#fff;';
+                        actHtml = `<span class="chip-status" onclick="stepState('${o.id}', event)" style="${btnColor} padding:2px 8px; border-radius:4px;">${btnTxt}</span>`;
+                    }
+                } else { actHtml = `<span style="color:var(--m3-muted); font-weight:bold;">FIN</span>`; }
+                actHtml += ` <span style="color:var(--m3-muted); cursor:pointer; font-size:10px; border:1px solid var(--m3-outline-variant); padding:1px 4px; border-radius:3px; margin-left:2px;" onclick="openMng('${o.id}', event)">EDIT</span>`;
+
+                row.innerHTML = `<td>${chkHtml}</td><td>${timeHtml}</td><td>${platHtml}</td><td>${routeHtml}</td><td>${fareHtml}</td><td>${actHtml}</td>`;
+                tbody.appendChild(row);
+
+                const detailRow = document.createElement('tr');
+                detailRow.id = `detail-${o.id}`; detailRow.style.display = 'none'; detailRow.style.background = 'var(--m3-surface-low)';
+                
+                let dropoffHtml = '';
+                if(o.endDetail) {
+                    dropoffHtml = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                        <div style="font-size:11px; text-align:left; color:var(--m3-surf-text); word-break:break-all;"><strong style="color:var(--m3-error); margin-right:4px;">DROP:</strong>${o.endDetail}</div>
+                        <button class="btn-icon" style="margin-left:8px; padding:2px 8px; font-size:9px; border-color:var(--m3-outline); color:var(--m3-surf-text);" onclick="triggerTMapNavi('${o.endDetail}', event)">TMAP</button>
+                    </div>`;
+                }
+
+                // TIME 칼럼 포함 6칸을 채워 레이아웃을 깨지지 않게 보존
+                detailRow.innerHTML = `
+                    <td colspan="6" style="padding:10px 12px; border-bottom:1px solid var(--m3-outline-variant);">
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="font-size:11px; text-align:left; color:var(--m3-surf-text); word-break:break-all;"><strong style="color:var(--m3-primary); margin-right:4px;">PICK:</strong>${o.startDetail}</div>
+                                <button class="btn-icon" style="margin-left:8px; padding:2px 8px; font-size:9px; border-color:var(--m3-outline); color:var(--m3-surf-text);" onclick="triggerTMapNavi('${o.startDetail}', event)">TMAP</button>
+                            </div>
+                            ${dropoffHtml}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(detailRow);
+            });
+        }
+
+        function toggleDetailRow(id) {
+            if(isSelectMode) { toggleSelect(id); return; } 
+            const detailEl = document.getElementById(`detail-${id}`);
+            if(detailEl) { detailEl.style.display = detailEl.style.display === 'none' ? 'table-row' : 'none'; }
+        }
+
+        function triggerTMapNavi(address, e) {
+            e.stopPropagation(); 
+            const url = `tmap://search?name=${encodeURIComponent(address)}`;
+            window.location.href = url;
+            showToast("TMAP LINKED");
+        }
+
+        function stepState(id, e) {
+            e.stopPropagation(); if(isSelectMode) { toggleSelect(id); return; } 
+            const o = orders.find(x => String(x.id) === String(id)); let nextState = ''; let promptMsg = '';
+            if(o.mode === 'EATS') { nextState = 'FIN'; promptMsg = 'DONE?'; } 
+            else {
+                if(o.state === 'RUN' || o.state === 'READY') { nextState = 'PICK'; promptMsg = 'PICKUP?'; } 
+                else if(o.state === 'PICK') { nextState = 'FIN'; promptMsg = 'DONE?'; } 
+            }
+            if(!nextState) return;
+            openConfirm(promptMsg, () => {
+                o.state = nextState; if(nextState === 'PICK') o.pickupTime = Date.now(); if(nextState === 'FIN') o.finishTime = Date.now();
+                localStorage.setItem('qcp_orders_v130', JSON.stringify(orders)); renderMasterList(); updateSysTotal();
+            });
         }
 
         function toggleSelectMode() {
@@ -840,8 +758,7 @@
             document.getElementById('btn-select-mode').style.background = isSelectMode ? 'var(--m3-primary-cont)' : 'transparent';
             document.getElementById('btn-select-mode').style.color = isSelectMode ? 'var(--m3-on-primary-cont)' : 'var(--m3-muted)';
             document.getElementById('bulk-action-bar').style.display = isSelectMode ? 'flex' : 'none';
-            document.getElementById('bulk-count').innerText = `0 SELECTED`;
-            renderMasterList();
+            document.getElementById('bulk-count').innerText = `0 SELECTED`; renderMasterList();
         }
 
         function toggleSelectAll(el) {
@@ -852,8 +769,7 @@
         }
 
         function toggleSelect(id) {
-            let strId = String(id);
-            if(selectedSet.has(strId)) selectedSet.delete(strId); else selectedSet.add(strId);
+            let strId = String(id); if(selectedSet.has(strId)) selectedSet.delete(strId); else selectedSet.add(strId);
             const totalVisible = document.querySelectorAll('.sheet-row').length;
             document.getElementById('chkSelectAll').checked = (selectedSet.size > 0 && selectedSet.size === totalVisible);
             document.getElementById('bulk-count').innerText = `${selectedSet.size} SELECTED`;
@@ -871,96 +787,6 @@
         function setListFilter(f) { currentListFilter = f; document.getElementById('flt-run').classList.toggle('active', f === 'RUN'); document.getElementById('flt-fin').classList.toggle('active', f === 'FIN'); if(isSelectMode) toggleSelectMode(); renderMasterList(); }
         function setTypeFilter(t) { currentTypeFilter = t; document.getElementById('flt-all').classList.toggle('active', t === 'ALL'); document.getElementById('flt-quicks').classList.toggle('active', t === 'QUICKS'); document.getElementById('flt-eats').classList.toggle('active', t === 'EATS'); if(isSelectMode) toggleSelectMode(); renderMasterList(); }
 
-        /* 신설 주입: TIME 분기 격자 칸 바인딩이 완비된 마스터 테이블 렌더러 */
-        function renderMasterList() {
-            let typeMatchedOrders = orders.filter(o => currentTypeFilter === 'ALL' ? true : o.mode === currentTypeFilter);
-            document.getElementById('lst-summary-bar').innerText = `ACTIVE: ${typeMatchedOrders.filter(o => o.state !== 'FIN').length} | DONE: ${typeMatchedOrders.filter(o => o.state === 'FIN').length}`;
-            
-            const tbody = document.getElementById('master-list-tbody'); 
-            tbody.innerHTML = '';
-            
-            let filtered = typeMatchedOrders.filter(o => currentListFilter === 'RUN' ? o.state !== 'FIN' : o.state === 'FIN');
-            filtered.sort((a, b) => b.timestamp - a.timestamp); 
-
-            if(filtered.length === 0) { 
-                tbody.innerHTML = `<tr><td colspan="6" style="padding:30px; font-weight:800; color:var(--m3-outline);">EMPTY</td></tr>`; 
-                return; 
-            }
-
-            filtered.forEach((o) => {
-                const row = document.createElement('tr');
-                row.className = "sheet-row";
-                row.setAttribute('data-id', o.id);
-
-                let chkHtml = `<input type="checkbox" class="lst-checkbox" ${selectedSet.has(String(o.id)) ? 'checked' : ''} onchange="toggleSelect('${o.id}')" style="width:18px; height:18px; accent-color:var(--m3-primary);">`;
-                
-                // 신설 주입: 시간(SHIFT) 분기 배송원 인지용 컴포넌트 뱃지 생성
-                let timeHtml = `<span style="font-size:11px; font-weight:900; background:var(--m3-surface-low); color:var(--m3-primary); padding:2px 6px; border-radius:4px; border:1px solid var(--m3-outline-variant);">${o.shift}</span>`;
-                
-                let platHtml = `<span style="font-weight:800; color:${o.mode === 'QUICKS' ? 'var(--m3-primary)' : 'var(--m3-error)'}">${o.platform}</span>`;
-                
-                let routeHtml = `<div class="cell-left"><span style="color:var(--m3-muted); font-size:10px; margin-right:4px;">#${orders.length - orders.indexOf(o)}</span>${o.routeSummary}`;
-                if(o.memo) {
-                    routeHtml += ` <span style="color:var(--m3-primary); font-size:11px; font-weight:normal;">(${o.memo})</span>`;
-                }
-                routeHtml += `</div>`;
-
-                let fareHtml = `<span style="font-weight:900; color:var(--m3-primary); font-size:13px;">${calcNetFare(o.fareK, o.platform).toFixed(1).replace('.0','')}k</span>`;
-
-                let actHtml = '';
-                if(o.state !== 'FIN') {
-                    if(o.mode === 'EATS') {
-                        actHtml = `<span class="chip-status" onclick="stepState('${o.id}', event)" style="background:var(--m3-primary); color:#fff; padding:2px 8px; border-radius:4px;">DONE</span>`;
-                    } else {
-                        let btnTxt = (o.state === 'RUN' || o.state === 'READY') ? 'PICK' : 'DONE';
-                        let btnColor = (o.state === 'RUN' || o.state === 'READY') ? 'background:var(--m3-primary); color:#fff;' : 'background:var(--m3-error); color:#fff;';
-                        actHtml = `<span class="chip-status" onclick="stepState('${o.id}', event)" style="${btnColor} padding:2px 8px; border-radius:4px;">${btnTxt}</span>`;
-                    }
-                } else {
-                    actHtml = `<span style="color:var(--m3-muted); font-weight:bold;">FIN</span>`;
-                }
-
-                let mngHtml = ` <span style="color:var(--m3-muted); cursor:pointer; font-size:10px; border:1px solid var(--m3-outline-variant); padding:1px 4px; border-radius:3px; margin-left:2px;" onclick="openMng('${o.id}', event)">EDIT</span>`;
-                actHtml += mngHtml;
-
-                row.innerHTML = `
-                    <td>${chkHtml}</td>
-                    <td>${timeHtml}</td>
-                    <td>${platHtml}</td>
-                    <td>${routeHtml}</td>
-                    <td>${fareHtml}</td>
-                    <td>${actHtml}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function stepState(id, e) {
-            e.stopPropagation(); 
-            if(isSelectMode) { toggleSelect(id); return; } 
-            const o = orders.find(x => String(x.id) === String(id)); 
-            let nextState = ''; 
-            let promptMsg = '';
-            
-            if(o.mode === 'EATS') {
-                nextState = 'FIN';
-                promptMsg = 'DONE?';
-            } else {
-                if(o.state === 'RUN' || o.state === 'READY') { nextState = 'PICK'; promptMsg = 'PICKUP?'; } 
-                else if(o.state === 'PICK') { nextState = 'FIN'; promptMsg = 'DONE?'; } 
-            }
-            
-            if(!nextState) return;
-
-            openConfirm(promptMsg, () => {
-                o.state = nextState; 
-                if(nextState === 'PICK') o.pickupTime = Date.now(); 
-                if(nextState === 'FIN') o.finishTime = Date.now();
-                localStorage.setItem('qcp_orders_v130', JSON.stringify(orders)); 
-                renderMasterList(); updateSysTotal();
-            });
-        }
-
         async function copyTodayData() {
             const todayOrders = orders.filter(o => o.state === 'FIN' && (currentTypeFilter === 'ALL' ? true : o.mode === currentTypeFilter));
             if(todayOrders.length === 0) { showToast("EMPTY"); return; }
@@ -972,16 +798,12 @@
         function openMng(id, e) {
             e.stopPropagation(); if(isSelectMode) { toggleSelect(id); return; } 
             const o = orders.find(x => String(x.id) === String(id)); if(!o) return;
-            
             document.getElementById('editOrderId').value = o.id;
             const platSelect = document.getElementById('editPlatform');
             const platList = o.mode === 'QUICKS' ? PLAT_QUICKS : PLAT_EATS;
             platSelect.innerHTML = platList.map(p => `<option value="${p}" ${p === o.platform ? 'selected' : ''}>${p}</option>`).join('');
-
-            document.getElementById('editIn1').value = o.startDetail;
-            document.getElementById('editIn2').value = o.endDetail || '';
-            document.getElementById('editFareInput').value = o.fareK;
-            document.getElementById('editMemoInput').value = o.memo || '';
+            document.getElementById('editIn1').value = o.startDetail; document.getElementById('editIn2').value = o.endDetail || '';
+            document.getElementById('editFareInput').value = o.fareK; document.getElementById('editMemoInput').value = o.memo || '';
             toggleModal('popManage');
         }
 
@@ -1001,75 +823,34 @@
         function selCostChip(el, tabType) { el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
         
         function addCostRecord(type) {
-            const amtInput = document.getElementById(type === 'EXP' ? 'exp-amt' : 'mnt-amt');
-            const memoInput = document.getElementById(type === 'EXP' ? 'exp-memo' : 'mnt-product');
-            const amtK = parseFloat(amtInput.value) || 0;
-            const activeChip = document.querySelector(type === 'EXP' ? '#exp-chips .chip.active' : '#mnt-chips .chip.active');
+            const amtInput = document.getElementById(type === 'EXP' ? 'exp-amt' : 'mnt-amt'); const memoInput = document.getElementById(type === 'EXP' ? 'exp-memo' : 'mnt-product');
+            const amtK = parseFloat(amtInput.value) || 0; const activeChip = document.querySelector(type === 'EXP' ? '#exp-chips .chip.active' : '#mnt-chips .chip.active');
             if(!amtK) { showToast("NO AMT"); return; }
-
             let record = { id: Date.now().toString(), timestamp: Date.now(), type, category: activeChip.innerText, amountK: amtK, memo: memoInput.value.trim() };
-            
-            if(type === 'MNT') {
-                record.store = document.getElementById('mnt-store').value.trim();
-                record.mileage = document.getElementById('mnt-mileage').value.trim();
-                record.product = document.getElementById('mnt-product').value.trim();
-            }
-
-            costs.unshift(record);
-            localStorage.setItem('qcp_costs_v130', JSON.stringify(costs));
-            
-            amtInput.value = ''; memoInput.value = ''; 
-            if(type === 'MNT') { document.getElementById('mnt-store').value = ''; document.getElementById('mnt-mileage').value = ''; }
-            
+            if(type === 'MNT') { record.store = document.getElementById('mnt-store').value.trim(); record.mileage = document.getElementById('mnt-mileage').value.trim(); record.product = document.getElementById('mnt-product').value.trim(); }
+            costs.unshift(record); localStorage.setItem('qcp_costs_v130', JSON.stringify(costs));
+            amtInput.value = ''; memoInput.value = ''; if(type === 'MNT') { document.getElementById('mnt-store').value = ''; document.getElementById('mnt-mileage').value = ''; }
             renderCostRecords(type); showToast("SAVED");
         }
 
-        function deleteCostRecord(id, type) {
-            openConfirm("DEL REC?", () => {
-                costs = costs.filter(c => String(c.id) !== String(id));
-                localStorage.setItem('qcp_costs_v130', JSON.stringify(costs));
-                renderCostRecords(type); showToast("DELETED");
-            });
-        }
+        function deleteCostRecord(id, type) { openConfirm("DEL REC?", () => { costs = costs.filter(c => String(c.id) !== String(id)); localStorage.setItem('qcp_costs_v130', JSON.stringify(costs)); renderCostRecords(type); showToast("DELETED"); }); }
 
         function renderCostRecords(type) {
             const list = document.getElementById(type === 'EXP' ? 'exp-list' : 'mnt-list'); list.innerHTML = '';
             const filtered = costs.filter(c => c.type === type);
             if(filtered.length === 0) { list.innerHTML = `<div class="text-center text-bold" style="padding:30px; font-size:13px; color:var(--m3-outline);">EMPTY</div>`; return; }
-            
             const formatDate = (ts) => { const d = new Date(ts); return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`; };
             const oilInterval = parseInt(localStorage.getItem('qcp_oil_interval')) || 0;
 
             list.innerHTML = filtered.map(c => {
                 let display = (Math.round(c.amountK * 10) / 10).toFixed(1).replace('.0', '') + 'k';
                 let dateStr = `<span style="color:var(--m3-primary); font-size:10px; margin-right:6px;">[${formatDate(c.timestamp)}]</span>`;
-                
                 if(type === 'MNT') {
-                    let nextOilStr = '';
-                    if (c.mileage && oilInterval > 0) {
-                        let curMil = parseInt(c.mileage);
-                        if (!isNaN(curMil)) nextOilStr = ` | NEXT: ${curMil + oilInterval}km`;
-                    }
-                    return `
-                    <div class="order-card" style="text-align:left;">
-                        <div class="flex-between mb-8">
-                            <span class="text-bold" style="color:var(--m3-surf-text); font-size:16px;">${display}</span>
-                            <span onclick="deleteCostRecord('${c.id}', 'MNT')" style="color:var(--m3-error); cursor:pointer; font-size:16px; padding:4px;">✖</span>
-                        </div>
-                        <div style="font-size:12px; font-weight:700; color:var(--m3-muted);">
-                            ${dateStr} OIL | ${c.store ? c.store : '-'} | ${c.mileage ? c.mileage + 'km' : '-'}${nextOilStr} | ${c.product ? c.product : '-'}
-                        </div>
-                    </div>`;
+                    let nextOilStr = ''; if (c.mileage && oilInterval > 0) { let curMil = parseInt(c.mileage); if (!isNaN(curMil)) nextOilStr = ` | NEXT: ${curMil + oilInterval}km`; }
+                    return `<div class="order-card" style="text-align:left;"><div class="flex-between mb-8"><span class="text-bold" style="color:var(--m3-surf-text); font-size:16px;">${display}</span><span onclick="deleteCostRecord('${c.id}', 'MNT')" style="color:var(--m3-error); cursor:pointer; font-size:16px; padding:4px;">✖</span></div><div style="font-size:12px; font-weight:700; color:var(--m3-muted);">${dateStr} OIL | ${c.store ? c.store : '-'} | ${c.mileage ? c.mileage + 'km' : '-'}${nextOilStr} | ${c.product ? c.product : '-'}</div></div>`;
                 } else {
                     let memoDisplay = c.memo ? ` <span style="font-size:11px; color:var(--m3-muted);">(${c.memo})</span>` : '';
-                    return `
-                    <div class="order-card flex-between">
-                        <div style="display:flex; align-items:center;">
-                            <span onclick="deleteCostRecord('${c.id}', 'EXP')" style="color:var(--m3-error); cursor:pointer; font-size:16px; padding:4px; margin-right:8px;">✖</span>
-                            <span class="text-bold" style="font-size:13px;">${c.category}${memoDisplay}</span>
-                        </div>
-                        <div class="flex-center"><span style="color:var(--m3-error); font-weight:900; font-size:15px;">-${display}</span></div>
-                    </div>`;
+                    return `<div class="order-card flex-between"><div style="display:flex; align-items:center;"><span onclick="deleteCostRecord('${c.id}', 'EXP')" style="color:var(--m3-error); cursor:pointer; font-size:16px; padding:4px; margin-right:8px;">✖</span><span class="text-bold" style="font-size:13px;">${c.category}${memoDisplay}</span></div><div class="flex-center"><span style="color:var(--m3-error); font-weight:900; font-size:15px;">-${display}</span></div></div>`;
                 }
             }).join('');
         }
@@ -1077,153 +858,95 @@
         function setStMetric(m) { currentStatsMetric = m; document.getElementById('st-metric-amt').classList.toggle('active', m === 'AMT'); document.getElementById('st-metric-loc').classList.toggle('active', m === 'LOC'); renderStatsEngine(); }
         
         function renderStatsEngine() {
-            let validOrders = orders.filter(o => o.state === 'FIN');
-            let currentCosts = costs.filter(c => c.type === 'EXP'); 
-            
-            let revK = 0; validOrders.forEach(o => revK += calcNetFare(o.fareK, o.platform)); 
-            let expK = currentCosts.reduce((acc, c) => acc + c.amountK, 0); 
-            let netK = revK - expK;
-            const format = (val) => (Math.round(val * 10) / 10).toFixed(1).replace('.0', '') + 'k';
-            const target = document.getElementById('stats-render-block');
+            let validOrders = orders.filter(o => o.state === 'FIN'); let currentCosts = costs.filter(c => c.type === 'EXP');
+            let revK = 0; validOrders.forEach(o => revK += calcNetFare(o.fareK, o.platform)); let expK = currentCosts.reduce((acc, c) => acc + c.amountK, 0); let netK = revK - expK;
+            const format = (val) => (Math.round(val * 10) / 10).toFixed(1).replace('.0', '') + 'k'; const target = document.getElementById('stats-render-block');
 
             if(currentStatsMetric === 'AMT') {
                 target.innerHTML = `<div class="stats-grid"><div class="stats-box"><div style="color:var(--m3-muted);">REVENUE</div><div class="stats-val" style="color:var(--m3-primary);">${format(revK)}</div></div><div class="stats-box"><div style="color:var(--m3-muted);">EXPENSES</div><div class="stats-val" style="color:var(--m3-error);">-${format(expK)}</div></div></div><div style="background:var(--m3-primary); color:var(--m3-on-primary); padding:20px; border-radius:16px; text-align:center; font-weight:900; box-shadow: 0 4px 12px rgba(0,122,255,0.4);"><div style="font-size:12px; opacity:0.9;">NET INCOME</div><div style="font-size:28px; margin-top:6px; letter-spacing:0.5px;">${format(netK)}</div></div>`;
             } else {
-                let pickMap = {}; let dropMap = {};
-                validOrders.forEach(o => { let pWord = o.startDetail.split(' ')[0] || "None"; let dWord = o.endDetail ? o.endDetail.split(' ')[0] : "None"; pickMap[pWord] = (pickMap[pWord] || 0) + 1; if(o.endDetail) dropMap[dWord] = (dropMap[dWord] || 0) + 1; });
+                let pickMap = {}; let dropMap = {}; validOrders.forEach(o => { let pWord = o.startDetail.split(' ')[0] || "None"; let dWord = o.endDetail ? o.endDetail.split(' ')[0] : "None"; pickMap[pWord] = (pickMap[pWord] || 0) + 1; if(o.endDetail) dropMap[dWord] = (dropMap[dWord] || 0) + 1; });
                 const buildChart = (mapData) => { let sorted = Object.keys(mapData).sort((a,b) => mapData[b] - mapData[a]).slice(0, 4); let max = sorted.length > 0 ? mapData[sorted[0]] : 1; return sorted.map(loc => `<div style="display:flex; align-items:center; gap:10px; font-size:12px; font-weight:700; margin-bottom:8px;"><div style="width:70px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${loc}</div><div style="flex:1; height:10px; background:var(--m3-outline-variant); border-radius:5px;"><div style="height:100%; background:var(--m3-primary); border-radius:5px; width:${Math.ceil((mapData[loc]/max)*100)}%;"></div></div><div style="width:20px; text-align:right;">${mapData[loc]}</div></div>`).join(''); };
                 target.innerHTML = `<div class="card" style="padding:14px; box-shadow:none; border:1px solid var(--m3-outline-variant);"><div class="text-bold mb-12" style="font-size:13px; color:var(--m3-primary);">TOP PICKUP</div><div class="mb-16">${buildChart(pickMap) || '<div style="color:var(--m3-outline); font-size:12px;">EMPTY</div>'}</div><div class="text-bold mb-12" style="font-size:13px; color:var(--m3-error);">TOP DROPOFF</div><div>${buildChart(dropMap) || '<div style="color:var(--m3-outline); font-size:12px;">EMPTY</div>'}</div></div>`;
             }
         }
 
         function switchMainTab(id, el) {
-            if(el) {
-                document.querySelectorAll('.nav-bar .nav-item').forEach(n => n.classList.remove('active'));
-                el.classList.add('active');
-            } else {
-                document.querySelectorAll('.nav-bar .nav-item').forEach(n => n.classList.remove('active'));
-            }
-            
+            if(el) { document.querySelectorAll('.nav-bar .nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); } 
+            else { document.querySelectorAll('.nav-bar .nav-item').forEach(n => n.classList.remove('active')); }
             document.querySelectorAll('.viewport .section').forEach(s => s.classList.remove('active')); document.getElementById('view-' + id).classList.add('active');
             if(id === 'lst') { isSelectMode = false; selectedSet.clear(); document.getElementById('chkSelectAll').checked = false; document.getElementById('btn-select-mode').classList.remove('active'); document.getElementById('btn-select-mode').style.background = 'transparent'; document.getElementById('btn-select-mode').style.color = 'var(--m3-muted)'; document.getElementById('bulk-action-bar').style.display = 'none'; renderMasterList(); }
             if(id === 'exp' || id === 'mnt') renderCostRecords(id.toUpperCase()); if(id === 'stt') renderStatsEngine();
         }
 
-        let touchstartX = 0; let touchstartY = 0; let touchendX = 0; let touchendY = 0;
-        function handleGesture() {
-            const xDiff = touchendX - touchstartX;
-            const yDiff = touchendY - touchstartY;
-            if (Math.abs(xDiff) > Math.abs(yDiff) && Math.abs(xDiff) > 70) {
-                if (xDiff < 0) {
-                    if (document.getElementById('view-ord').classList.contains('active')) {
-                        switchMainTab('lst', document.getElementById('nav-lst'));
-                    }
-                }
-                if (xDiff > 0) {
-                    if (document.getElementById('view-lst').classList.contains('active')) {
-                        switchMainTab('ord', document.getElementById('nav-ord'));
-                    }
-                }
-            }
-        }
-        const mainViewport = document.getElementById('main-viewport');
-        mainViewport.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; touchstartY = e.changedTouches[0].screenY; }, {passive: true});
-        mainViewport.addEventListener('touchend', e => { touchendX = e.changedTouches[0].screenX; touchendY = e.changedTouches[0].screenY; handleGesture(); }, {passive: true});
-
-        /* ==========================================================================
-           신설 주입: Geostics OS v1.0.0 가상 런타임 및 하이브리드 어드바이저 엔진
-        ========================================================================== */
-        
-        function triggerAdvisorInterruption() {
-            let pIn = (appMode === 'QUICKS') ? document.getElementById('in-pick-quicks').value.trim() : document.getElementById('in-pick-eats').value.trim();
-            let dIn = (appMode === 'QUICKS') ? document.getElementById('in-drop-quicks').value.trim() : document.getElementById('in-drop-eats').value.trim();
-            let fareK = parseFloat(document.getElementById('in-fare').value) || 0;
-            const panel = document.getElementById('bundle-utility-panel');
-
-            // 완료 이전(ACTIVE) 주문 리스트 확보
-            let activeOrders = orders.filter(o => o.state !== 'FIN');
-
-            if (!pIn || !fareK || activeOrders.length === 0) {
-                panel.style.display = 'none';
-                return;
-            }
-
-            panel.style.display = 'block';
-
-            // 1단계: 가상 3중 가상 순열 모의 시뮬레이션 가동 (최대 3개 매트릭스 고정) [cite: 14]
-            let mockSCI = 65 + Math.floor(Math.random() * 25);
-            let mockTETD = 18 + Math.floor(Math.random() * 15);
-            let mockDeltaHR = -2500 + Math.floor(Math.random() * 6000);
-
-            // 2단계: 표피(영어) 및 가이드문구(한국어 하이브리드) 데이터 주입 [cite: 3, 4]
-            document.getElementById('bu-route-coherence').innerText = `COHERENCE: ${mockSCI}%`;
-            document.getElementById('bu-total-time').innerText = `${mockTETD}분`;
-            
-            const deltaEl = document.getElementById('bu-hourly-delta');
-            if (mockDeltaHR >= 0) {
-                deltaEl.innerText = `+${mockDeltaHR.toLocaleString()}원/h`;
-                deltaEl.style.color = 'var(--m3-success)';
-            } else {
-                deltaEl.innerText = `${mockDeltaHR.toLocaleString()}원/h`;
-                deltaEl.style.color = 'var(--m3-error)';
-            }
-
-            // 3단계: 3단계 위계적 행정 구획 매칭 가상 비트맵 플래그 연산 [cite: 6, 7]
-            let matchLevel = 1;
-            if (pIn.includes('동') || pIn.includes('읍') || pIn.includes('면')) matchLevel = 2;
-            if (activeOrders.some(o => getDong(o.startDetail) === getDong(pIn))) matchLevel = 3;
-
-            document.getElementById('match-sigu').style.color = (matchLevel >= 1) ? 'var(--m3-primary)' : 'var(--m3-outline)';
-            document.getElementById('match-eupmyeondong').style.color = (matchLevel >= 2) ? 'var(--m3-primary)' : 'var(--m3-outline)';
-            document.getElementById('match-dong').style.color = (matchLevel >= 3) ? 'var(--m3-success)' : 'var(--m3-outline)';
-
-            // 4단계: 도로 기하 선형 벡터 대조 (동선 역방향 vs 동선 일직선 담백한 팩트 마킹) [cite: 10]
-            const geoText = document.getElementById('bu-geo-text');
-            const geoIcon = document.getElementById('bu-geo-icon');
-            let isUTurn = (Math.random() > 0.4);
-            let distance = (0.5 + Math.random() * 3.5).toFixed(1);
-
-            if (isUTurn) {
-                geoText.innerText = `동선 역방향 (${distance}km)`;
-                geoText.style.color = 'var(--m3-error)';
-                geoIcon.innerText = '🔄';
-            } else {
-                geoText.innerText = `동선 일직선 (${distance}km)`;
-                geoText.style.color = 'var(--m3-surf-text)';
-                geoIcon.innerText = '🛣️';
-            }
-
-            // 5단계: 다이내믹 인포 (역이름, 백화점, 랜드마크 명칭, Last-Feet 실거리, 보행자/도로 상태 첩포) [cite: 8, 9]
-            executeDynamicInfoAdvisor(pIn, dIn);
+        function clearInputs() {
+            ['in-pick-quicks', 'in-drop-quicks', 'in-pick-eats', 'in-drop-eats', 'in-fare', 'in-memo'].forEach(id => document.getElementById(id).value = '');
+            if(!document.getElementById('chkEatsPin').checked) { localStorage.removeItem('qcp_eats_cache'); }
+            showToast("CLEARED");
         }
 
-        function executeDynamicInfoAdvisor(pickText, dropText) {
-            const dyLandmark = document.getElementById('dy-landmark');
-            const dyLastFeet = document.getElementById('dy-last-feet');
-            const dyPedestrian = document.getElementById('dy-pedestrian');
-            const dyTraffic = document.getElementById('dy-traffic');
+        function searchTmapActive() { if(appMode === 'QUICKS') searchTmap('in-pick-quicks', 'in-drop-quicks'); else searchTmap('in-pick-eats', 'in-drop-eats'); }
+        function openRouteMapActive() { if(appMode === 'QUICKS') openRouteMap('in-pick-quicks', 'in-drop-quicks'); else openRouteMap('in-pick-eats', 'in-drop-eats'); }
 
-            // 랜드마크 및 역이름 추출 분기 첩포 [cite: 6, 8]
-            if (appMode === 'EATS') {
-                dyLandmark.innerText = `📍 랜드마크: 현대백화점 판교점 (판교역 3번 출구 연결)`;
-                dyLastFeet.innerText = `🚶 건물 내부 실거리: 도보 약 180m 이동 (지하 1층 식품관)`;
-                dyLastFeet.style.color = 'var(--m3-error)';
-                dyPedestrian.innerText = `⚠️ 도로 특성: 보행자 밀집 구역 (전방 골목길 이면도로 서행 구간)`;
-                dyPedestrian.style.color = 'var(--m3-error)';
-                dyTraffic.innerText = `🛣️ 실시간 교통 상황: 점심시간 인프라 정체 (진입 오버헤드 있음)`;
-                dyTraffic.style.color = 'var(--m3-error)';
-            } else {
-                dyLandmark.innerText = `📍 랜드마크: 일반 지표지물 지역 (상업 오피스 빌딩지 배후)`;
-                dyLastFeet.innerText = `🚶 건물 내부 실거리: 즉시 전달 가능 (로드샵 / 1층 진입로 인접)`;
-                dyLastFeet.style.color = 'var(--m3-surf-text)';
-                dyPedestrian.innerText = `🛣️ 도로 특성: 일반 평탄 도로 (이면도로 내 특이사항 없음)`;
-                dyPedestrian.style.color = 'var(--m3-surf-text)';
-                dyTraffic.innerText = `🛣️ 실시간 교통 상황: 원활 (진입 지연 없음)`;
-                dyTraffic.style.color = 'var(--m3-surf-text)';
-            }
+        async function searchTmap(pickId, dropId) {
+            const apiKey = localStorage.getItem('qcp_key_tmap'); if(!apiKey) { showToast("KEY REQ"); return; }
+            const pickIn = document.getElementById(pickId); const dropIn = document.getElementById(dropId);
+            const doSearch = async (inputEl) => {
+                const keyword = inputEl.value.trim(); if(!keyword) return;
+                try {
+                    const res = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${encodeURIComponent(keyword)}&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&count=1`, { headers: { 'appKey': apiKey } });
+                    const data = await res.json();
+                    if(data && data.searchPoiInfo && data.searchPoiInfo.pois && data.searchPoiInfo.pois.poi.length > 0) {
+                        const poi = data.searchPoiInfo.pois.poi[0]; let addr = ''; const nA = poi.newAddressList && poi.newAddressList.newAddress[0] ? poi.newAddressList.newAddress[0] : null;
+                        if (nA) { let bld = nA.bldNo1 + (nA.bldNo2 && nA.bldNo2 !== '0' ? '-' + nA.bldNo2 : ''); addr = `${poi.upperAddrName} ${poi.middleAddrName} ${nA.roadName} ${bld}`; if(poi.lowerAddrName) addr += ` (${poi.lowerAddrName})`; } 
+                        else { addr = `${poi.upperAddrName} ${poi.middleAddrName} ${poi.lowerAddrName}`; }
+                        inputEl.value = addr.trim().replace(/\s+/g, ' '); cacheEatsInput();
+                    } else { showToast(`NO RES: ${keyword}`); }
+                } catch (e) { showToast("API ERR"); }
+            };
+            if(pickIn.value || dropIn.value) showToast("LOADING MAP");
+            if(pickIn.value) await doSearch(pickIn); if(dropIn.value) await doSearch(dropIn);
         }
 
-        try { checkAutoActions(); initAppMode(); renderMasterList(); updateSysTotal(); } catch (bootError) { console.error(bootError); localStorage.removeItem('qcp_orders_v130'); localStorage.removeItem('qcp_costs_v130'); location.reload(); }
+        async function openRouteMap(startId, endId) {
+            const startStr = document.getElementById(startId).value.trim(); const endStr = document.getElementById(endId).value.trim();
+            if(!startStr || !endStr) { showToast("BAD INPUT"); return; } const apiKey = localStorage.getItem('qcp_key_tmap'); if(!apiKey) { showToast("KEY REQ"); return; }
+            showToast("LOADING MAP");
+            const getCoord = async (keyword) => {
+                try {
+                    const res = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${encodeURIComponent(keyword)}&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&count=1`, { headers: { 'appKey': apiKey } });
+                    const data = await res.json();
+                    if(data && data.searchPoiInfo && data.searchPoiInfo.pois && data.searchPoiInfo.pois.poi.length > 0) { const poi = data.searchPoiInfo.pois.poi[0]; return { lat: poi.frontLat || poi.noorLat, lon: poi.frontLon || poi.noorLon }; }
+                } catch (e) { console.error(e); } return null;
+            };
+            const startCoord = await getCoord(startStr); const endCoord = await getCoord(endStr);
+            if(startCoord && endCoord) {
+                window.location.href = `kakaomap://route?sp=${startCoord.lat},${startCoord.lon}&ep=${endCoord.lat},${endCoord.lon}&by=CAR`;
+                setTimeout(() => { if (document.hidden) return; window.open(`https://map.kakao.com/link/to/${encodeURIComponent(endStr)},${endCoord.lat},${endCoord.lon}`, '_blank'); }, 1500);
+            } else { showToast("COORD ERR"); }
+        }
+
+        async function syncWithCloud(manual = false) {
+            const url = document.getElementById('sheet-url').value.trim(); if(!url || !url.startsWith('https://script.google.com/')) { if(manual) showToast("URL REQ"); return; }
+            if(manual) showToast("SYNCING...");
+            const now = new Date(); const dateStr = `${String(now.getMonth()+1).padStart(2,'0')}M ${String(now.getDate()).padStart(2,'0')}D`;
+            let todayOrders = orders.filter(o => o.state === 'FIN'); todayOrders.sort((a, b) => a.timestamp - b.timestamp);
+            let todayEXP = costs.filter(c => c.type === 'EXP'); let revK = 0; todayOrders.forEach(o => revK += calcNetFare(o.fareK, o.platform)); let expK = todayEXP.reduce((acc, c) => acc + c.amountK, 0);
+            let pickMap = {}; let dropMap = {}; todayOrders.forEach(o => { let pWord = o.startDetail.split(' ')[0] || "None"; let dWord = o.endDetail ? o.endDetail.split(' ')[0] : "None"; pickMap[pWord] = (pickMap[pWord] || 0) + 1; if(o.endDetail) dropMap[dWord] = (dropMap[dWord] || 0) + 1; });
+            const payload = { type: 'DAILY_SYNC', dateStr: dateStr, summary: { income: Math.round(revK * 1000), expense: Math.round(expK * 1000), net: Math.round((revK - expK) * 1000) }, locations: { pickups: pickMap, dropoffs: dropMap }, orders: todayOrders.map(o => ({ time: o.shift, plat: o.platform, pick: o.startDetail, drop: o.endDetail || '', amount: Math.round(calcNetFare(o.fareK, o.platform) * 1000), note: o.memo || '' })) };
+            try { await fetch(url, { method: 'POST', body: JSON.stringify(payload) }); if(manual) showToast("SYNC OK"); } catch(e) { if(manual) showToast("SYNC ERR"); }
+        }
+
+        function saveSystemConfig() { localStorage.setItem('qcp_url_sheet', document.getElementById('sheet-url').value.trim()); localStorage.setItem('qcp_key_tmap', document.getElementById('tmap-key').value.trim()); localStorage.setItem('qcp_oil_interval', document.getElementById('oil-interval').value.trim()); closeModal('popSet'); showToast("SAVED"); }
+        function factoryReset() { openConfirm("RESET SYSTEM?", () => { localStorage.clear(); location.reload(); }); }
+        function toggleModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+        document.getElementById('tmap-key').value = localStorage.getItem('qcp_key_tmap') || '';
+        document.getElementById('sheet-url').value = localStorage.getItem('qcp_url_sheet') || '';
+        document.getElementById('oil-interval').value = localStorage.getItem('qcp_oil_interval') || '';
+
+        try { checkAutoActions(); initAppMode(); renderMasterList(); updateSysTotal(); } catch (e) { localStorage.removeItem('qcp_orders_v130'); localStorage.removeItem('qcp_costs_v130'); location.reload(); }
     </script>
 </body>
 </html>
