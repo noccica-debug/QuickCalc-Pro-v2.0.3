@@ -4,86 +4,128 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#141619" id="meta-theme-color">
+    <meta name="theme-color" content="#111315" id="meta-theme-color">
     <title>QuickCal Pro (v2.0.1)</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root {
-            --m3-bg: #0b0c0e; --m3-surface: #141619; --m3-surface-low: #1e2227; --m3-surf-text: #e2e4e9; 
-            --m3-primary: #007aff; --m3-on-primary: #ffffff; --m3-primary-cont: #002b5c; --m3-on-primary-cont: #cce3ff;
-            --m3-outline: #6c7380; --m3-outline-variant: #2c313a; --m3-error: #ff453a; --m3-muted: #9aa2b1;
+        /* M3 Based Color Palette */
+        :root, [data-theme="light"] {
+            --m3-bg: #f8f9fc; --m3-surface: #ffffff; --m3-surface-low: #f0f2f6;
+            --m3-surf-text: #1a1c1e; --m3-primary: #005cbb; --m3-on-primary: #ffffff;
+            --m3-primary-cont: #d7e3ff; --m3-on-primary-cont: #001b3f;
+            --m3-outline: #74777f; --m3-outline-variant: #e0e2ec;
+            --m3-error: #ba1a1a; --m3-muted: #44474e;
         }
+        [data-theme="dark"] {
+            --m3-bg: #111315; --m3-surface: #1a1c1e; --m3-surface-low: #232528;
+            --m3-surf-text: #e2e2e6; --m3-primary: #a8c8ff; --m3-on-primary: #003062;
+            --m3-primary-cont: #004786; --m3-on-primary-cont: #d7e3ff;
+            --m3-outline: #8e9099; --m3-outline-variant: #44474e;
+            --m3-error: #ffb4ab; --m3-muted: #c4c6d0;
+        }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         ::-webkit-scrollbar { display: none; }
-        body { background: var(--m3-bg); color: var(--m3-surf-text); width: 100vw; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+        body { background: var(--m3-bg); color: var(--m3-surf-text); width: 100vw; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; transition: background-color 0.3s, color 0.3s; }
+
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
         .flex-center { display: flex; justify-content: center; align-items: center; }
-        .gap-8 { gap: 8px; } .mb-12 { margin-bottom: 12px; } .mb-16 { margin-bottom: 16px; }
-        .text-bold { font-weight: 800; }
-        
-        .sys-bar { height: 52px; background: var(--m3-surface); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 13px; font-weight: 800; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-        .sys-clock { font-size: 15px; font-weight: 700; color: var(--m3-surf-text); }
-        .sys-qtr { background: var(--m3-primary); color: var(--m3-on-primary); padding: 3px 6px; border-radius: 6px; font-size: 10px; }
-        .sys-right { display: flex; align-items: center; gap: 12px; }
-        .config-trigger-btn { background: none; border: none; color: var(--m3-primary); font-size: 18px; cursor: pointer; padding: 4px; font-weight: bold; }
-        .bundle-trigger-btn { background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); border: 1px solid var(--m3-primary); font-size: 11px; font-weight: 900; cursor: pointer; padding: 4px 12px; border-radius: 6px; height: 30px; display: flex; align-items: center; }
-        
-        #bundle-advice-panel { 
-            width: 100vw; height: 100dvh; background-color: #08090b; position: fixed; inset: 0; z-index: 5000; 
-            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            display: flex; flex-direction: column; padding-top: calc(env(safe-area-inset-top) + 8px); will-change: transform;
-        }
-        #bundle-advice-panel.open { transform: translateY(0); }
-        .swipe-header-zone { padding: 4px 12px 12px 12px; background: #08090b; flex-shrink: 0; }
-        .drag-handle { width: 40px; height: 5px; background: var(--m3-outline); border-radius: 3px; margin: 0 auto 10px auto; }
-        #map { width: 100%; flex: 1; background-color: #030405; border-radius: 16px 16px 0 0; border-top: 1px solid var(--m3-outline-variant); z-index: 1; position: relative; }
-        .seoul-crt-watermark { position: absolute; top: 20px; right: 20px; font-size: 24px; font-weight: 900; color: rgba(255,255,255,0.15); z-index: 1000; pointer-events: none; }
-        
-        .coherence-badge { font-size: 13px; font-weight: 900; color: #10b981; display:flex; justify-content:space-between; align-items:center; }
-        .btn-gps-scan { background: var(--m3-primary); color: var(--m3-on-primary); border: none; padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 900; cursor: pointer; }
-        .btn-radar-close { background: var(--m3-surface-low); color: var(--m3-muted); border: 1px solid var(--m3-outline-variant); padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 900; cursor: pointer; }
-        
-        .hud-custom-label { background: #000000 !important; border: 2px solid #fff !important; border-radius: 6px !important; color: #ffffff !important; font-size: 14px !important; font-weight: 900 !important; padding: 4px 8px !important; text-align: center !important; white-space: nowrap !important; box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important; }
-        .hud-dest-label { background: #141619 !important; border: 2px solid var(--m3-primary) !important; border-radius: 4px !important; color: #007aff !important; font-size: 13px !important; font-weight: 800 !important; padding: 2px 6px !important; white-space: nowrap !important; }
+        .gap-4 { gap: 4px; } .gap-8 { gap: 8px; } .gap-12 { gap: 12px; }
+        .mb-8 { margin-bottom: 8px; } .mb-12 { margin-bottom: 12px; } .mb-16 { margin-bottom: 16px; } .mb-24 { margin-bottom: 24px; }
+        .text-center { text-align: center; } .text-bold { font-weight: 800; }
 
-        .main-toggle { display: inline-flex; background: var(--m3-surface-low); border-radius: 24px; padding: 4px; cursor: pointer; margin-bottom: 16px; }
-        .main-toggle-btn { padding: 8px 24px; font-size: 13px; font-weight: 800; color: var(--m3-muted); border-radius: 20px; transition: all 0.3s; }
-        .main-toggle-btn.active { background: var(--m3-surface); color: var(--m3-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-        .viewport { flex: 1; position: relative; overflow: hidden; background: var(--m3-bg); touch-action: pan-y; }
+        /* System Bar */
+        .sys-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 52px; background: var(--m3-surface); padding: 0 16px; flex-shrink: 0; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .sys-left { display: flex; align-items: center; gap: 8px; justify-self: start; }
+        .sys-mid { font-size: 18px; font-weight: 900; color: var(--m3-primary); white-space: nowrap; justify-self: center; }
+        .sys-right { display: flex; align-items: center; justify-self: end; }
+        .sys-clock { font-size: 15px; font-weight: 700; color: var(--m3-surf-text); }
+        .sys-qtr { background: var(--m3-primary); color: var(--m3-on-primary); padding: 3px 6px; border-radius: 6px; font-size: 10px; font-weight: 900; }
+
+        /* Main Toggle */
+        .main-toggle { display: inline-flex; background: var(--m3-surface-low); border-radius: 24px; padding: 4px; cursor: pointer; margin-bottom: 12px; }
+        .main-toggle-btn { padding: 8px 24px; font-size: 13px; font-weight: 800; color: var(--m3-muted); border-radius: 20px; transition: all 0.2s; }
+        .main-toggle-btn.active { background: var(--m3-surface); color: var(--m3-primary); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+
+        /* Layout & Sections */
+        .viewport { flex: 1; position: relative; overflow: hidden; background: var(--m3-bg); }
         .section { position: absolute; inset: 0; padding: 12px 16px; display: none; flex-direction: column; overflow-y: auto; }
-        .section.active { display: flex; }
-        .app-title { text-align: center; font-size: 24px; font-weight: 900; color: var(--m3-surf-text); margin-top: 2vh; margin-bottom: 12px; letter-spacing: -0.5px; }
-        .card { background: var(--m3-surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .section.active { display: flex; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+        .app-title { text-align: center; font-size: 22px; font-weight: 900; color: var(--m3-surf-text); margin-top: 2vh; margin-bottom: 12px; letter-spacing: -0.5px; }
+        .card { background: var(--m3-surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-shrink: 0; border: 1px solid var(--m3-outline-variant); }
+        
         .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
-        .chip { display: inline-flex; align-items: center; justify-content: center; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; background: var(--m3-surface-low); color: var(--m3-muted); cursor: pointer; border: 1px solid transparent; }
-        .chip.active { background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); border-color: var(--m3-primary); }
-        .chip-status { font-size: 11px; padding: 4px 10px; border-radius: 12px; font-weight: 800; cursor: pointer; }
+        .chip { display: inline-flex; align-items: center; justify-content: center; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; background: var(--m3-surface-low); color: var(--m3-muted); cursor: pointer; transition: all 0.2s; }
+        .chip.active { background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); }
+
+        /* Inputs */
         .map-input-group { background: var(--m3-surface-low); border-radius: 12px; padding: 8px; margin-bottom: 10px; position: relative; }
         .map-input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-        .map-input-row input[type="text"] { flex: 1; height: 38px; border: none; background: var(--m3-surface); border-radius: 8px; padding: 0 12px; font-size: 14px; font-weight: 700; outline: none; color: var(--m3-surf-text); }
-        .input-row { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; }
-        .input-box { flex: 1; height: 42px; border-radius: 10px; border: 1px solid var(--m3-outline-variant); background: var(--m3-surface); padding: 0 12px; font-size: 14px; font-weight: 700; outline: none; color: var(--m3-surf-text); }
+        .map-input-row:last-child { margin-bottom: 0; }
+        .map-input-row input[type="text"] { flex: 1; height: 38px; border: none; background: var(--m3-surface); border-radius: 8px; padding: 0 12px; font-size: 14px; font-weight: 700; outline: none; color: var(--m3-surf-text); min-width: 0; box-sizing: border-box; width: 100%; }
+        
+        .input-row { display: flex; gap: 8px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
+        .input-box, .select-box { flex: 1; height: 42px; border-radius: 10px; border: 1px solid var(--m3-outline-variant); background: var(--m3-surface); padding: 0 12px; font-size: 14px; font-weight: 700; outline: none; color: var(--m3-surf-text); min-width: 0; box-sizing: border-box; width: 100%; }
+        
+        /* Buttons */
         .btn-action-row { display: flex; gap: 8px; width: 100%; margin-top: 12px; }
-        .btn-clear { width: 30%; height: 44px; background: var(--m3-surface-low); border: none; border-radius: 24px; font-weight: 800; color: var(--m3-muted); cursor: pointer; }
         .btn-core { flex: 1; height: 44px; background: var(--m3-primary); color: var(--m3-on-primary); border: none; border-radius: 24px; font-weight: 800; cursor: pointer; }
-        .btn-icon { height: 32px; padding: 0 12px; background: transparent; border: 1px solid var(--m3-outline); border-radius: 16px; font-weight: 800; font-size: 11px; color: var(--m3-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-red { background: var(--m3-error); color: #fff; border: none; font-weight: 900; }
-        .sheet-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 12px; background: var(--m3-surface); }
-        .sheet-table th { background: var(--m3-surface-low); color: var(--m3-muted); font-weight: 800; padding: 8px 4px; border: 1px solid var(--m3-outline-variant); }
-        .sheet-table td { padding: 8px 4px; border: 1px solid var(--m3-outline-variant); color: var(--m3-surf-text); text-align: center; vertical-align: middle; }
+        .btn-icon { height: 32px; padding: 0 12px; background: transparent; border: 1px solid var(--m3-outline-variant); border-radius: 16px; font-weight: 800; font-size: 11px; color: var(--m3-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-red { background: var(--m3-error) !important; color: #fff !important; border-color: var(--m3-error) !important; }
+        .btn-blue { background: var(--m3-primary) !important; color: #fff !important; border-color: var(--m3-primary) !important; }
+        .btn-tmap { background: #000; color: #fff; border: 1px solid #333; font-size: 9px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; font-weight: 900; text-decoration: none; }
+
+        /* Efficiency Badge */
+        .eff-badge { background: var(--m3-surface-low); color: var(--m3-primary); font-size: 15px; font-weight: 900; padding: 10px 12px; border-radius: 8px; text-align: center; border: 2px dashed var(--m3-primary); margin-bottom: 12px; display: none; }
+        .eff-badge .sub-txt { font-size: 11px; color: var(--m3-muted); font-weight: 700; margin-left: 6px; }
+
+        /* LST Table */
         .list-wrapper { flex: 1; overflow-y: auto; padding-bottom: 20px; }
-        #lst-summary-bar { background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); text-align: center; font-size: 12px; font-weight: 800; padding: 8px; border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--m3-primary); }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 6000; padding: 20px; backdrop-filter: blur(4px); }
+        #lst-summary-bar { background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); text-align: center; font-size: 12px; font-weight: 900; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
+        .sheet-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 11px; background: var(--m3-surface); }
+        .sheet-table th { background: var(--m3-surface-low); color: var(--m3-muted); font-weight: 800; padding: 8px 4px; border: 1px solid var(--m3-outline-variant); }
+        .sheet-table td { padding: 8px 4px; border: 1px solid var(--m3-outline-variant); color: var(--m3-surf-text); text-align: center; vertical-align: middle; word-break: keep-all; }
+        .tbl-route { font-weight: 800; color: var(--m3-surf-text); }
+        .tbl-time { font-size: 10px; color: var(--m3-muted); margin-top: 4px; font-weight: 700; }
+        .tbl-eff { font-size: 10px; color: var(--m3-primary); margin-top: 4px; font-weight: 800; }
+        .detail-row td { background: var(--m3-surface-low); text-align: left; padding: 12px; font-size: 12px; }
+
+        /* RADAR (Geostics Base OS 2.0.1) */
+        #view-radar { padding: 0; background: #030405; position: relative; }
+        #map { width: 100%; height: 100%; z-index: 1; background: #030405; }
+        
+        .crosshair { position: absolute; inset: 0; pointer-events: none; z-index: 1000; }
+        .ch-x { position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.15); }
+        .ch-y { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.15); }
+        .ch-label { position: absolute; color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 900; }
+        .ch-n { top: 10px; left: 50%; transform: translateX(-50%); }
+        .ch-s { bottom: 10px; left: 50%; transform: translateX(-50%); }
+        .ch-w { left: 10px; top: 50%; transform: translateY(-50%); }
+        .ch-e { right: 10px; top: 50%; transform: translateY(-50%); }
+
+        .radar-hud { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); border: 1px solid #10b981; border-radius: 8px; color: #10b981; font-size: 13px; font-weight: 900; padding: 8px 16px; z-index: 2000; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: none; text-align: center; }
+
+        .marker-dot { width: 14px !important; height: 14px !important; border-radius: 50% !important; border: 2px solid #fff !important; box-shadow: 0 0 8px rgba(0,0,0,0.8) !important; }
+        .marker-p { background: #007aff !important; }
+        .marker-d { background: #ff453a !important; }
+        .marker-arrow { color: #f39c12; font-size: 20px; font-weight: 900; text-shadow: 0 0 4px #000; display: flex; justify-content: center; align-items: center; margin-top: -10px; margin-left: -10px; }
+
+        /* Modals & Nav */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 6000; padding: 20px; backdrop-filter: blur(3px); }
         .modal-overlay.show { display: flex; }
-        .modal-body { background: var(--m3-surface); border-radius: 20px; padding: 20px; width: 100%; max-width: 320px; border: 1px solid var(--m3-outline-variant); max-height: 90vh; overflow-y: auto; }
-        .nav-bar { height: 64px; background: var(--m3-surface); display: flex; border-top: 1px solid var(--m3-outline-variant); flex-shrink: 0; justify-content: space-around; align-items: center; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--m3-muted); cursor: pointer; }
+        .modal-body { background: var(--m3-surface); border-radius: 20px; padding: 20px; width: 100%; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); border: 1px solid var(--m3-outline-variant); }
+        
+        .nav-bar { height: 64px; background: var(--m3-surface); display: flex; border-top: 1px solid var(--m3-outline-variant); flex-shrink: 0; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: var(--m3-muted); cursor: pointer; height: 100%; transition: color 0.2s; }
         .nav-item.active { color: var(--m3-primary); }
-        #toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px); background: rgba(30, 30, 30, 0.95); color: #fff; border: 1px solid var(--m3-outline-variant); padding: 12px 24px; border-radius: 24px; font-size: 13px; font-weight: 700; z-index: 7000; opacity: 0; pointer-events: none; transition: all 0.3s ease; }
-        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .tmap-btn { font-size: 10px; background: #000; color: #fff; padding: 3px 6px; border-radius: 4px; border: 1px solid #333; margin-left: 4px; text-decoration: none; display: inline-block; font-weight: 800; }
-        .system-info { text-align: center; font-size: 10px; color: var(--m3-muted); margin-bottom: 16px; font-weight: bold; }
-        .copyright { text-align: center; font-size: 10px; color: var(--m3-outline); margin-top: 20px; }
+        
+        #toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); background: rgba(50,50,50,0.95); color: #fff; padding: 12px 24px; border-radius: 24px; font-size: 13px; font-weight: 800; z-index: 7000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); }
+        #toast.show { opacity: 1; }
+        
+        .sys-header { text-align: center; font-size: 12px; color: var(--m3-primary); margin-bottom: 16px; font-weight: 900; }
+        .copyright { text-align: center; font-size: 10px; color: var(--m3-outline); margin-top: 24px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -97,23 +139,8 @@
         </div>
         <div class="sys-mid"><div id="sysTotalRev">0.0k</div></div>
         <div class="sys-right">
-            <button class="bundle-trigger-btn" onclick="toggleBundlePanelState()">RADAR</button>
-            <button class="config-trigger-btn" onclick="toggleModal('popSet')">⚙️</button>
+            <button class="btn-icon" style="border:none; background:transparent; font-size:20px; padding:0; width:32px;" onclick="toggleModal('popSet')">⚙️</button>
         </div>
-    </div>
-
-    <div id="bundle-advice-panel">
-        <div class="swipe-header-zone" id="radar-swipe-zone">
-            <div class="drag-handle"></div>
-            <div class="coherence-badge">
-                <span id="bundle-total-amt">LOC: READY</span>
-                <div class="flex-center gap-8">
-                    <button class="btn-gps-scan" onclick="executeGps3kmScan()">SCAN</button>
-                    <button class="btn-radar-close" onclick="toggleBundlePanelState()">CLOSE</button>
-                </div>
-            </div>
-        </div>
-        <div id="map"><div class="seoul-crt-watermark">SEOUL CRT</div></div>
     </div>
 
     <div class="viewport" id="main-viewport">
@@ -121,34 +148,43 @@
             <div class="app-title">QuickCal Pro</div>
             <div class="flex-center">
                 <div class="main-toggle">
-                    <div class="main-toggle-btn active" id="btn-mode-quicks" onclick="setAppMode('QUICKS')">QUICKS</div>
-                    <div class="main-toggle-btn" id="btn-mode-eats" onclick="setAppMode('EATS')">EATS</div>
+                    <div class="main-toggle-btn active" id="btn-mode-quicks" onclick="QuickCal.setAppMode('QUICKS')">QUICKS</div>
+                    <div class="main-toggle-btn" id="btn-mode-eats" onclick="QuickCal.setAppMode('EATS')">EATS</div>
                 </div>
             </div>
             <div class="card" id="input-card">
-                <div class="chip-row flex-center mb-16" id="platform-chips"></div>
-                <div class="flex-between mb-12">
+                <div class="flex-between mb-16">
+                    <div class="chip-row flex-center" id="platform-chips"></div>
+                    <button class="btn-icon" onclick="QuickCal.clearInputs()">RESET</button>
+                </div>
+                
+                <div class="flex-between mb-12" id="nav-btn-row">
                     <div class="flex-center gap-8">
-                        <button class="btn-icon" style="color:var(--m3-primary); border-color:var(--m3-primary);" onclick="searchAddresses()">SEARCH</button>
-                        <button class="btn-icon" style="color:#f39c12; border-color:#f39c12;" onclick="openMapApp()">MAP</button>
+                        <button class="btn-icon" style="color:var(--m3-primary); border-color:var(--m3-primary); font-size:12px; padding:0 16px;" onclick="QuickCal.searchTmapActive()">SEARCH</button>
+                        <button class="btn-icon" style="color:#f39c12; border-color:#f39c12; font-size:12px; padding:0 16px;" onclick="QuickCal.openRouteMapActive()">MAP</button>
                     </div>
                 </div>
+
                 <div id="quicks-inputs" class="map-input-group">
                     <div class="map-input-row"><input type="text" id="in-pick-quicks" placeholder="PICKUP"></div>
                     <div class="map-input-row"><input type="text" id="in-drop-quicks" placeholder="DROPOFF"></div>
                 </div>
+                
                 <div id="eats-inputs" class="map-input-group" style="display:none;">
-                    <div style="position:absolute; top:12px; right:12px;"><input type="checkbox" id="eats-fix-cb"></div>
-                    <div class="map-input-row" style="padding-right: 24px;"><input type="text" id="in-pick-eats" placeholder="PICKUP"></div>
+                    <div style="position:absolute; top:12px; right:12px;"><input type="checkbox" style="accent-color:var(--m3-primary); width:18px; height:18px;"></div>
+                    <div class="map-input-row" style="padding-right: 28px;"><input type="text" id="in-pick-eats" placeholder="PICKUP"></div>
                     <div class="map-input-row"><input type="text" id="in-drop-eats" placeholder="DROPOFF"></div>
                 </div>
+
                 <div class="input-row">
-                    <input type="number" step="0.1" inputmode="decimal" id="in-fare" class="input-box" placeholder="AMT(k)">
+                    <input type="number" step="0.1" inputmode="decimal" id="in-fare" class="input-box" placeholder="AMT (k)" oninput="QuickCal.updateEffBadge()">
                     <input type="text" id="in-memo" class="input-box" placeholder="NOTE">
                 </div>
+
+                <div id="eff-badge" class="eff-badge">--k/h <span class="sub-txt">(--km | --분)</span></div>
+                
                 <div class="btn-action-row">
-                    <button class="btn-clear" onclick="clearInputs()">CLEAR</button>
-                    <button class="btn-core" onclick="commitOrder()">ADD</button>
+                    <button class="btn-core" onclick="QuickCal.commitOrder()">ADD ORDER</button>
                 </div>
             </div>
         </div>
@@ -157,324 +193,425 @@
             <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
                 <div class="flex-between">
                     <div class="chip-row">
-                        <div class="chip active" id="flt-run" onclick="setListFilter('RUN')">ACTIVE</div>
-                        <div class="chip" id="flt-fin" onclick="setListFilter('FIN')">DONE</div>
+                        <div class="chip active" id="flt-run" onclick="QuickCal.setListFilter('RUN')">ACTIVE</div>
+                        <div class="chip" id="flt-fin" onclick="QuickCal.setListFilter('FIN')">DONE</div>
                     </div>
                     <div class="flex-center gap-8">
-                        <button class="btn-icon" style="color:var(--m3-primary); border-color:var(--m3-primary);" onclick="copyTodayData()">COPY</button>
-                        <button class="btn-icon btn-red" onclick="clearList()">ALL DEL</button>
+                        <button class="btn-icon" style="color:var(--m3-primary); border-color:var(--m3-primary);" onclick="QuickCal.copyTodayData()">COPY</button>
+                        <button class="btn-icon btn-red" onclick="QuickCal.clearList()">ALL DEL</button>
                     </div>
                 </div>
-                <div id="lst-summary-bar">ACTIVE: 0 | DONE: 0</div>
+                <div id="lst-summary-bar">TOTAL: 0 | ACTIVE: 0 | DONE: 0</div>
             </div>
             <div class="list-wrapper" style="background:var(--m3-surface); border-radius:12px; overflow:hidden; border:1px solid var(--m3-outline-variant);">
                 <table class="sheet-table">
-                    <thead><tr><th style="width:12%;">NO</th><th style="width:12%;">SHIFT</th><th style="width:25%;">PLAT</th><th style="width:25%;">ROUTE</th><th style="width:13%;">FARE</th><th style="width:13%;">ACT</th></tr></thead>
+                    <thead><tr><th style="width:10%;">NO</th><th style="width:12%;">SHIFT</th><th style="width:20%;">PLAT</th><th style="width:33%;">ROUTE</th><th style="width:13%;">FARE</th><th style="width:12%;">ACT</th></tr></thead>
                     <tbody id="master-list-tbody"></tbody>
                 </table>
             </div>
         </div>
 
-        <div id="view-stt" class="section">
-            <div class="app-title">STATUS</div>
-            <div class="card flex-center">
-                <button id="btn-stt-toggle" class="btn-core" style="width:200px;" onclick="toggleSttMode()">DAILY</button>
+        <div id="view-radar" class="section">
+            <div class="crosshair">
+                <div class="ch-x"></div><div class="ch-y"></div>
+                <span class="ch-label ch-n">N</span><span class="ch-label ch-s">S</span>
+                <span class="ch-label ch-w">W</span><span class="ch-label ch-e">E</span>
             </div>
-            <div class="card">
-                <p style="font-size:12px; color:var(--m3-muted); line-height:1.5;">Data automatically syncs to Spreadsheet daily at 00:00. Local view clears upon successful sync validation.</p>
-            </div>
+            <div id="radar-hud" class="radar-hud">P ➔ D<br>--km | --분 | --k/h</div>
+            <div id="map"></div>
         </div>
     </div>
 
     <div class="nav-bar">
         <div class="nav-item active" id="nav-ord" onclick="switchMainTab('ord', this)">ORD</div>
         <div class="nav-item" id="nav-lst" onclick="switchMainTab('lst', this)">LST</div>
-        <div class="nav-item" id="nav-stt" onclick="switchMainTab('stt', this)">STT</div>
+        <div class="nav-item" id="nav-radar" onclick="switchMainTab('radar', this)">RADAR</div>
     </div>
 
-    <div class="modal-overlay" id="popSet" onclick="if(event.target===this) closeModal('popSet')">
+    <div class="modal-overlay" id="popSet" onclick="if(event.target===this) toggleModal('popSet')">
         <div class="modal-body">
-            <div class="system-info">Geostics Base OS (v 2.0.1)</div>
-            <div class="flex-between mb-16"><div class="text-bold" style="font-size:12px;">SETTINGS</div></div>
+            <div class="sys-header">Geostics Base OS (v 2.0.1)</div>
+            <div class="flex-between mb-16"><div class="text-bold" style="font-size:14px;">SETTINGS</div></div>
             <div class="flex-between mb-16">
                 <div class="text-bold" style="font-size:12px; color:var(--m3-muted);">KEEP SCREEN ON</div>
-                <input type="checkbox" id="set-wakelock" onchange="toggleWakeLock(this.checked)">
+                <input type="checkbox" id="set-wakelock" onchange="QuickCal.toggleWakeLock(this.checked)" style="accent-color:var(--m3-primary); transform:scale(1.2);">
             </div>
-            <input type="password" id="tmap-key" class="input-box mb-12" style="width:100%;" placeholder="TMAP API KEY">
-            <input type="password" id="sheet-url" class="input-box mb-24" style="width:100%;" placeholder="SYNC URL">
-            <div class="flex-between"><button class="btn-icon" style="color:var(--m3-error); border-color:var(--m3-error);" onclick="factoryReset()">RESET</button><button class="btn-core" style="width:100px; height:36px; margin:0;" onclick="saveSystemConfig()">SAVE</button></div>
+            <div class="flex-between mb-16">
+                <div class="text-bold" style="font-size:12px; color:var(--m3-muted);">DARK MODE</div>
+                <button class="btn-icon" onclick="QuickCal.toggleThemeManual()">TOGGLE</button>
+            </div>
+            <input type="password" id="tmap-key" class="input-box mb-12" placeholder="TMAP API KEY">
+            <input type="password" id="sheet-url" class="input-box mb-24" placeholder="SYNC URL_QCP">
+            <div class="flex-between">
+                <button class="btn-icon btn-red" onclick="QuickCal.factoryReset()">RESET</button>
+                <button class="btn-core" style="width:100px; height:36px; margin:0;" onclick="QuickCal.saveSystemConfig()">SAVE</button>
+            </div>
             <div class="copyright">© 2026 QuickCal Pro. All rights reserved.</div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="popEdit" onclick="if(event.target===this) closeModal('popEdit')">
+    <div class="modal-overlay" id="popEdit" onclick="if(event.target===this) toggleModal('popEdit')">
         <div class="modal-body">
             <div class="flex-between mb-16">
                 <div class="text-bold" style="font-size:14px;">EDIT DATA</div>
-                <button class="btn-icon btn-red" style="width:30px; border-radius:15px; padding:0;" onclick="deleteEditItem()">X</button>
+                <button class="btn-icon btn-red" style="width:30px; border-radius:15px; padding:0;" onclick="QuickCal.deleteEditItem()">X</button>
             </div>
             <input type="hidden" id="edit-id">
-            <input type="text" id="edit-plat" class="input-box mb-12" style="width:100%;" placeholder="PLATFORM">
-            <input type="text" id="edit-pick" class="input-box mb-12" style="width:100%;" placeholder="PICKUP">
-            <input type="text" id="edit-drop" class="input-box mb-12" style="width:100%;" placeholder="DROPOFF">
-            <input type="number" step="0.1" inputmode="decimal" id="edit-fare" class="input-box mb-12" style="width:100%;" placeholder="AMT">
-            <input type="text" id="edit-memo" class="input-box mb-24" style="width:100%;" placeholder="NOTE">
-            <div class="flex-center"><button class="btn-core" style="width:100%; height:44px; margin:0;" onclick="saveEditData()">UPDATE</button></div>
+            <select id="edit-plat" class="select-box mb-12">
+                <option value="Insung">Insung</option><option value="Logi">Logi</option><option value="Kakao">Kakao</option>
+                <option value="Baemin">Baemin</option><option value="Coupang">Coupang</option>
+            </select>
+            <input type="text" id="edit-pick" class="input-box mb-12" placeholder="PICKUP">
+            <input type="text" id="edit-drop" class="input-box mb-12" placeholder="DROPOFF">
+            <input type="number" step="0.1" inputmode="decimal" id="edit-fare" class="input-box mb-12" placeholder="AMT">
+            <input type="text" id="edit-memo" class="input-box mb-24" placeholder="NOTE">
+            <div class="flex-center"><button class="btn-core" style="width:100%; height:44px; margin:0;" onclick="QuickCal.saveEditData()">UPDATE</button></div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const SUBWAY_DATA = [{"name": "서울", "line": "1", "lat": 37.55315, "lng": 126.972533}, {"name": "시청", "line": "1", "lat": 37.56359, "lng": 126.975407}, {"name": "종각", "line": "1", "lat": 37.570203, "lng": 126.983116}, {"name": "종로3가", "line": "1", "lat": 37.570429, "lng": 126.992095}, {"name": "종로5가", "line": "1", "lat": 37.570971, "lng": 127.0019}, {"name": "동대문", "line": "1", "lat": 37.57179, "lng": 127.011383}, {"name": "동묘앞", "line": "1", "lat": 37.573265, "lng": 127.016459}, {"name": "신설동", "line": "1", "lat": 37.576117, "lng": 127.02471}, {"name": "제기동", "line": "1", "lat": 37.578116, "lng": 127.034902}, {"name": "청량리", "line": "1", "lat": 37.580148, "lng": 127.045063}, {"name": "을지로입구", "line": "2", "lat": 37.565998, "lng": 126.982569}, {"name": "을지로3가", "line": "2", "lat": 37.566292, "lng": 126.991773}, {"name": "을지로4가", "line": "2", "lat": 37.566611, "lng": 126.998122}, {"name": "동대문역사문화공원", "line": "2", "lat": 37.565597, "lng": 127.009113}, {"name": "신당", "line": "2", "lat": 37.565681, "lng": 127.019488}, {"name": "상왕십리", "line": "2", "lat": 37.564504, "lng": 127.028872}, {"name": "왕십리", "line": "2", "lat": 37.561159, "lng": 127.035505}, {"name": "한양대", "line": "2", "lat": 37.55658, "lng": 127.043504}, {"name": "뚝섬", "line": "2", "lat": 37.54718, "lng": 127.047413}, {"name": "성수", "line": "2", "lat": 37.544628, "lng": 127.055983}, {"name": "건대입구", "line": "2", "lat": 37.540408, "lng": 127.069231}, {"name": "구의", "line": "2", "lat": 37.536857, "lng": 127.085024}, {"name": "강변", "line": "2", "lat": 37.535161, "lng": 127.094684}, {"name": "잠실나루", "line": "2", "lat": 37.520688, "lng": 127.103836}, {"name": "잠실", "line": "2", "lat": 37.513305, "lng": 127.100129}, {"name": "잠실새내", "line": "2", "lat": 37.520731, "lng": 127.103738}, {"name": "종합운동장", "line": "2", "lat": 37.511008, "lng": 127.073641}, {"name": "삼성", "line": "2", "lat": 37.508827, "lng": 127.063203}, {"name": "선릉", "line": "2", "lat": 37.504257, "lng": 127.048174}, {"name": "역삼", "line": "2", "lat": 37.500658, "lng": 127.03643}, {"name": "강남", "line": "2", "lat": 37.497958, "lng": 127.027539}, {"name": "교대", "line": "2", "lat": 37.493957, "lng": 127.014631}, {"name": "서초", "line": "2", "lat": 37.49191, "lng": 127.007945}, {"name": "방배", "line": "2", "lat": 37.481469, "lng": 126.997627}, {"name": "사당", "line": "2", "lat": 37.476536, "lng": 126.981631}, {"name": "낙성대", "line": "2", "lat": 37.47693, "lng": 126.963783}, {"name": "서울대입구", "line": "2", "lat": 37.481233, "lng": 126.952745}, {"name": "봉천", "line": "2", "lat": 37.482416, "lng": 126.941896}, {"name": "신림", "line": "2", "lat": 37.484216, "lng": 126.929573}, {"name": "신대방", "line": "2", "lat": 37.487534, "lng": 126.913279}, {"name": "구로디지털단지", "line": "2", "lat": 37.485005, "lng": 126.902626}, {"name": "대림", "line": "2", "lat": 37.492426, "lng": 126.895293}, {"name": "신도림", "line": "2", "lat": 37.508815, "lng": 126.891222}, {"name": "문래", "line": "2", "lat": 37.517993, "lng": 126.894766}, {"name": "영등포구청", "line": "2", "lat": 37.525766, "lng": 126.896627}, {"name": "당산", "line": "2", "lat": 37.533877, "lng": 126.902011}, {"name": "합정", "line": "2", "lat": 37.550025, "lng": 126.914557}, {"name": "홍대입구", "line": "2", "lat": 37.556748, "lng": 126.923643}, {"name": "신촌", "line": "2", "lat": 37.555153, "lng": 126.93689}, {"name": "이대", "line": "2", "lat": 37.556734, "lng": 126.945897}, {"name": "아현", "line": "2", "lat": 37.557407, "lng": 126.956079}, {"name": "충정로", "line": "2", "lat": 37.559742, "lng": 126.964455}, {"name": "시청", "line": "2", "lat": 37.563534, "lng": 126.975271}, {"name": "신설동", "line": "2", "lat": 37.574653, "lng": 127.025158}, {"name": "용두", "line": "2", "lat": 37.574012, "lng": 127.03811}, {"name": "신답", "line": "2", "lat": 37.56147, "lng": 127.056348}, {"name": "용답", "line": "2", "lat": 37.566412, "lng": 126.977863}, {"name": "도림천", "line": "2", "lat": 37.514759, "lng": 126.882586}, {"name": "양천구청", "line": "2", "lat": 37.512194, "lng": 126.865193}, {"name": "신정네거리", "line": "2", "lat": 37.520218, "lng": 126.852849}, {"name": "까치산", "line": "2", "lat": 37.53181, "lng": 126.846706}, {"name": "지축", "line": "3", "lat": 37.648281, "lng": 126.912551}, {"name": "구파발", "line": "3", "lat": 37.636612, "lng": 126.918827}, {"name": "연신내", "line": "3", "lat": 37.618855, "lng": 126.920859}, {"name": "불광", "line": "3", "lat": 37.610554, "lng": 126.929843}, {"name": "녹번", "line": "3", "lat": 37.600882, "lng": 126.935758}, {"name": "홍제", "line": "3", "lat": 37.588851, "lng": 126.944092}, {"name": "무악재", "line": "3", "lat": 37.582658, "lng": 126.950131}, {"name": "독립문", "line": "3", "lat": 37.574534, "lng": 126.957902}, {"name": "경복궁", "line": "3", "lat": 37.575844, "lng": 126.973576}, {"name": "안국", "line": "3", "lat": 37.576562, "lng": 126.98547}, {"name": "종로3가", "line": "3", "lat": 37.571537, "lng": 126.991237}, {"name": "을지로3가", "line": "3", "lat": 37.566299, "lng": 126.992616}, {"name": "충무로", "line": "3", "lat": 37.561302, "lng": 126.995473}, {"name": "동대입구", "line": "3", "lat": 37.55816, "lng": 127.005273}, {"name": "약수", "line": "3", "lat": 37.554674, "lng": 127.010628}, {"name": "금호", "line": "3", "lat": 37.548269, "lng": 127.015785}, {"name": "옥수", "line": "3", "lat": 37.541653, "lng": 127.017303}, {"name": "압구정", "line": "3", "lat": 37.526169, "lng": 127.028502}, {"name": "신사", "line": "3", "lat": 37.516438, "lng": 127.020247}, {"name": "잠원", "line": "3", "lat": 37.512989, "lng": 127.011613}, {"name": "고속터미널", "line": "3", "lat": 37.504953, "lng": 127.004916}, {"name": "교대", "line": "3", "lat": 37.49306, "lng": 127.013796}, {"name": "남부터미널", "line": "3", "lat": 37.48494, "lng": 127.016289}, {"name": "양재", "line": "3", "lat": 37.48466, "lng": 127.03513}, {"name": "매봉", "line": "3", "lat": 37.487114, "lng": 127.046907}, {"name": "도곡", "line": "3", "lat": 37.491129, "lng": 127.055694}, {"name": "대치", "line": "3", "lat": 37.494601, "lng": 127.063449}, {"name": "학여울", "line": "3", "lat": 37.496757, "lng": 127.070541}, {"name": "대청", "line": "3", "lat": 37.493607, "lng": 127.079526}, {"name": "일원", "line": "3", "lat": 37.48389, "lng": 127.08416}, {"name": "수서", "line": "3", "lat": 37.487507, "lng": 127.101324}, {"name": "가락시장", "line": "3", "lat": 37.492368, "lng": 127.118101}, {"name": "경찰병원", "line": "3", "lat": 37.495754, "lng": 127.124198}, {"name": "오금", "line": "3", "lat": 37.502288, "lng": 127.128344}, {"name": "당고개", "line": "4", "lat": 37.66956, "lng": 127.078404}, {"name": "상계", "line": "4", "lat": 37.660576, "lng": 127.073199}, {"name": "노원", "line": "4", "lat": 37.656274, "lng": 127.063183}, {"name": "창동", "line": "4", "lat": 37.652993, "lng": 127.046746}, {"name": "쌍문", "line": "4", "lat": 37.648274, "lng": 127.034381}, {"name": "수유", "line": "4", "lat": 37.637127, "lng": 127.024731}, {"name": "미아", "line": "4", "lat": 37.626435, "lng": 127.026151}, {"name": "미아사거리", "line": "4", "lat": 37.613276, "lng": 127.030083}, {"name": "길음", "line": "4", "lat": 37.604087, "lng": 127.025353}, {"name": "성신여대입구", "line": "4", "lat": 37.592782, "lng": 127.017338}, {"name": "한성대입구", "line": "4", "lat": 37.58838, "lng": 127.006751}, {"name": "혜화", "line": "4", "lat": 37.582116, "lng": 127.001759}, {"name": "동대문", "line": "4", "lat": 37.5708397, "lng": 127.009403}, {"name": "동대문역사문화공원", "line": "4", "lat": 37.565083, "lng": 127.007645}, {"name": "충무로", "line": "4", "lat": 37.561302, "lng": 126.995473}, {"name": "명동", "line": "4", "lat": 37.561055, "lng": 126.988271}, {"name": "회현", "line": "4", "lat": 37.559698, "lng": 126.979565}, {"name": "서울", "line": "4", "lat": 37.553172, "lng": 126.972836}, {"name": "숙대입구", "line": "4", "lat": 37.545124, "lng": 126.971952}, {"name": "삼각지", "line": "4", "lat": 37.535057, "lng": 126.973354}, {"name": "신용산", "line": "4", "lat": 37.52919, "lng": 126.96858}, {"name": "이촌", "line": "4", "lat": 37.522525, "lng": 126.97335}, {"name": "동작", "line": "4", "lat": 37.503567, "lng": 126.980171}, {"name": "총신대입구", "line": "4", "lat": 37.487521, "lng": 126.982309}, {"name": "사당", "line": "4", "lat": 37.476563, "lng": 126.981746}, {"name": "남태령", "line": "4", "lat": 37.464339, "lng": 126.989081}, {"name": "방화", "line": "5", "lat": 37.577669, "lng": 126.812822}, {"name": "개화산", "line": "5", "lat": 37.572458, "lng": 126.806838}, {"name": "김포공항", "line": "5", "lat": 37.56217, "lng": 126.801273}, {"name": "송정", "line": "5", "lat": 37.561411, "lng": 126.812052}, {"name": "마곡", "line": "5", "lat": 37.562182, "lng": 126.82693}, {"name": "발산", "line": "5", "lat": 37.562182, "lng": 126.82693}, {"name": "우장산", "line": "5", "lat": 37.548864, "lng": 126.83633}, {"name": "화곡", "line": "5", "lat": 37.541585, "lng": 126.840436}, {"name": "까치산", "line": "5", "lat": 37.53181, "lng": 126.846706}, {"name": "신정", "line": "5", "lat": 37.525001, "lng": 126.856176}, {"name": "목동", "line": "5", "lat": 37.526088, "lng": 126.864296}, {"name": "오목교", "line": "5", "lat": 37.524557, "lng": 126.875049}, {"name": "양평", "line": "5", "lat": 37.525614, "lng": 126.886177}, {"name": "영등포구청", "line": "5", "lat": 37.524209, "lng": 126.895022}, {"name": "영등포시장", "line": "5", "lat": 37.52276, "lng": 126.905143}, {"name": "신길", "line": "5", "lat": 37.51763, "lng": 126.914886}, {"name": "여의도", "line": "5", "lat": 37.521578, "lng": 126.924318}, {"name": "여의나루", "line": "5", "lat": 37.527145, "lng": 126.932807}, {"name": "마포", "line": "5", "lat": 37.539718, "lng": 126.946043}, {"name": "공덕", "line": "5", "lat": 37.544005, "lng": 126.951058}, {"name": "애오개", "line": "5", "lat": 37.553592, "lng": 126.956733}, {"name": "충정로", "line": "5", "lat": 37.560061, "lng": 126.962783}, {"name": "서대문", "line": "5", "lat": 37.565812, "lng": 126.966639}, {"name": "광화문", "line": "5", "lat": 37.570545, "lng": 126.976568}, {"name": "종로3가", "line": "5", "lat": 37.572546, "lng": 126.990447}, {"name": "을지로4가", "line": "5", "lat": 37.56658, "lng": 126.998127}, {"name": "동대문역사문화공원", "line": "5", "lat": 37.564682, "lng": 127.00533}, {"name": "청구", "line": "5", "lat": 37.560237, "lng": 127.01379}, {"name": "신금호", "line": "5", "lat": 37.554504, "lng": 127.020403}, {"name": "행당", "line": "5", "lat": 37.557297, "lng": 127.029482}, {"name": "왕십리", "line": "5", "lat": 37.56197, "lng": 127.037264}, {"name": "마장", "line": "5", "lat": 37.566066, "lng": 127.042921}, {"name": "답십리", "line": "5", "lat": 37.566833, "lng": 127.05266}, {"name": "장한평", "line": "5", "lat": 37.561438, "lng": 127.064601}, {"name": "군자", "line": "5", "lat": 37.557102, "lng": 127.079559}, {"name": "아차산", "line": "5", "lat": 37.552005, "lng": 127.089609}, {"name": "광나루", "line": "5", "lat": 37.545301, "lng": 127.103478}, {"name": "천호", "line": "5", "lat": 37.538566, "lng": 127.123539}, {"name": "강동", "line": "5", "lat": 37.53581, "lng": 127.13249}, {"name": "길동", "line": "5", "lat": 37.538022, "lng": 127.140085}, {"name": "굽은다리", "line": "5", "lat": 37.545442, "lng": 127.142844}, {"name": "명일", "line": "5", "lat": 37.551317, "lng": 127.144002}, {"name": "고덕", "line": "5", "lat": 37.555002, "lng": 127.154214}, {"name": "상일동", "line": "5", "lat": 37.556714, "lng": 127.166381}, {"name": "둔촌동", "line": "5", "lat": 37.527787, "lng": 127.136219}, {"name": "올림픽공원", "line": "5", "lat": 37.516217, "lng": 127.130957}, {"name": "방이", "line": "5", "lat": 37.508752, "lng": 127.126054}, {"name": "오금", "line": "5", "lat": 37.502228, "lng": 127.127701}, {"name": "개롱", "line": "5", "lat": 37.498097, "lng": 127.134817}, {"name": "거여", "line": "5", "lat": 37.493208, "lng": 127.143983}, {"name": "마천", "line": "5", "lat": 37.494972, "lng": 127.152784}, {"name": "강일", "line": "5", "lat": 37.557521, "lng": 127.176018}, {"name": "미사", "line": "5", "lat": 37.56329, "lng": 127.192954}, {"name": "하남풍산", "line": "5", "lat": 37.552201, "lng": 127.203897}, {"name": "하남시청", "line": "5", "lat": 37.541723, "lng": 127.206901}, {"name": "하남검단산", "line": "5", "lat": 37.539729, "lng": 127.223427}, {"name": "응암", "line": "6", "lat": 37.59859, "lng": 126.915583}, {"name": "역촌", "line": "6", "lat": 37.60605, "lng": 126.922764}, {"name": "불광", "line": "6", "lat": 37.610919, "lng": 126.929504}, {"name": "독바위", "line": "6", "lat": 37.618413, "lng": 126.933035}, {"name": "연신내", "line": "6", "lat": 37.618596, "lng": 126.920519}, {"name": "구산", "line": "6", "lat": 37.611223, "lng": 126.917246}, {"name": "새절", "line": "6", "lat": 37.591148, "lng": 126.913613}, {"name": "증산", "line": "6", "lat": 37.583989, "lng": 126.909785}, {"name": "디지털미디어시티", "line": "6", "lat": 37.577005, "lng": 126.898643}, {"name": "월드컵경기장", "line": "6", "lat": 37.569439, "lng": 126.899077}, {"name": "마포구청", "line": "6", "lat": 37.563535, "lng": 126.903326}, {"name": "망원", "line": "6", "lat": 37.556031, "lng": 126.910129}, {"name": "합정", "line": "6", "lat": 37.549033, "lng": 126.913546}, {"name": "상수", "line": "6", "lat": 37.547704, "lng": 126.92292}, {"name": "광흥창", "line": "6", "lat": 37.547464, "lng": 126.931971}, {"name": "대흥", "line": "6", "lat": 37.547732, "lng": 126.942214}, {"name": "공덕", "line": "6", "lat": 37.543592, "lng": 126.951664}, {"name": "효창공원앞", "line": "6", "lat": 37.539279, "lng": 126.961348}, {"name": "삼각지", "line": "6", "lat": 37.535563, "lng": 126.973996}, {"name": "녹사평", "line": "6", "lat": 37.53469, "lng": 126.98665}, {"name": "이태원", "line": "6", "lat": 37.534485, "lng": 126.994369}, {"name": "한강진", "line": "6", "lat": 37.53956, "lng": 127.001729}, {"name": "버티고개", "line": "6", "lat": 37.547933, "lng": 127.006948}, {"name": "약수", "line": "6", "lat": 37.554087, "lng": 127.010237}, {"name": "청구", "line": "6", "lat": 37.560221, "lng": 127.013776}, {"name": "신당", "line": "6", "lat": 37.566174, "lng": 127.016158}, {"name": "동묘앞", "line": "6", "lat": 37.572275, "lng": 127.015666}, {"name": "창신", "line": "6", "lat": 37.579772, "lng": 127.015246}, {"name": "보문", "line": "6", "lat": 37.585293, "lng": 127.019377}, {"name": "안암", "line": "6", "lat": 37.586261, "lng": 127.02903}, {"name": "고려대", "line": "6", "lat": 37.59034, "lng": 127.03626}, {"name": "월곡", "line": "6", "lat": 37.60192, "lng": 127.041492}, {"name": "상월곡", "line": "6", "lat": 37.606392, "lng": 127.048509}, {"name": "돌곶이", "line": "6", "lat": 37.610522, "lng": 127.056419}, {"name": "석계", "line": "6", "lat": 37.614937, "lng": 127.065922}, {"name": "태릉입구", "line": "6", "lat": 37.617319, "lng": 127.074741}, {"name": "화랑대", "line": "6", "lat": 37.619875, "lng": 127.084106}, {"name": "봉화산", "line": "6", "lat": 37.617293, "lng": 127.091375}, {"name": "신내", "line": "6", "lat": 37.612571, "lng": 127.104326}, {"name": "장암", "line": "7", "lat": 37.70015, "lng": 127.053126}, {"name": "도봉산", "line": "7", "lat": 37.689131, "lng": 127.046548}, {"name": "수락산", "line": "7", "lat": 37.677804, "lng": 127.055314}, {"name": "마들", "line": "7", "lat": 37.664985, "lng": 127.057701}, {"name": "노원", "line": "7", "lat": 37.654478, "lng": 127.060555}, {"name": "중계", "line": "7", "lat": 37.645052, "lng": 127.064084}, {"name": "하계", "line": "7", "lat": 37.636363, "lng": 127.067999}, {"name": "공릉", "line": "7", "lat": 37.625642, "lng": 127.072969}, {"name": "태릉입구", "line": "7", "lat": 37.617319, "lng": 127.074741}, {"name": "먹골", "line": "7", "lat": 37.610638, "lng": 127.077719}, {"name": "중화", "line": "7", "lat": 37.602604, "lng": 127.079254}, {"name": "상봉", "line": "7", "lat": 37.595673, "lng": 127.085708}, {"name": "면목", "line": "7", "lat": 37.588671, "lng": 127.087503}, {"name": "사가정", "line": "7", "lat": 37.580912, "lng": 127.088502}, {"name": "용마산", "line": "7", "lat": 37.573752, "lng": 127.086802}, {"name": "중곡", "line": "7", "lat": 37.565877, "lng": 127.084291}, {"name": "군자", "line": "7", "lat": 37.557151, "lng": 127.079484}, {"name": "어린이대공원", "line": "7", "lat": 37.547962, "lng": 127.07465}, {"name": "건대입구", "line": "7", "lat": 37.540882, "lng": 127.071103}, {"name": "뚝섬유원지", "line": "7", "lat": 37.531558, "lng": 127.066714}, {"name": "청담", "line": "7", "lat": 37.519097, "lng": 127.051851}, {"name": "강남구청", "line": "7", "lat": 37.517185, "lng": 127.04122}, {"name": "학동", "line": "7", "lat": 37.514262, "lng": 127.031738}, {"name": "논현", "line": "7", "lat": 37.511108, "lng": 127.021385}, {"name": "반포", "line": "7", "lat": 37.508171, "lng": 127.011717}, {"name": "고속터미널", "line": "7", "lat": 37.503387, "lng": 127.005055}, {"name": "내방", "line": "7", "lat": 37.48764, "lng": 126.993541}, {"name": "총신대입구", "line": "7", "lat": 37.485258, "lng": 126.981766}, {"name": "남성", "line": "7", "lat": 37.484688, "lng": 126.971108}, {"name": "숭실대입구", "line": "7", "lat": 37.496258, "lng": 126.953649}, {"name": "상도", "line": "7", "lat": 37.50279, "lng": 126.947949}, {"name": "장승배기", "line": "7", "lat": 37.504845, "lng": 126.939025}, {"name": "신대방삼거리", "line": "7", "lat": 37.499717, "lng": 126.928218}, {"name": "보라매", "line": "7", "lat": 37.499916, "lng": 126.920112}, {"name": "신풍", "line": "7", "lat": 37.500107, "lng": 126.909806}, {"name": "대림", "line": "7", "lat": 37.492984, "lng": 126.896997}, {"name": "남구로", "line": "7", "lat": 37.486181, "lng": 126.887372}, {"name": "가산디지털단지", "line": "7", "lat": 37.480376, "lng": 126.882704}, {"name": "철산", "line": "7", "lat": 37.47616, "lng": 126.868217}, {"name": "광명사거리", "line": "7", "lat": 37.47927, "lng": 126.854854}, {"name": "천왕", "line": "7", "lat": 37.486699, "lng": 126.838684}, {"name": "온수", "line": "7", "lat": 37.492059, "lng": 126.823294}, {"name": "암사", "line": "8", "lat": 37.550127, "lng": 127.127521}, {"name": "천호", "line": "8", "lat": 37.53792, "lng": 127.123179}, {"name": "강동구청", "line": "8", "lat": 37.530348, "lng": 127.120461}, {"name": "몽촌토성", "line": "8", "lat": 37.517692, "lng": 127.11274}, {"name": "잠실", "line": "8", "lat": 37.514649, "lng": 127.104267}, {"name": "석촌", "line": "8", "lat": 37.505396, "lng": 127.106995}, {"name": "송파", "line": "8", "lat": 37.49978, "lng": 127.11212}, {"name": "가락시장", "line": "8", "lat": 37.493004, "lng": 127.118279}, {"name": "문정", "line": "8", "lat": 37.485931, "lng": 127.122473}, {"name": "장지", "line": "8", "lat": 37.478609, "lng": 127.126229}, {"name": "복정", "line": "8", "lat": 37.471016, "lng": 127.126746}, {"name": "남위례", "line": "8", "lat": 37.462839, "lng": 127.139047}, {"name": "산성", "line": "8", "lat": 37.456886, "lng": 127.149927}, {"name": "남한산성입구", "line": "8", "lat": 37.451568, "lng": 127.159845}, {"name": "단대오거리", "line": "8", "lat": 37.445057, "lng": 127.156735}, {"name": "신흥", "line": "8", "lat": 37.440952, "lng": 127.14759}, {"name": "수진", "line": "8", "lat": 37.437575, "lng": 127.140936}, {"name": "모란", "line": "8", "lat": 37.433888, "lng": 127.129921}, {"name": "언주역", "line": "9", "lat": 37.507324, "lng": 127.033905}, {"name": "선정릉역", "line": "9", "lat": 37.510278, "lng": 127.043902}, {"name": "삼성중앙역", "line": "9", "lat": 37.51306, "lng": 127.053334}, {"name": "봉은사역", "line": "9", "lat": 37.514258, "lng": 127.060257}, {"name": "종합운동장역", "line": "9", "lat": 37.511433, "lng": 127.076313}, {"name": "삼전역", "line": "9", "lat": 37.504356, "lng": 127.08804}, {"name": "석촌고분역", "line": "9", "lat": 37.502453, "lng": 127.096961}, {"name": "석촌역", "line": "9", "lat": 37.504929, "lng": 127.106682}, {"name": "송파나루역", "line": "9", "lat": 37.510303, "lng": 127.112231}, {"name": "한성백제역", "line": "9", "lat": 37.516311, "lng": 127.116168}, {"name": "올림픽공원역", "line": "9", "lat": 37.516132, "lng": 127.130282}, {"name": "둔촌오륜역", "line": "9", "lat": 37.519395, "lng": 127.138706}, {"name": "중앙보훈병원역", "line": "9", "lat": 37.528321, "lng": 127.148376}];
-        
-        let orders = loadDataSafely('qcp_orders_v2', []);
-        let appMode = 'QUICKS'; let selectedPlatform = 'Insung';
-        let currentListFilter = 'RUN'; let wakeLockObj = null;
-        let sttMode = 'DAILY';
-
-        const SHIFTS = [
-            { id: 'PRE', start: 0, end: 9 }, { id: 'Q1', start: 9, end: 12 },
-            { id: 'Q2', start: 12, end: 15 }, { id: 'BT', start: 15, end: 17 },
-            { id: 'Q3', start: 17, end: 20 }, { id: 'Q4', start: 20, end: 23 },
-            { id: 'FIN', start: 23, end: 24 }
-        ];
-        const PLAT_QUICKS = ['Insung', 'Logi', 'Kakao']; const PLAT_EATS = ['Kakao', 'Baemin', 'Coupang'];
-
-        function calcNetFare(kVal, plat) { return (plat==='Insung'||plat==='Logi') ? Math.round(kVal*0.77*10)/10 : kVal; }
-        function loadDataSafely(key, defaultVal) { try { let d = localStorage.getItem(key); return d ? JSON.parse(d) : defaultVal; } catch(e) { return defaultVal; } }
-        
+        // ================= UI & COMMON =================
         let toastTimeout;
-        function showToast(msg) {
-            const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show');
-            clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.classList.remove('show'), 2000);
-        }
-
-        // --- MAP ENGINE ---
-        let map; let myLocationMarker = null; let distanceCircles = []; let routeVectors = []; let textLabels = []; 
-        let currentLat = 37.5665; let currentLng = 126.9780; // 영점 시청
-
-        function initGeosticsRealMap() {
-            if (map) return;
-            map = L.map('map', { zoomControl: false }).setView([currentLat, currentLng], 13);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CARTO' }).addTo(map);
-        }
-
-        async function fetchCoordsFromTmap(address) {
-            const tmapKey = localStorage.getItem('qcp_key_tmap') || "";
-            if (!tmapKey) return null;
-            try {
-                const url = `https://apis.openapi.sk.com/tmap/geo/fullAddrGeo?version=1&format=json&fullAddr=${encodeURIComponent(address)}&appKey=${tmapKey}`;
-                const res = await fetch(url); const json = await res.json();
-                if (json.coordinateInfo && json.coordinateInfo.coordinate && json.coordinateInfo.coordinate.length > 0) {
-                    const coord = json.coordinateInfo.coordinate[0];
-                    return { lat: parseFloat(coord.newLat || coord.lat), lng: parseFloat(coord.newLon || coord.lon), roadAddr: coord.newRoadAddr || address };
-                }
-            } catch (e) { console.error("TMAP 에러:", e); }
-            return null;
-        }
-
-        async function searchAddresses() {
-            let startId = appMode === 'QUICKS' ? 'in-pick-quicks' : 'in-pick-eats';
-            let endId = appMode === 'QUICKS' ? 'in-drop-quicks' : 'in-drop-eats';
-            let pStr = document.getElementById(startId).value.trim();
-            let dStr = document.getElementById(endId).value.trim();
-            
-            showToast("SEARCHING...");
-            if(pStr) {
-                let pRes = await fetchCoordsFromTmap(pStr);
-                if(pRes) document.getElementById(startId).value = pRes.roadAddr;
-            }
-            if(dStr) {
-                let dRes = await fetchCoordsFromTmap(dStr);
-                if(dRes) document.getElementById(endId).value = dRes.roadAddr;
-            }
-            if(map) { reprojectVectorTrajectory(); showToast("RADAR SYNCED"); }
-            else { showToast("READY FOR RADAR"); }
-        }
-
-        function openMapApp() { showToast("LAUNCHING KAKAOMAP"); }
-
-        function executeGps3kmScan() {
-            if (!navigator.geolocation) { showToast("NO GPS"); return; }
-            showToast("SCANNING...");
-            document.getElementById('bundle-total-amt').innerText = "LOC: SCANNING...";
-            
-            navigator.geolocation.getCurrentPosition((position) => {
-                currentLat = position.coords.latitude; currentLng = position.coords.longitude;
-                map.setView([currentLat, currentLng], 13);
-                
-                distanceCircles.forEach(c => map.removeLayer(c)); distanceCircles = [];
-                let c1 = L.circle([currentLat, currentLng], { radius: 1000, color: '#10b981', weight: 2, fillOpacity: 0.03, dashArray: '4, 4' }).addTo(map);
-                let c2 = L.circle([currentLat, currentLng], { radius: 2000, color: '#f39c12', weight: 2, fillOpacity: 0.01, dashArray: '6, 6' }).addTo(map);
-                distanceCircles.push(c1, c2);
-
-                if (myLocationMarker) map.removeLayer(myLocationMarker);
-                myLocationMarker = L.circleMarker([currentLat, currentLng], { radius: 10, fillColor: '#ff453a', color: '#fff', weight: 3, opacity: 1, fillOpacity: 0.9 }).addTo(map);
-                document.getElementById('bundle-total-amt').innerText = `LOC: LOCKED`;
-                reprojectVectorTrajectory(); showToast("LOCKED");
-            }, () => { showToast("GPS ERR"); reprojectVectorTrajectory(); }, { enableHighAccuracy: true, timeout: 4000 });
-        }
-
-        async function reprojectVectorTrajectory() {
-            if(!map) return;
-            routeVectors.forEach(v => map.removeLayer(v)); routeVectors = [];
-            textLabels.forEach(l => map.removeLayer(l)); textLabels = [];
-            let activeOrders = orders.filter(o => o.state !== 'FIN').slice(0, 5);
-            for (let i = 0; i < activeOrders.length; i++) {
-                let o = activeOrders[i];
-                if (o.pLat && o.pLng) {
-                    let pMarker = L.marker([o.pLat, o.pLng], { icon: L.divIcon({ className: 'hud-custom-label', html: `#${o.displayNo} P:${extractSummaryStr(o.startDetail)}`, iconAnchor: [40, 20] }) }).addTo(map);
-                    textLabels.push(pMarker);
-                    if (o.mode === 'QUICKS' && o.dLat && o.dLng) {
-                        let polyline = L.polyline([[o.pLat, o.pLng], [o.dLat, o.dLng]], { color: '#007aff', weight: 6, opacity: 0.85, dashArray: '5, 10' }).addTo(map);
-                        routeVectors.push(polyline);
-                        let dMarker = L.marker([o.dLat, o.dLng], { icon: L.divIcon({ className: 'hud-dest-label', html: `➔D:#${o.displayNo} ${extractSummaryStr(o.endDetail)}`, iconAnchor: [10, -5] }) }).addTo(map);
-                        textLabels.push(dMarker);
-                    }
-                }
-            }
-        }
-
-        // --- SWIPE GESTURES ---
-        const swipeZone = document.getElementById('radar-swipe-zone');
-        const radarPanel = document.getElementById('bundle-advice-panel');
-        let startY = 0; let currentY = 0;
-        swipeZone.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; radarPanel.style.transition = 'none'; }, {passive: true});
-        swipeZone.addEventListener('touchmove', (e) => { currentY = e.touches[0].clientY; let deltaY = currentY - startY; if (deltaY > 0) radarPanel.style.transform = `translateY(${deltaY}px)`; }, {passive: true});
-        swipeZone.addEventListener('touchend', (e) => {
-            let deltaY = currentY - startY; radarPanel.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-            if (deltaY > 100) { radarPanel.classList.remove('open'); radarPanel.style.transform = ''; } else { radarPanel.style.transform = 'translateY(0)'; setTimeout(() => radarPanel.style.transform = '', 300); }
-        });
-
-        const mainView = document.getElementById('main-viewport');
-        let viewStartX = 0;
-        mainView.addEventListener('touchstart', e => viewStartX = e.touches[0].clientX, {passive: true});
-        mainView.addEventListener('touchend', e => {
-            let dx = e.changedTouches[0].clientX - viewStartX;
-            if(Math.abs(e.changedTouches[0].clientY - e.changedTouches[0].clientY) < 50) {
-                if (dx > 80) switchMainTab('ord', document.getElementById('nav-ord'));
-                else if (dx < -80) switchMainTab('lst', document.getElementById('nav-lst'));
-            }
-        });
-
-        function toggleBundlePanelState() {
-            const p = document.getElementById('bundle-advice-panel'); p.classList.toggle('open');
-            if(p.classList.contains('open')) { p.style.transform = ''; setTimeout(() => { initGeosticsRealMap(); map.invalidateSize(); executeGps3kmScan(); }, 300); }
-        }
-
-        // --- CORE SYSTEM ---
-        function setAppMode(mode) {
-            appMode = mode;
-            document.getElementById('btn-mode-quicks').classList.toggle('active', mode === 'QUICKS'); document.getElementById('btn-mode-eats').classList.toggle('active', mode === 'EATS');
-            document.getElementById('quicks-inputs').style.display = mode === 'QUICKS' ? 'block' : 'none'; document.getElementById('eats-inputs').style.display = mode === 'EATS' ? 'block' : 'none';
-            const pArray = mode === 'QUICKS' ? PLAT_QUICKS : PLAT_EATS; selectedPlatform = pArray[0];
-            document.getElementById('platform-chips').innerHTML = pArray.map((p, i) => `<div class="chip ${i===0 ? 'active' : ''}" onclick="selectPlatform(this, '${p}')">${p}</div>`).join('');
-        }
-        function selectPlatform(el, plat) { document.querySelectorAll('#platform-chips .chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); selectedPlatform = plat; }
+        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.classList.remove('show'), 2000); }
+        function toggleModal(id) { const el = document.getElementById(id); el.classList.contains('show') ? el.classList.remove('show') : el.classList.add('show'); }
         
-        function stripSido(str) { return str ? str.replace(/^(서울특별시|경기도|서울시|경기|서울)\s+/, "").trim() : ""; }
-        function extractSummaryStr(txt) { let s = stripSido(txt); if(!s) return ""; let parts = s.split(' '); return parts[parts.length - 1].substring(0, 2); }
+        function switchMainTab(id, el) { 
+            if(el) { document.querySelectorAll('.nav-bar .nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+            document.querySelectorAll('.viewport .section').forEach(s => s.classList.remove('active')); 
+            document.getElementById('view-'+id).classList.add('active'); 
+            
+            if(id === 'lst') QuickCal.renderMasterList(); 
+            if(id === 'radar') { 
+                GeosticsOS.init(); 
+                // PC Chrome 등에서 탭 전환 시 지도 렌더링이 먹통되는 현상을 방지 (0.3초 딜레이)
+                setTimeout(() => { if(GeosticsOS.map) GeosticsOS.map.invalidateSize(); }, 300); 
+            }
+        }
         function getNowTimeString() { const n = new Date(); return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; }
+        setInterval(() => document.getElementById('sysClock').innerText = getNowTimeString(), 1000);
 
-        function commitOrder() {
-            let startId = appMode === 'QUICKS' ? 'in-pick-quicks' : 'in-pick-eats';
-            let endId = appMode === 'QUICKS' ? 'in-drop-quicks' : 'in-drop-eats';
-            const fareK = parseFloat(document.getElementById('in-fare').value) || 0;
-            const startTxt = document.getElementById(startId).value.trim(); const endTxt = document.getElementById(endId).value.trim();
-            if(!startTxt || !fareK) { showToast("ERR: INVALID"); return; }
-            const h = new Date().getHours(); const currentShift = SHIFTS.find(s => h >= s.start && h < s.end) || SHIFTS[0];
-
-            orders.unshift({
-                id: Date.now().toString(), displayNo: orders.length + 1, timestamp: Date.now(), mode: appMode, platform: selectedPlatform,
-                startDetail: startTxt, endDetail: endTxt, routeSummary: endTxt ? `${extractSummaryStr(startTxt)}➔${extractSummaryStr(endTxt)}` : `[${extractSummaryStr(startTxt)}]`,
-                fareK: fareK, memo: document.getElementById('in-memo').value.trim(), 
-                state: appMode==='EATS' ? 'FIN' : 'RUN', shift: currentShift.id, createdTime: getNowTimeString(), finTime: appMode==='EATS' ? getNowTimeString() : ''
-            });
-            localStorage.setItem('qcp_orders_v2', JSON.stringify(orders));
-            clearInputs(); renderMasterList(); updateSysTotal(); if(map) reprojectVectorTrajectory(); 
-            switchMainTab('lst', document.getElementById('nav-lst')); showToast("SAVED");
-        }
-
-        function renderMasterList() {
-            const tbody = document.getElementById('master-list-tbody'); tbody.innerHTML = '';
-            let filtered = orders.filter(o => currentListFilter === 'RUN' ? o.state !== 'FIN' : o.state === 'FIN');
-            document.getElementById('lst-summary-bar').innerText = `ACTIVE: ${orders.filter(o => o.state!=='FIN').length} | DONE: ${orders.filter(o => o.state==='FIN').length}`;
+        // ================= Geostics Base OS (RADAR MODULE) =================
+        const GeosticsOS = {
+            map: null, routeVectors: [],
+            seoulCenter: [37.5665, 126.9780], 
             
-            if(filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="padding:20px; color:var(--m3-outline);">EMPTY</td></tr>`; return; }
-            filtered.forEach(o => {
-                const tr = document.createElement('tr'); 
-                if(o.mode === 'QUICKS') tr.setAttribute('onclick', `toggleDetailRow('${o.id}')`);
-                
-                tr.innerHTML = `<td>#${o.displayNo}</td><td>${o.shift}</td>
-                <td>${o.platform} <button class="btn-icon" style="display:inline-block; padding:2px 6px; font-size:9px; height:20px; margin-left:4px;" onclick="openEditModal('${o.id}', event)">EDIT</button></td>
-                <td style="text-align:left;">${o.routeSummary}</td><td>${calcNetFare(o.fareK, o.platform).toFixed(1)}k</td>
-                <td>${o.mode === 'EATS' ? '<span class="chip-status" style="background:var(--m3-muted);">FIN</span>' : (o.state==='RUN' ? `<span class="chip-status" style="background:var(--m3-primary);" onclick="stepState('${o.id}', event)">FIN</span>` : '<span class="chip-status" style="background:var(--m3-muted);">FIN</span>')}</td>`;
-                tbody.appendChild(tr);
+            init: function() {
+                if (this.map) return;
+                const bounds = L.latLngBounds([37.1, 126.5], [37.9, 127.5]);
+                this.map = L.map('map', { zoomControl: false, maxBounds: bounds, minZoom: 10, maxBoundsViscosity: 1.0 }).setView(this.seoulCenter, 12);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', { attribution: '' }).addTo(this.map);
+                this.map.attributionControl.setPrefix(false); 
 
-                if(o.mode === 'QUICKS') {
-                    const dTr = document.createElement('tr'); dTr.id = `detail-${o.id}`; dTr.style.display = 'none'; dTr.style.background = 'var(--m3-surface-low)';
-                    dTr.innerHTML = `<td colspan="6" style="text-align:left; padding:10px;"><div style="font-size:11px; display:flex; flex-direction:column; gap:6px;">
-                        <div class="flex-between"><span><strong>P:</strong> ${stripSido(o.startDetail)} [${o.createdTime}]</span> <a href="#" class="tmap-btn">TMAP</a></div>
-                        <div class="flex-between"><span><strong>D:</strong> ${stripSido(o.endDetail)} ${o.finTime ? `[${o.finTime}]` : ''}</span> <a href="#" class="tmap-btn">TMAP</a></div>
-                    </div></td>`;
-                    tbody.appendChild(dTr);
+                // ResizeObserver를 통한 렌더링 오류 이중 방어
+                if (window.ResizeObserver) {
+                    new ResizeObserver(() => { if (this.map) this.map.invalidateSize(); }).observe(document.getElementById('view-radar'));
                 }
-            });
-        }
+            },
 
-        function toggleDetailRow(id) { const el = document.getElementById(`detail-${id}`); if(el) el.style.display = el.style.display==='none'?'table-row':'none'; }
-        function stepState(id, e) { e.stopPropagation(); const o = orders.find(x => x.id === id); if(!o) return; o.state = 'FIN'; o.finTime = getNowTimeString(); localStorage.setItem('qcp_orders_v2', JSON.stringify(orders)); renderMasterList(); updateSysTotal(); if(map) reprojectVectorTrajectory(); showToast("DONE"); }
-        function updateSysTotal() { let t = 0; orders.forEach(o => t += calcNetFare(o.fareK, o.platform)); document.getElementById('sysTotalRev').innerText = t.toFixed(1) + 'k'; }
-        function switchMainTab(id, el) { document.querySelectorAll('.nav-bar .nav-item').forEach(n => n.classList.remove('active')); if(el) el.classList.add('active'); else document.getElementById('nav-'+id).classList.add('active'); document.querySelectorAll('.viewport .section').forEach(s => s.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); if(id==='lst') renderMasterList(); }
-        function setListFilter(f) { currentListFilter = f; document.getElementById('flt-run').classList.toggle('active', f==='RUN'); document.getElementById('flt-fin').classList.toggle('active', f==='FIN'); renderMasterList(); }
-        function clearInputs() { ['in-pick-quicks', 'in-drop-quicks', 'in-pick-eats', 'in-drop-eats', 'in-fare', 'in-memo'].forEach(id => { const el = document.getElementById(id); if(el && el.type !== 'checkbox') el.value = ''; }); }
-        
-        function openEditModal(id, e) {
-            e.stopPropagation(); const o = orders.find(x => x.id === id); if(!o) return;
-            document.getElementById('edit-id').value = id; document.getElementById('edit-plat').value = o.platform;
-            document.getElementById('edit-pick').value = o.startDetail; document.getElementById('edit-drop').value = o.endDetail;
-            document.getElementById('edit-fare').value = o.fareK; document.getElementById('edit-memo').value = o.memo || '';
-            toggleModal('popEdit');
-        }
-        function saveEditData() {
-            const id = document.getElementById('edit-id').value; const o = orders.find(x => x.id === id); if(!o) return;
-            o.platform = document.getElementById('edit-plat').value; o.startDetail = document.getElementById('edit-pick').value;
-            o.endDetail = document.getElementById('edit-drop').value; o.fareK = parseFloat(document.getElementById('edit-fare').value) || 0;
-            o.memo = document.getElementById('edit-memo').value; o.routeSummary = o.endDetail ? `${extractSummaryStr(o.startDetail)}➔${extractSummaryStr(o.endDetail)}` : `[${extractSummaryStr(o.startDetail)}]`;
-            localStorage.setItem('qcp_orders_v2', JSON.stringify(orders)); renderMasterList(); updateSysTotal(); closeModal('popEdit'); showToast("UPDATED");
-        }
-        function deleteEditItem() {
-            const id = document.getElementById('edit-id').value; orders = orders.filter(x => x.id !== id);
-            localStorage.setItem('qcp_orders_v2', JSON.stringify(orders)); renderMasterList(); updateSysTotal(); closeModal('popEdit'); showToast("DELETED");
-        }
-        function clearList() { if(confirm('Clear all local records?')) { orders = []; localStorage.setItem('qcp_orders_v2', JSON.stringify(orders)); renderMasterList(); updateSysTotal(); showToast("CLEARED"); } }
+            clearVectors: function() {
+                this.routeVectors.forEach(v => this.map.removeLayer(v));
+                this.routeVectors = [];
+            },
 
-        function toggleModal(id) { document.getElementById(id).classList.add('show'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-        function saveSystemConfig() { localStorage.setItem('qcp_url_sheet', document.getElementById('sheet-url').value.trim()); localStorage.setItem('qcp_key_tmap', document.getElementById('tmap-key').value.trim()); closeModal('popSet'); showToast("SAVED"); }
-        function updateClockLoop() { const n = new Date(); document.getElementById('sysClock').innerText = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; }
-        setInterval(updateClockLoop, 1000); updateClockLoop();
-        async function toggleWakeLock(isSet) { if(isSet && 'wakeLock' in navigator) { try { wakeLockObj = await navigator.wakeLock.request('screen'); } catch(e){} } }
-        
-        function copyTodayData() { 
-            let buf = orders.map(o => `${o.displayNo}\t${o.shift}\t${o.platform}\t${extractSummaryStr(o.startDetail)}\t${extractSummaryStr(o.endDetail)}\t${Math.round(o.fareK*1000)}`).join('\n'); 
-            navigator.clipboard.writeText(buf); showToast("COPIED"); 
-        }
-        function toggleSttMode() { sttMode = sttMode === 'DAILY' ? 'WEEKLY' : 'DAILY'; document.getElementById('btn-stt-toggle').innerText = sttMode; }
-        
-        // Auto Sync Mockup (00:00 trigger)
-        setInterval(() => {
-            const d = new Date();
-            if(d.getHours() === 0 && d.getMinutes() === 0 && d.getSeconds() === 0) {
-                console.log("Auto-syncing to Sheet..."); showToast("SYNC COMPLETE");
-                orders = []; localStorage.setItem('qcp_orders_v2', JSON.stringify(orders)); renderMasterList(); updateSysTotal();
+            drawVector: function(pLat, pLng, dLat, dLng) {
+                if(!this.map) this.init();
+                this.clearVectors();
+
+                const pMarker = L.marker([pLat, pLng], { icon: L.divIcon({ className: 'marker-dot marker-p', iconSize: [14, 14] }) }).addTo(this.map);
+                const dMarker = L.marker([dLat, dLng], { icon: L.divIcon({ className: 'marker-dot marker-d', iconSize: [14, 14] }) }).addTo(this.map);
+                
+                const polyline = L.polyline([[pLat, pLng], [dLat, dLng]], { color: '#f39c12', weight: 3, opacity: 0.8, dashArray: '6, 6' }).addTo(this.map);
+                this.routeVectors.push(pMarker, dMarker, polyline);
+
+                const bearing = this.calcBearing(pLat, pLng, dLat, dLng);
+                const midLat = (pLat + dLat) / 2; const midLng = (pLng + dLng) / 2;
+                const arrowIcon = L.divIcon({ className: 'marker-arrow', iconSize: [20, 20], html: `<div style="transform: rotate(${bearing - 90}deg);">▶</div>` });
+                const arrowMarker = L.marker([midLat, midLng], { icon: arrowIcon }).addTo(this.map);
+                this.routeVectors.push(arrowMarker);
+
+                this.map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
+            },
+
+            calcBearing: function(lat1, lon1, lat2, lon2) {
+                const toRad = deg => deg * Math.PI / 180; const toDeg = rad => rad * 180 / Math.PI;
+                const dLon = toRad(lon2 - lon1); lat1 = toRad(lat1); lat2 = toRad(lat2);
+                const y = Math.sin(dLon) * Math.cos(lat2);
+                const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+                return (toDeg(Math.atan2(y, x)) + 360) % 360;
+            },
+
+            updateHUD: function(pName, dName, distKm, timeMin, effHourly) {
+                const hud = document.getElementById('radar-hud');
+                if(!pName || !dName) { hud.style.display = 'none'; return; }
+                hud.innerHTML = `${pName} ➔ ${dName}<br><span style="color:#fff; font-size:11px;">${distKm.toFixed(1)}km | ${timeMin}분 | ${effHourly}k/h</span>`;
+                hud.style.display = 'block';
             }
-        }, 1000);
+        };
 
-        function factoryReset() { localStorage.clear(); location.reload(); }
+        // ================= QuickCal Pro (SYSTEM MODULE) =================
+        const QuickCal = {
+            orders: [], appMode: 'QUICKS', selectedPlatform: 'Insung',
+            currentFilter: 'RUN', wakeLockObj: null,
+            tempPick: null, tempDrop: null, tempDist: 0, tempTime: 0,
+            
+            SHIFTS: [ { id: 'PRE', start: 0, end: 9 }, { id: 'Q1', start: 9, end: 12 }, { id: 'Q2', start: 12, end: 15 }, { id: 'BT', start: 15, end: 17 }, { id: 'Q3', start: 17, end: 20 }, { id: 'Q4', start: 20, end: 23 }, { id: 'FIN', start: 23, end: 24 } ],
+            PLAT_QUICKS: ['Insung', 'Logi', 'Kakao'], PLAT_EATS: ['Kakao', 'Baemin', 'Coupang'],
 
-        setAppMode('QUICKS'); updateSysTotal();
-        document.getElementById('tmap-key').value = localStorage.getItem('qcp_key_tmap') || '';
+            init: function() {
+                this.orders = this.loadDataSafely('qcp_orders_v201', []);
+                this.setAppMode('QUICKS'); this.updateSysTotal(); this.updateShiftBadge();
+                
+                document.getElementById('tmap-key').value = localStorage.getItem('qcp_key_tmap') || '';
+                document.getElementById('sheet-url').value = localStorage.getItem('qcp_url_sync') || '';
+                
+                let theme = localStorage.getItem('qcp_theme_v201');
+                if(!theme) theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                this.applyTheme(theme);
+                
+                const wlState = localStorage.getItem('qcp_wakelock') === 'ON';
+                document.getElementById('set-wakelock').checked = wlState;
+                if(wlState) this.toggleWakeLock(true);
+            },
+
+            loadDataSafely: function(k, def) { try { let d = localStorage.getItem(k); return d ? JSON.parse(d) : def; } catch(e) { return def; } },
+            calcNetFare: function(kVal, plat) { return (plat==='Insung'||plat==='Logi') ? Math.round(kVal*0.77*10)/10 : kVal; },
+            updateSysTotal: function() { let t=0; this.orders.forEach(o => t+=this.calcNetFare(o.fareK, o.platform)); document.getElementById('sysTotalRev').innerText = t.toFixed(1) + 'k'; },
+            updateShiftBadge: function() { const h = new Date().getHours(); const s = this.SHIFTS.find(x => h >= x.start && h < x.end) || this.SHIFTS[0]; document.getElementById('sysQtrBadge').innerText = s.id; return s.id; },
+            
+            applyTheme: function(theme) { document.documentElement.setAttribute('data-theme', theme); document.getElementById('meta-theme-color').setAttribute('content', theme === 'dark' ? '#111315' : '#f8f9fc'); localStorage.setItem('qcp_theme_v201', theme); },
+            toggleThemeManual: function() { const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; this.applyTheme(t); toggleModal('popSet'); },
+            async toggleWakeLock(isSet) { if('wakeLock' in navigator) { try { if(isSet) this.wakeLockObj = await navigator.wakeLock.request('screen'); else if(this.wakeLockObj) { await this.wakeLockObj.release(); this.wakeLockObj = null; } localStorage.setItem('qcp_wakelock', isSet ? 'ON' : 'OFF'); } catch(e){} } },
+            factoryReset: function() { if(confirm('FACTORY RESET?')) { localStorage.clear(); location.reload(); } },
+            
+            saveSystemConfig: function() { 
+                localStorage.setItem('qcp_key_tmap', document.getElementById('tmap-key').value.trim()); 
+                localStorage.setItem('qcp_url_sync', document.getElementById('sheet-url').value.trim());
+                toggleModal('popSet'); showToast("SAVED"); 
+            },
+
+            setAppMode: function(mode) {
+                this.appMode = mode;
+                document.getElementById('btn-mode-quicks').classList.toggle('active', mode === 'QUICKS'); 
+                document.getElementById('btn-mode-eats').classList.toggle('active', mode === 'EATS');
+                
+                document.getElementById('quicks-inputs').style.display = mode === 'QUICKS' ? 'block' : 'none'; 
+                document.getElementById('eats-inputs').style.display = mode === 'EATS' ? 'block' : 'none';
+                document.getElementById('nav-btn-row').style.display = mode === 'QUICKS' ? 'flex' : 'none';
+                
+                const pArr = mode === 'QUICKS' ? this.PLAT_QUICKS : this.PLAT_EATS; this.selectedPlatform = pArr[0];
+                document.getElementById('platform-chips').innerHTML = pArr.map((p, i) => `<div class="chip ${i===0 ? 'active' : ''}" onclick="QuickCal.selectPlatform(this, '${p}')">${p}</div>`).join('');
+                this.updateEffBadge(); 
+            },
+
+            selectPlatform: function(el, plat) { document.querySelectorAll('#platform-chips .chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.selectedPlatform = plat; },
+            
+            extractDong: function(str) { 
+                let clean = str ? str.replace(/^(서울특별시|경기도|인천광역시|서울시|경기|서울|인천)\s+/, "").trim() : "";
+                const match = clean.match(/([가-힣]+[0-9]*[동읍면리])/); 
+                if (match) return match[1].substring(0,2); 
+                return clean.split(' ').pop().substring(0,2);
+            },
+
+            searchTmapActive: async function() {
+                const apiKey = localStorage.getItem('qcp_key_tmap');
+                if(!apiKey) { showToast("TMAP KEY REQ"); return; }
+                let pickIn = document.getElementById('in-pick-quicks'); let dropIn = document.getElementById('in-drop-quicks');
+                
+                this.tempPick = null; this.tempDrop = null; this.tempDist = 0; this.tempTime = 0;
+                if(!pickIn.value.trim() && !dropIn.value.trim()) { showToast("NO INPUT"); return; }
+                showToast("SEARCHING...");
+
+                const getPoiData = async (keyword) => {
+                    try {
+                        const res = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${encodeURIComponent(keyword)}&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&count=1`, { headers: { 'appKey': apiKey } });
+                        const data = await res.json();
+                        if(data?.searchPoiInfo?.pois?.poi?.length > 0) {
+                            const poi = data.searchPoiInfo.pois.poi[0];
+                            let dong = poi.lowerAddrName || poi.middleAddrName || '';
+                            let fullStr = `${poi.upperAddrName} ${poi.middleAddrName} ${dong}`;
+                            return { lat: parseFloat(poi.frontLat || poi.noorLat), lng: parseFloat(poi.frontLon || poi.noorLon), str: fullStr.trim(), dong: dong };
+                        }
+                    } catch(e) {} return null;
+                };
+
+                if(pickIn.value.trim()) { let pData = await getPoiData(pickIn.value.trim()); if(pData) { pickIn.value = pData.str; this.tempPick = {lat: pData.lat, lng: pData.lng, str: pData.str, srt: this.extractDong(pData.dong || pData.str)}; } }
+                if(dropIn.value.trim()) { let dData = await getPoiData(dropIn.value.trim()); if(dData) { dropIn.value = dData.str; this.tempDrop = {lat: dData.lat, lng: dData.lng, str: dData.str, srt: this.extractDong(dData.dong || dData.str)}; } }
+                
+                if(this.tempPick && this.tempDrop) {
+                    try {
+                        const routeRes = await fetch('https://apis.openapi.sk.com/tmap/routes?version=1&format=json', {
+                            method: 'POST', headers: { 'appKey': apiKey, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                startX: this.tempPick.lng, startY: this.tempPick.lat, 
+                                endX: this.tempDrop.lng, endY: this.tempDrop.lat, 
+                                reqCoordType: "WGS84GEO", resCoordType: "WGS84GEO", 
+                                searchOption: "12" // 이륜차 전용 도로 탐색 옵션
+                            })
+                        });
+                        const routeData = await routeRes.json();
+                        if(routeData?.features?.[0]?.properties) {
+                            const props = routeData.features[0].properties;
+                            this.tempDist = props.totalDistance / 1000; 
+                            this.tempTime = Math.round(props.totalTime / 60); 
+                            if(this.tempTime === 0) this.tempTime = 1; 
+                        }
+                    } catch(e) { console.error(e); }
+
+                    this.updateEffBadge();
+                    GeosticsOS.drawVector(this.tempPick.lat, this.tempPick.lng, this.tempDrop.lat, this.tempDrop.lng);
+                    GeosticsOS.updateHUD(this.tempPick.srt, this.tempDrop.srt, this.tempDist, this.tempTime, this.getHourlyRate());
+                }
+                showToast("SYNCED");
+            },
+
+            openRouteMapActive: function() {
+                if(!this.tempPick || !this.tempDrop) { showToast("SEARCH FIRST"); return; }
+                window.location.href = `kakaomap://route?sp=${this.tempPick.lat},${this.tempPick.lng}&ep=${this.tempDrop.lat},${this.tempDrop.lng}&by=CAR`;
+                showToast("LAUNCHING NAVI");
+            },
+
+            getHourlyRate: function() {
+                const fare = parseFloat(document.getElementById('in-fare').value) || 0;
+                if(!fare || !this.tempTime) return '--';
+                return ((fare / this.tempTime) * 60).toFixed(1);
+            },
+
+            updateEffBadge: function() {
+                const badge = document.getElementById('eff-badge');
+                if(this.appMode !== 'QUICKS' || !this.tempTime) { badge.style.display = 'none'; return; }
+                const fare = parseFloat(document.getElementById('in-fare').value) || 0;
+                if(fare) {
+                    badge.innerHTML = `${this.getHourlyRate()}k/h <span class="sub-txt">(${this.tempDist.toFixed(1)}km | ${this.tempTime}분)</span>`;
+                    badge.style.display = 'block';
+                } else { badge.style.display = 'none'; }
+            },
+
+            clearInputs: function() { 
+                ['in-pick-quicks', 'in-drop-quicks', 'in-pick-eats', 'in-drop-eats', 'in-fare', 'in-memo'].forEach(id => { const el = document.getElementById(id); if(el && el.type !== 'checkbox') el.value = ''; }); 
+                this.tempPick = null; this.tempDrop = null; this.tempDist = 0; this.tempTime = 0; this.updateEffBadge();
+                GeosticsOS.clearVectors(); document.getElementById('radar-hud').style.display = 'none';
+            },
+
+            commitOrder: function() {
+                let startId = this.appMode === 'QUICKS' ? 'in-pick-quicks' : 'in-pick-eats';
+                let endId = this.appMode === 'QUICKS' ? 'in-drop-quicks' : 'in-drop-eats';
+                const fareK = parseFloat(document.getElementById('in-fare').value) || 0;
+                const startTxt = document.getElementById(startId).value.trim(); const endTxt = document.getElementById(endId).value.trim();
+                
+                if(!startTxt || !fareK) { showToast("ERR: INVALID"); return; }
+                
+                let pSumm = this.tempPick ? this.tempPick.srt : this.extractDong(startTxt);
+                let dSumm = this.tempDrop ? this.tempDrop.srt : this.extractDong(endTxt);
+                let rSumm = endTxt ? `${pSumm}➔${dSumm}` : `[${pSumm}]`;
+
+                let newOrder = {
+                    id: Date.now().toString(), displayNo: this.orders.length + 1, timestamp: Date.now(), mode: this.appMode, platform: this.selectedPlatform,
+                    startDetail: startTxt, endDetail: endTxt, routeSummary: rSumm, fareK: fareK, memo: document.getElementById('in-memo').value.trim(), 
+                    shift: this.updateShiftBadge(), pTime: '', fTime: '', dist: this.tempDist, time: this.tempTime, hourly: this.getHourlyRate()
+                };
+
+                if (this.appMode === 'EATS') { newOrder.state = 'FIN'; newOrder.fTime = getNowTimeString(); }
+                else { newOrder.state = 'RUN'; }
+
+                this.orders.unshift(newOrder); localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders));
+                this.clearInputs(); this.updateSysTotal();
+                switchMainTab('lst', document.getElementById('nav-lst')); showToast("SAVED");
+            },
+
+            setListFilter: function(f) { this.currentFilter = f; document.getElementById('flt-run').classList.toggle('active', f==='RUN'); document.getElementById('flt-fin').classList.toggle('active', f==='FIN'); this.renderMasterList(); },
+            clearList: function() { if(confirm('Clear all local records?')) { this.orders = []; localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); showToast("CLEARED"); } },
+
+            renderMasterList: function() {
+                const tbody = document.getElementById('master-list-tbody'); tbody.innerHTML = '';
+                let filtered = this.orders.filter(o => this.currentFilter === 'RUN' ? o.state !== 'FIN' : o.state === 'FIN').sort((a,b) => a.timestamp - b.timestamp);
+                
+                document.getElementById('lst-summary-bar').innerText = `TOTAL: ${this.orders.length} | ACTIVE: ${this.orders.filter(o => o.state!=='FIN').length} | DONE: ${this.orders.filter(o => o.state==='FIN').length}`;
+                
+                if(filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="padding:20px; color:var(--m3-outline);">EMPTY</td></tr>`; return; }
+                filtered.forEach(o => {
+                    const tr = document.createElement('tr'); 
+                    let timeStr = o.mode === 'EATS' ? `⏱ F ${o.fTime}` : `⏱ P ${o.pTime||'--'} / F ${o.fTime||'--'}`;
+                    let effStr = (o.dist && o.time && o.hourly !== '--') ? `<div class="tbl-eff">${o.hourly}k/h</div>` : '';
+                    
+                    let actBtn = '';
+                    if (o.mode === 'EATS') { actBtn = '<span class="chip-status" style="background:var(--m3-surface-low); color:var(--m3-muted);">FIN</span>'; }
+                    else {
+                        if (o.state === 'RUN') actBtn = `<button class="btn-icon btn-blue" style="width:100%; height:26px;" onclick="QuickCal.stepState('${o.id}', 'PICK', event)">PICK</button>`;
+                        else if (o.state === 'PICK') actBtn = `<button class="btn-icon btn-red" style="width:100%; height:26px;" onclick="QuickCal.stepState('${o.id}', 'FIN', event)">FIN</button>`;
+                        else actBtn = '<span class="chip-status" style="background:var(--m3-surface-low); color:var(--m3-muted);">DONE</span>';
+                    }
+
+                    if(o.mode === 'QUICKS') tr.setAttribute('onclick', `QuickCal.toggleDetail('${o.id}')`);
+                    
+                    tr.innerHTML = `
+                    <td>${o.displayNo}</td><td>${o.shift}</td>
+                    <td>${o.platform}<br><button class="btn-icon" style="display:inline-block; margin-top:4px; padding:2px 6px; font-size:9px; height:20px;" onclick="QuickCal.openEditModal('${o.id}', event)">EDIT</button></td>
+                    <td style="text-align:left;">
+                        <div class="tbl-route">${o.routeSummary}</div>
+                        <div class="tbl-time">${timeStr}</div>
+                    </td>
+                    <td><span style="font-weight:900;">${this.calcNetFare(o.fareK, o.platform).toFixed(1)}k</span>${effStr}</td>
+                    <td>${actBtn}</td>`;
+                    tbody.appendChild(tr);
+
+                    if(o.mode === 'QUICKS') {
+                        const dTr = document.createElement('tr'); dTr.id = `detail-${o.id}`; dTr.className = 'detail-row'; dTr.style.display = 'none';
+                        dTr.innerHTML = `<td colspan="6">
+                            <div class="flex-between mb-8"><span><strong style="color:var(--m3-primary)">P:</strong> ${o.startDetail}</span><a href="tmap://search?name=${encodeURIComponent(o.startDetail)}" class="btn-tmap" onclick="event.stopPropagation()">TMAP</a></div>
+                            <div class="flex-between"><span><strong style="color:var(--m3-error)">D:</strong> ${o.endDetail}</span><a href="tmap://search?name=${encodeURIComponent(o.endDetail)}" class="btn-tmap" onclick="event.stopPropagation()">TMAP</a></div>
+                        </td>`;
+                        tbody.appendChild(dTr);
+                    }
+                });
+            },
+
+            toggleDetail: function(id) { const el = document.getElementById(`detail-${id}`); if(el) el.style.display = el.style.display === 'none' ? 'table-row' : 'none'; },
+
+            stepState: function(id, nextState, e) { 
+                e.stopPropagation(); 
+                const o = this.orders.find(x => x.id === id); if(!o) return; 
+                o.state = nextState; 
+                if (nextState === 'PICK') o.pTime = getNowTimeString();
+                if (nextState === 'FIN') o.fTime = getNowTimeString();
+                localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); showToast(nextState === 'PICK' ? "PICKED" : "DONE"); 
+            },
+
+            openEditModal: function(id, e) {
+                e.stopPropagation(); const o = this.orders.find(x => x.id === id); if(!o) return;
+                document.getElementById('edit-id').value = id; 
+                document.getElementById('edit-plat').value = o.platform;
+                document.getElementById('edit-pick').value = o.startDetail; document.getElementById('edit-drop').value = o.endDetail || '';
+                document.getElementById('edit-fare').value = o.fareK; document.getElementById('edit-memo').value = o.memo || '';
+                toggleModal('popEdit');
+            },
+
+            saveEditData: function() {
+                const id = document.getElementById('edit-id').value; const o = this.orders.find(x => x.id === id); if(!o) return;
+                o.platform = document.getElementById('edit-plat').value; o.startDetail = document.getElementById('edit-pick').value.trim(); o.endDetail = document.getElementById('edit-drop').value.trim();
+                o.fareK = parseFloat(document.getElementById('edit-fare').value) || 0; o.memo = document.getElementById('edit-memo').value.trim(); 
+                o.routeSummary = o.endDetail ? `${this.extractDong(o.startDetail)}➔${this.extractDong(o.endDetail)}` : `[${this.extractDong(o.startDetail)}]`;
+                localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); toggleModal('popEdit'); showToast("UPDATED");
+            },
+
+            deleteEditItem: function() {
+                const id = document.getElementById('edit-id').value; this.orders = this.orders.filter(x => x.id !== id);
+                localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); toggleModal('popEdit'); showToast("DELETED");
+            },
+
+            copyTodayData: function() {
+                let sorted = this.orders.sort((a,b) => a.timestamp - b.timestamp);
+                let buf = "NO\tSHIFT\tPLAT\tPICKUP\tDROPOFF\tFARE\tMEMO\n";
+                buf += sorted.map(o => `${o.displayNo}\t${o.shift}\t${o.platform}\t${this.extractDong(o.startDetail)}\t${this.extractDong(o.endDetail)}\t${Math.round(this.calcNetFare(o.fareK, o.platform)*1000)}\t${o.memo||''}`).join('\n'); 
+                navigator.clipboard.writeText(buf).then(()=>showToast("COPIED")).catch(()=>showToast("COPY ERR")); 
+            }
+        };
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && localStorage.getItem('qcp_wakelock') === 'ON') { QuickCal.toggleWakeLock(true); }
+        });
+
+        window.onload = () => QuickCal.init();
     </script>
 </body>
 </html>
