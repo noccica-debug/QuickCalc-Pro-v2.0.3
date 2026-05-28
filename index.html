@@ -293,28 +293,23 @@
             
             if(id === 'lst') QuickCal.renderMasterList(); 
             if(id === 'radar') { 
-                // 애니메이션(0.2s)이 완전히 끝나고 화면 크기가 확정된 0.3초 뒤 지도를 초기화하여 꼬임 방지
                 setTimeout(() => { 
                     GeosticsOS.init(); 
                     if(GeosticsOS.map) {
                         GeosticsOS.map.invalidateSize(); 
-                        GeosticsOS.drawStoredVector(); 
+                        GeosticsOS.drawAllVectors(QuickCal.orders.filter(o => o.state === 'RUN')); 
                     }
                 }, 300); 
             }
         }
 
-        // 1초 단위 시계 관리 및 자정 00:00:00 감지 트리거
         setInterval(() => {
             const n = new Date();
             const h = String(n.getHours()).padStart(2,'0');
             const m = String(n.getMinutes()).padStart(2,'0');
             const s = String(n.getSeconds()).padStart(2,'0');
             document.getElementById('sysClock').innerText = `${h}:${m}`;
-            
-            if (h === '00' && m === '00' && s === '00') {
-                QuickCal.autoSyncAndClear();
-            }
+            if (h === '00' && m === '00' && s === '00') QuickCal.autoSyncAndClear();
         }, 1000);
         function getNowTimeString() { const n = new Date(); return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; }
 
@@ -333,6 +328,15 @@
                 if (window.ResizeObserver) {
                     new ResizeObserver(() => { if (this.map) this.map.invalidateSize(); }).observe(document.getElementById('view-radar'));
                 }
+
+                // GPS 패닝 (FlyTo) 로직 추가
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => { this.map.flyTo([position.coords.latitude, position.coords.longitude], 13, { animate: true, duration: 1.5 }); },
+                        (err) => { console.log("GPS Denied/Failed, keeping Seoul Center."); },
+                        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                    );
+                }
             },
 
             resetRadar: function() {
@@ -343,7 +347,7 @@
             },
 
             clearVectors: function() {
-                if(!this.map) return; // Null 방어 로직
+                if(!this.map) return; 
                 this.routeVectors.forEach(v => this.map.removeLayer(v));
                 this.routeVectors = [];
             },
@@ -352,24 +356,44 @@
                 this.currentRoute = { pLat, pLng, dLat, dLng };
             },
 
-            drawStoredVector: function() {
-                if(!this.map || !this.currentRoute) return;
+            drawAllVectors: function(activeOrders) {
+                if(!this.map) return;
                 this.clearVectors();
 
-                const { pLat, pLng, dLat, dLng } = this.currentRoute;
-                const pMarker = L.marker([pLat, pLng], { icon: L.divIcon({ className: 'marker-dot marker-p', iconSize: [14, 14] }) }).addTo(this.map);
-                const dMarker = L.marker([dLat, dLng], { icon: L.divIcon({ className: 'marker-dot marker-d', iconSize: [14, 14] }) }).addTo(this.map);
-                
-                const polyline = L.polyline([[pLat, pLng], [dLat, dLng]], { color: '#f39c12', weight: 3, opacity: 0.8, dashArray: '6, 6' }).addTo(this.map);
-                this.routeVectors.push(pMarker, dMarker, polyline);
+                // 1. 기존 운행 중인 다중 벡터 렌더링 (Blue & 반투명)
+                activeOrders.forEach(o => {
+                    if (o.startCoords && o.endCoords) {
+                        const { lat: pLat, lng: pLng } = o.startCoords;
+                        const { lat: dLat, lng: dLng } = o.endCoords;
+                        
+                        const polyline = L.polyline([[pLat, pLng], [dLat, dLng]], { color: '#007aff', weight: 3, opacity: 0.4, dashArray: '4, 4' }).addTo(this.map);
+                        this.routeVectors.push(polyline);
+                        
+                        const bearing = this.calcBearing(pLat, pLng, dLat, dLng);
+                        const midLat = (pLat + dLat) / 2; const midLng = (pLng + dLng) / 2;
+                        const arrowIcon = L.divIcon({ className: 'marker-arrow', iconSize: [20, 20], html: `<div style="transform: rotate(${bearing - 90}deg); color: #007aff; opacity: 0.5;">▶</div>` });
+                        const arrowMarker = L.marker([midLat, midLng], { icon: arrowIcon }).addTo(this.map);
+                        this.routeVectors.push(arrowMarker);
+                    }
+                });
 
-                const bearing = this.calcBearing(pLat, pLng, dLat, dLng);
-                const midLat = (pLat + dLat) / 2; const midLng = (pLng + dLng) / 2;
-                const arrowIcon = L.divIcon({ className: 'marker-arrow', iconSize: [20, 20], html: `<div style="transform: rotate(${bearing - 90}deg);">▶</div>` });
-                const arrowMarker = L.marker([midLat, midLng], { icon: arrowIcon }).addTo(this.map);
-                this.routeVectors.push(arrowMarker);
+                // 2. 신규 탐색 벡터 렌더링 (Orange & 선명한 강조)
+                if(this.currentRoute) {
+                    const { pLat, pLng, dLat, dLng } = this.currentRoute;
+                    const pMarker = L.marker([pLat, pLng], { icon: L.divIcon({ className: 'marker-dot marker-p', iconSize: [14, 14] }) }).addTo(this.map);
+                    const dMarker = L.marker([dLat, dLng], { icon: L.divIcon({ className: 'marker-dot marker-d', iconSize: [14, 14] }) }).addTo(this.map);
+                    
+                    const polyline = L.polyline([[pLat, pLng], [dLat, dLng]], { color: '#f39c12', weight: 4, opacity: 1.0, dashArray: '6, 6' }).addTo(this.map);
+                    this.routeVectors.push(pMarker, dMarker, polyline);
 
-                this.map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
+                    const bearing = this.calcBearing(pLat, pLng, dLat, dLng);
+                    const midLat = (pLat + dLat) / 2; const midLng = (pLng + dLng) / 2;
+                    const arrowIcon = L.divIcon({ className: 'marker-arrow', iconSize: [20, 20], html: `<div style="transform: rotate(${bearing - 90}deg);">▶</div>` });
+                    const arrowMarker = L.marker([midLat, midLng], { icon: arrowIcon }).addTo(this.map);
+                    this.routeVectors.push(arrowMarker);
+
+                    this.map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
+                }
             },
 
             calcBearing: function(lat1, lon1, lat2, lon2) {
@@ -383,7 +407,7 @@
             updateHUD: function(pName, dName, distKm, timeMin, effHourly) {
                 const hud = document.getElementById('radar-hud');
                 if(!pName || !dName) { hud.style.display = 'none'; return; }
-                hud.innerHTML = `${pName} ➔ ${dName}<br><span style="color:#fff; font-size:11px;">${distKm.toFixed(1)}km | ${timeMin}분 | ${effHourly}k/h</span>`;
+                hud.innerHTML = `${pName} ➔ ${dName}<br><span style="color:#fff; font-size:11px;">${distKm.toFixed(1)}km | ${timeMin}분 | ${effHourly}k/h (NET)</span>`;
                 hud.style.display = 'block';
             }
         };
@@ -462,7 +486,12 @@
                 this.updateEffBadge(); 
             },
 
-            selectPlatform: function(el, plat) { document.querySelectorAll('#platform-chips .chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.selectedPlatform = plat; },
+            selectPlatform: function(el, plat) { 
+                document.querySelectorAll('#platform-chips .chip').forEach(c => c.classList.remove('active')); 
+                el.classList.add('active'); 
+                this.selectedPlatform = plat; 
+                this.updateEffBadge(); 
+            },
             
             extractDong: function(str) { 
                 let clean = str ? str.replace(/^(서울특별시|경기도|인천광역시|서울시|경기|서울|인천)\s+/, "").trim() : "";
@@ -487,7 +516,6 @@
                         if(data?.searchPoiInfo?.pois?.poi?.length > 0) {
                             const poi = data.searchPoiInfo.pois.poi[0];
                             let dong = poi.lowerAddrName || poi.middleAddrName || '';
-                            // 세부 도로명(fullAddressRoad) 데이터 추출 우선 적용
                             let fullStr = poi.newAddressList?.newAddress?.[0]?.fullAddressRoad || `${poi.upperAddrName} ${poi.middleAddrName} ${dong}`;
                             return { lat: parseFloat(poi.frontLat || poi.noorLat), lng: parseFloat(poi.frontLon || poi.noorLon), str: fullStr.trim(), dong: dong };
                         }
@@ -518,12 +546,11 @@
                     } catch(e) {}
 
                     this.updateEffBadge();
-                    // 즉시 렌더링 호출을 제거하고 좌표만 동적 캐싱 (화면 깨짐 원천 방어)
                     GeosticsOS.storeRouteData(this.tempPick.lat, this.tempPick.lng, this.tempDrop.lat, this.tempDrop.lng);
                     GeosticsOS.updateHUD(this.tempPick.srt, this.tempDrop.srt, this.tempDist, this.tempTime, this.getHourlyRate());
                     
                     if(document.getElementById('view-radar').classList.contains('active')) {
-                        GeosticsOS.drawStoredVector();
+                        GeosticsOS.drawAllVectors(this.orders.filter(o => o.state === 'RUN'));
                     }
                 }
                 showToast("SYNCED");
@@ -535,10 +562,12 @@
                 showToast("LAUNCHING NAVI");
             },
 
+            // 실제 수수료율(77%)이 적용된 NET 시급 반환
             getHourlyRate: function() {
                 const fare = parseFloat(document.getElementById('in-fare').value) || 0;
                 if(!fare || !this.tempTime) return '--';
-                return ((fare / this.tempTime) * 60).toFixed(1);
+                const netFare = this.calcNetFare(fare, this.selectedPlatform);
+                return ((netFare / this.tempTime) * 60).toFixed(1);
             },
 
             updateEffBadge: function() {
@@ -546,7 +575,8 @@
                 if(this.appMode !== 'QUICKS' || !this.tempTime) { badge.style.display = 'none'; return; }
                 const fare = parseFloat(document.getElementById('in-fare').value) || 0;
                 if(fare) {
-                    badge.innerHTML = `${this.getHourlyRate()}k/h <span class="sub-txt">(${this.tempDist.toFixed(1)}km | ${this.tempTime}분)</span>`;
+                    const netFare = this.calcNetFare(fare, this.selectedPlatform);
+                    badge.innerHTML = `실수령 ${netFare.toFixed(1)}k | ${this.getHourlyRate()}k/h <span class="sub-txt">(${this.tempDist.toFixed(1)}km | ${this.tempTime}분)</span>`;
                     badge.style.display = 'block';
                 } else { badge.style.display = 'none'; }
             },
@@ -572,7 +602,9 @@
                 let newOrder = {
                     id: Date.now().toString(), displayNo: this.orders.length + 1, timestamp: Date.now(), mode: this.appMode, platform: this.selectedPlatform,
                     startDetail: startTxt, endDetail: endTxt, routeSummary: rSumm, fareK: fareK, memo: document.getElementById('in-memo').value.trim(), 
-                    shift: this.updateShiftBadge(), pTime: '', fTime: '', dist: this.tempDist, time: this.tempTime, hourly: this.getHourlyRate()
+                    shift: this.updateShiftBadge(), pTime: '', fTime: '', dist: this.tempDist, time: this.tempTime, hourly: this.getHourlyRate(),
+                    startCoords: this.tempPick ? {lat: this.tempPick.lat, lng: this.tempPick.lng} : null,
+                    endCoords: this.tempDrop ? {lat: this.tempDrop.lat, lng: this.tempDrop.lng} : null
                 };
 
                 if (this.appMode === 'EATS') { newOrder.state = 'FIN'; newOrder.fTime = getNowTimeString(); }
@@ -670,7 +702,6 @@
                 navigator.clipboard.writeText(buf).then(()=>showToast("COPIED")).catch(()=>showToast("COPY ERR")); 
             },
 
-            // 자정 자동 전송 및 일방향 축적 데이터 가공 로직
             autoSyncAndClear: async function() {
                 if (this.orders.length === 0) return;
                 const url = localStorage.getItem('qcp_url_sync');
@@ -678,49 +709,28 @@
                 
                 showToast("AUTO SYNC...");
                 try {
-                    // GAS 가공 부하를 줄이기 위해 앱단에서 2자 요약 및 원화 정산 금액을 미리 매핑
                     const payloadData = this.orders.map(o => ({
-                        displayNo: o.displayNo,
-                        shift: o.shift,
-                        platform: o.platform,
+                        displayNo: o.displayNo, shift: o.shift, platform: o.platform,
                         pDong: o.endDetail ? o.routeSummary.split('➔')[0] : this.extractDong(o.startDetail),
                         dDong: o.endDetail ? o.routeSummary.split('➔')[1] : '',
-                        netFare: Math.round(this.calcNetFare(o.fareK, o.platform) * 1000),
-                        memo: o.memo || ""
+                        netFare: Math.round(this.calcNetFare(o.fareK, o.platform) * 1000), memo: o.memo || ""
                     }));
 
-                    const payload = {
-                        date: new Date().toISOString().split('T')[0],
-                        data: payloadData
-                    };
-                    
                     const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain' }, // CORS 방지 프리플라이트 우회
-                        body: JSON.stringify(payload)
+                        method: 'POST', headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify({ date: new Date().toISOString().split('T')[0], data: payloadData })
                     });
                     
                     const resJson = await res.json();
                     if(resJson.result === "success") {
-                        this.orders = [];
-                        localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders));
-                        this.renderMasterList();
-                        this.updateSysTotal();
-                        showToast("SYNC & CLEARED");
-                    } else {
-                        showToast("SYNC ERR: RETRY");
-                    }
-                } catch (error) {
-                    console.error(error);
-                    showToast("SYNC FAILED");
-                }
+                        this.orders = []; localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders));
+                        this.renderMasterList(); this.updateSysTotal(); showToast("SYNC & CLEARED");
+                    } else showToast("SYNC ERR: RETRY");
+                } catch (error) { showToast("SYNC FAILED"); }
             }
         };
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && localStorage.getItem('qcp_wakelock') === 'ON') { QuickCal.toggleWakeLock(true); }
-        });
-
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && localStorage.getItem('qcp_wakelock') === 'ON') { QuickCal.toggleWakeLock(true); } });
         window.onload = () => QuickCal.init();
     </script>
 </body>
