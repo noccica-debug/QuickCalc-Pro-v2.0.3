@@ -86,6 +86,10 @@
         /* LST Table */
         .list-wrapper { flex: 1; overflow-y: auto; padding-bottom: 20px; }
         #lst-summary-bar { background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); text-align: center; font-size: 12px; font-weight: 900; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
+        
+        .badge-q { border: 1px solid var(--m3-primary); color: var(--m3-primary); font-size: 9px; padding: 1px 4px; border-radius: 4px; font-weight: 900; margin-right: 4px; display: inline-block; margin-bottom: 2px; }
+        .badge-e { border: 1px solid #f39c12; color: #f39c12; font-size: 9px; padding: 1px 4px; border-radius: 4px; font-weight: 900; margin-right: 4px; display: inline-block; margin-bottom: 2px; }
+
         .sheet-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 11px; background: var(--m3-surface); }
         .sheet-table th { background: var(--m3-surface-low); color: var(--m3-muted); font-weight: 800; padding: 8px 4px; border: 1px solid var(--m3-outline-variant); }
         .sheet-table td { padding: 8px 4px; border: 1px solid var(--m3-outline-variant); color: var(--m3-surf-text); text-align: center; vertical-align: middle; word-break: keep-all; }
@@ -113,7 +117,7 @@
         .gps-badge { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); border-radius: 12px; color: #000; font-size: 13px; font-weight: 900; padding: 6px 14px; z-index: 2000; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: none; text-align: center; }
         .gps-road { font-size: 0.85em; color: #555; font-weight: 700; margin-left: 4px; }
 
-        .btn-gps { position: absolute; bottom: 30px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 12px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-gps { position: absolute; bottom: 30px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 12px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
         .btn-gps:active { background: #000; }
 
         .quick-sel-container { position: absolute; bottom: 30px; left: 16px; display: flex; gap: 8px; z-index: 2000; overflow-x: auto; max-width: calc(100% - 80px); padding-bottom: 4px; }
@@ -124,11 +128,6 @@
         .marker-dot { width: 14px !important; height: 14px !important; border-radius: 50% !important; border: 2px solid #fff !important; box-shadow: 0 0 8px rgba(0,0,0,0.8) !important; }
         .marker-arrow { font-size: 20px; font-weight: 900; text-shadow: 0 0 4px #000; display: flex; justify-content: center; align-items: center; margin-top: -10px; margin-left: -10px; }
         
-        .custom-pulse-icon { position: relative; display: flex; justify-content: center; align-items: center; width: 14px; height: 14px; }
-        .pulse-dot { width: 14px; height: 14px; background: #3498db; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 10px rgba(52,152,219,0.8); z-index: 2; position: absolute; top:0; left:0; }
-        .pulse-ring { border: 3px solid rgba(52,152,219,0.6); border-radius: 50%; height: 34px; width: 34px; position: absolute; left: -10px; top: -10px; animation: pulsate 1.5s ease-out infinite; z-index: 1; }
-        @keyframes pulsate { 0% { transform: scale(0.3); opacity: 1; } 100% { transform: scale(1.2); opacity: 0; } }
-
         /* Modals & Nav */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 6000; padding: 20px; backdrop-filter: blur(3px); }
         .modal-overlay.show { display: flex; }
@@ -211,13 +210,19 @@
                 <div class="flex-between">
                     <div class="chip-row">
                         <div class="chip active" id="flt-run" onclick="QuickCal.setListFilter('RUN')">ACTIVE</div>
-                        <div class="chip" id="flt-fin" onclick="QuickCal.setListFilter('FIN')">DONE</div>
+                        <div class="chip" id="flt-done" onclick="QuickCal.setListFilter('DONE')">DONE</div>
                     </div>
                     <div class="flex-center gap-8">
                         <button class="btn-icon" style="color:var(--m3-primary); border-color:var(--m3-primary);" onclick="QuickCal.copyTodayData()">COPY</button>
                         <button class="btn-icon btn-red" onclick="QuickCal.clearList()">ALL DEL</button>
                     </div>
                 </div>
+                <div id="lst-sub-filters" class="chip-row" style="display:none; justify-content:center; gap:6px; margin-top:4px;">
+                    <div class="chip active" id="sub-all" onclick="QuickCal.setSubFilter('ALL')">ALL</div>
+                    <div class="chip" id="sub-quicks" onclick="QuickCal.setSubFilter('QUICKS')">QUICKS</div>
+                    <div class="chip" id="sub-eats" onclick="QuickCal.setSubFilter('EATS')">EATS</div>
+                </div>
+
                 <div id="lst-summary-bar">TOTAL: 0 | ACTIVE: 0 | DONE: 0</div>
             </div>
             <div class="list-wrapper" style="background:var(--m3-surface); border-radius:12px; overflow:hidden; border:1px solid var(--m3-outline-variant);">
@@ -234,6 +239,7 @@
                 <span class="ch-label ch-n">N</span><span class="ch-label ch-s">S</span>
                 <span class="ch-label ch-w">W</span><span class="ch-label ch-e">E</span>
             </div>
+            
             <div id="radar-hud" class="radar-hud" onclick="GeosticsOS.toggleHUD()">--</div>
             <div id="gps-badge" class="gps-badge">📍 <span id="gps-text"></span> <span class="gps-road" id="gps-road"></span></div>
             
@@ -292,10 +298,9 @@
     </div>
 
     <div class="modal-overlay" id="popTimeTable" onclick="if(event.target===this) toggleModal('popTimeTable')">
-        <div class="modal-body">
-            <div class="flex-between mb-16"><div class="text-bold" style="font-size:14px;">SHIFT TIMETABLE</div></div>
+        <div class="modal-body" onclick="QuickCal.toggleTimeTableStats()">
+            <div class="flex-between mb-16"><div class="text-bold" style="font-size:14px;">TIMETABLE</div></div>
             <div id="timetable-list" style="display:flex; flex-direction:column; gap:8px;"></div>
-            <div class="flex-center mt-16"><button class="btn-core" style="width:100%; height:36px; margin:0;" onclick="toggleModal('popTimeTable')">CLOSE</button></div>
         </div>
     </div>
 
@@ -358,6 +363,8 @@
                     hud.style.opacity = '1'; 
                 } else {
                     hud.style.opacity = '0';
+                    // Delay hiding display to allow fade out
+                    setTimeout(() => { if(!this.hudVisible) hud.style.display = 'none'; }, 200);
                 }
             },
 
@@ -365,7 +372,6 @@
                 this.hudVisible = true;
                 const hud = document.getElementById('radar-hud');
                 hud.style.display = 'block';
-                // Trigger reflow to ensure animation
                 void hud.offsetWidth; 
                 hud.style.opacity = '1';
             },
@@ -385,10 +391,13 @@
                             this.reverseGeocode(lat, lng);
                         },
                         (err) => { 
-                            document.getElementById('gps-text').innerText = "GPS ERROR"; 
-                            setTimeout(() => badge.style.display = 'none', 3000);
+                            let msg = "GPS ERROR";
+                            if(err.code === 1) msg = "권한 거부됨";
+                            else if(err.code === 3) msg = "신호 약함";
+                            document.getElementById('gps-text').innerText = msg; 
+                            setTimeout(() => badge.style.display = 'none', 4000);
                         },
-                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 } // Timeout extended to 15s
                     );
                 }
             },
@@ -405,7 +414,9 @@
 
             reverseGeocode: async function(lat, lng) {
                 const apiKey = localStorage.getItem('qcp_key_tmap');
-                if(!apiKey) return;
+                if(!apiKey) {
+                    this.showFallbackGPS(); return;
+                }
                 try {
                     const res = await fetch(`https://apis.openapi.sk.com/tmap/geo/reversegeocoding?version=1&lat=${lat}&lon=${lng}&appKey=${apiKey}&coordType=WGS84GEO&addressType=A04`);
                     const data = await res.json();
@@ -417,11 +428,22 @@
                             document.getElementById('gps-text').innerText = dong;
                             document.getElementById('gps-road').innerText = road ? `(${road})` : '';
                             badge.style.display = 'block';
-                            // 10초 후 자동 숨김 처리하여 시야 확보
-                            setTimeout(() => badge.style.display = 'none', 10000);
+                            setTimeout(() => badge.style.display = 'none', 10000); // Auto hide after 10s
+                        } else {
+                            this.showFallbackGPS();
                         }
+                    } else {
+                        this.showFallbackGPS();
                     }
-                } catch (e) { console.log("RevGeo Err"); }
+                } catch (e) { this.showFallbackGPS(); }
+            },
+
+            showFallbackGPS: function() {
+                const badge = document.getElementById('gps-badge');
+                document.getElementById('gps-text').innerText = "위치 확인됨";
+                document.getElementById('gps-road').innerText = "";
+                badge.style.display = 'block';
+                setTimeout(() => badge.style.display = 'none', 5000);
             },
 
             resetRadar: function() {
@@ -515,7 +537,6 @@
                     else { btn.style.color = vColor; }
                     btn.innerText = 'N';
                     btn.onclick = () => this.drawAllVectors(activeOrders, 'NEW');
-                    // Add N button to the front
                     qSelContainer.insertBefore(btn, qSelContainer.firstChild);
 
                     const { pLat, pLng, dLat, dLng, srtP, srtD, dist, time, hourly } = this.currentRoute;
@@ -584,14 +605,17 @@
         // ================= QuickCal Pro (SYSTEM MODULE) =================
         const QuickCal = {
             orders: [], appMode: 'QUICKS', selectedPlatform: 'Insung',
-            currentFilter: 'RUN', wakeLockObj: null,
-            tempPick: null, tempDrop: null, tempDist: 0, tempTime: 0,
+            currentFilter: 'RUN', currentSubFilter: 'ALL', wakeLockObj: null,
+            tempPick: null, tempDrop: null, tempDist: 0, tempTime: 0, isStatsVisible: false,
             
             SHIFTS: [ { id: 'PRE', start: 0, end: 9 }, { id: 'Q1', start: 9, end: 12 }, { id: 'Q2', start: 12, end: 15 }, { id: 'BT', start: 15, end: 17 }, { id: 'Q3', start: 17, end: 20 }, { id: 'Q4', start: 20, end: 23 }, { id: 'FIN', start: 23, end: 24 } ],
             PLAT_QUICKS: ['Insung', 'Logi', 'Kakao'], PLAT_EATS: ['Kakao', 'Baemin', 'Coupang'],
 
             init: function() {
                 this.orders = this.loadDataSafely('qcp_orders_v201', []);
+                // Legacy support: convert 'FIN' state to 'DONE'
+                this.orders.forEach(o => { if(o.state === 'FIN') o.state = 'DONE'; });
+
                 this.setAppMode('QUICKS'); this.updateSysTotal(); this.updateShiftBadge();
                 
                 document.getElementById('tmap-key').value = localStorage.getItem('qcp_key_tmap') || '';
@@ -622,12 +646,31 @@
                     const sStart = String(s.start).padStart(2,'0') + ':00';
                     const sEnd = String(s.end).padStart(2,'0') + ':00';
                     
-                    listEl.innerHTML += `<div style="${borderStyle} padding: 12px; border-radius: 10px; background: var(--m3-surface-low); display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-weight:900; color: ${isActive ? 'var(--m3-primary)' : 'var(--m3-surf-text)'}">${s.id}</span>
+                    // Calc shift stats
+                    let sOrders = this.orders.filter(o => o.shift === s.id && o.state === 'DONE');
+                    let sK = sOrders.reduce((sum, o) => sum + this.calcNetFare(o.fareK, o.platform), 0).toFixed(1);
+                    let sCnt = sOrders.length;
+                    
+                    listEl.innerHTML += `
+                    <div style="${borderStyle} padding: 12px; border-radius: 10px; background: var(--m3-surface-low); display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-weight:900; color: ${isActive ? 'var(--m3-primary)' : 'var(--m3-surf-text)'}">${s.id}</span>
+                            <span class="shift-stats" style="display:${this.isStatsVisible ? 'block' : 'none'}; font-size:10px; color:var(--m3-muted); font-weight:700;">${sK}k | ${sCnt} calls</span>
+                        </div>
                         <span style="font-size:12px; font-weight:700; color:var(--m3-muted);">${sStart} ~ ${sEnd}</span>
                     </div>`;
                 });
                 toggleModal('popTimeTable');
+            },
+
+            toggleTimeTableStats: function() {
+                this.isStatsVisible = !this.isStatsVisible;
+                document.querySelectorAll('.shift-stats').forEach(el => {
+                    el.style.display = this.isStatsVisible ? 'block' : 'none';
+                    if(this.isStatsVisible) {
+                        el.style.animation = "fadeIn 0.2s ease";
+                    }
+                });
             },
 
             applyTheme: function(theme) { document.documentElement.setAttribute('data-theme', theme); document.getElementById('meta-theme-color').setAttribute('content', theme === 'dark' ? '#111315' : '#f8f9fc'); localStorage.setItem('qcp_theme_v201', theme); },
@@ -764,10 +807,10 @@
                 
                 if(!startTxt || !fareK) { showToast("ERR: INVALID"); return; }
                 
-                // AUTO-SEARCH Feature: If coordinates are missing but inputs exist, silent fetch before save
+                // AUTO-SEARCH Feature
                 if (this.appMode === 'QUICKS' && ((startTxt && !this.tempPick) || (endTxt && !this.tempDrop))) {
                     showToast("AUTO SEARCHING...");
-                    await this.searchTmapActive(true); // silent flag
+                    await this.searchTmapActive(true); // silent
                 }
                 
                 let pSumm = this.tempPick ? this.tempPick.srt : this.extractDong(startTxt);
@@ -782,7 +825,7 @@
                     endCoords: this.tempDrop ? {lat: this.tempDrop.lat, lng: this.tempDrop.lng} : null
                 };
 
-                if (this.appMode === 'EATS') { newOrder.state = 'FIN'; newOrder.fTime = getNowTimeString(); }
+                if (this.appMode === 'EATS') { newOrder.state = 'DONE'; newOrder.fTime = getNowTimeString(); }
                 else { newOrder.state = 'RUN'; }
 
                 this.orders.unshift(newOrder); localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders));
@@ -790,14 +833,41 @@
                 switchMainTab('lst', document.getElementById('nav-lst')); showToast("SAVED");
             },
 
-            setListFilter: function(f) { this.currentFilter = f; document.getElementById('flt-run').classList.toggle('active', f==='RUN'); document.getElementById('flt-fin').classList.toggle('active', f==='FIN'); this.renderMasterList(); },
+            setListFilter: function(f) { 
+                this.currentFilter = f; 
+                document.getElementById('flt-run').classList.toggle('active', f==='RUN'); 
+                document.getElementById('flt-done').classList.toggle('active', f==='DONE'); 
+                
+                // Sub-filter visibility
+                document.getElementById('lst-sub-filters').style.display = f === 'DONE' ? 'flex' : 'none';
+                
+                this.renderMasterList(); 
+            },
+
+            setSubFilter: function(sf) {
+                this.currentSubFilter = sf;
+                document.getElementById('sub-all').classList.toggle('active', sf==='ALL');
+                document.getElementById('sub-quicks').classList.toggle('active', sf==='QUICKS');
+                document.getElementById('sub-eats').classList.toggle('active', sf==='EATS');
+                this.renderMasterList();
+            },
+
             clearList: function() { if(confirm('Clear all local records?')) { this.orders = []; localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); showToast("CLEARED"); } },
 
             renderMasterList: function() {
                 const tbody = document.getElementById('master-list-tbody'); tbody.innerHTML = '';
-                let filtered = this.orders.filter(o => this.currentFilter === 'RUN' ? o.state !== 'FIN' : o.state === 'FIN').sort((a,b) => a.timestamp - b.timestamp);
                 
-                document.getElementById('lst-summary-bar').innerText = `TOTAL: ${this.orders.length} | ACTIVE: ${this.orders.filter(o => o.state!=='FIN').length} | DONE: ${this.orders.filter(o => o.state==='FIN').length}`;
+                // Main Filter
+                let filtered = this.orders.filter(o => this.currentFilter === 'RUN' ? o.state !== 'DONE' : o.state === 'DONE');
+                
+                // Sub Filter for DONE state
+                if (this.currentFilter === 'DONE' && this.currentSubFilter !== 'ALL') {
+                    filtered = filtered.filter(o => o.mode === this.currentSubFilter);
+                }
+                
+                filtered.sort((a,b) => a.timestamp - b.timestamp);
+                
+                document.getElementById('lst-summary-bar').innerText = `TOTAL: ${this.orders.length} | ACTIVE: ${this.orders.filter(o => o.state!=='DONE').length} | DONE: ${this.orders.filter(o => o.state==='DONE').length}`;
                 
                 if(filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="6" style="padding:20px; color:var(--m3-outline);">EMPTY</td></tr>`; return; }
                 filtered.forEach(o => {
@@ -806,18 +876,21 @@
                     let effStr = (o.dist && o.time && o.hourly !== '--') ? `<div class="tbl-eff">${o.hourly}k/h</div>` : '';
                     
                     let actBtn = '';
-                    if (o.mode === 'EATS') { actBtn = '<span class="chip-status" style="background:var(--m3-surface-low); color:var(--m3-muted);">FIN</span>'; }
-                    else {
-                        if (o.state === 'RUN') actBtn = `<button class="btn-icon btn-blue" style="width:100%; height:26px;" onclick="QuickCal.stepState('${o.id}', 'PICK', event)">PICK</button>`;
-                        else if (o.state === 'PICK') actBtn = `<button class="btn-icon btn-red" style="width:100%; height:26px;" onclick="QuickCal.stepState('${o.id}', 'FIN', event)">FIN</button>`;
-                        else actBtn = '<span class="chip-status" style="background:var(--m3-surface-low); color:var(--m3-muted);">DONE</span>';
-                    }
-
+                    if (o.state === 'RUN') actBtn = `<button class="btn-icon btn-blue" style="width:100%; height:26px;" onclick="QuickCal.stepState('${o.id}', 'PICK', event)">PICK</button>`;
+                    else if (o.state === 'PICK') actBtn = `<button class="btn-icon btn-red" style="width:100%; height:26px;" onclick="QuickCal.stepState('${o.id}', 'DONE', event)">DONE</button>`;
+                    else actBtn = '<span class="chip-status" style="background:var(--m3-surface-low); color:var(--m3-muted);">DONE</span>';
+                    
                     if(o.mode === 'QUICKS') tr.setAttribute('onclick', `QuickCal.toggleDetail('${o.id}')`);
                     
+                    // Mode Badge (Q/E)
+                    let badgeHTML = '';
+                    if (this.currentFilter === 'DONE' && this.currentSubFilter === 'ALL') {
+                        badgeHTML = o.mode === 'QUICKS' ? `<span class="badge-q">Q</span>` : `<span class="badge-e">E</span>`;
+                    }
+
                     tr.innerHTML = `
                     <td>${o.displayNo}</td><td>${o.shift}</td>
-                    <td>${o.platform}<br><button class="btn-icon" style="display:inline-block; margin-top:4px; padding:2px 6px; font-size:9px; height:20px;" onclick="QuickCal.openEditModal('${o.id}', event)">EDIT</button></td>
+                    <td>${badgeHTML}${o.platform}<br><button class="btn-icon" style="display:inline-block; margin-top:4px; padding:2px 6px; font-size:9px; height:20px;" onclick="QuickCal.openEditModal('${o.id}', event)">EDIT</button></td>
                     <td style="text-align:left;">
                         <div class="tbl-route">${o.routeSummary}</div>
                         <div class="tbl-time">${timeStr}</div>
@@ -844,7 +917,7 @@
                 const o = this.orders.find(x => x.id === id); if(!o) return; 
                 o.state = nextState; 
                 if (nextState === 'PICK') o.pTime = getNowTimeString();
-                if (nextState === 'FIN') o.fTime = getNowTimeString();
+                if (nextState === 'DONE') o.fTime = getNowTimeString();
                 localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); showToast(nextState === 'PICK' ? "PICKED" : "DONE"); 
             },
 
