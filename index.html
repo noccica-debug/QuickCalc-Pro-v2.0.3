@@ -285,7 +285,7 @@
 
     <div class="modal-overlay" id="popSet" onclick="if(event.target===this) toggleModal('popSet')">
         <div class="modal-body">
-            <div class="sys-header">Geostics Base OS (v 2.0.3)</div>
+            <div class="sys-header">Geostics Base OS (v2.0.3)</div>
             <div class="flex-between mb-16"><div class="text-bold" style="font-size:14px;">SETTINGS</div></div>
             <div class="flex-between mb-16">
                 <div class="text-bold" style="font-size:12px; color:var(--m3-muted);">KEEP SCREEN ON</div>
@@ -833,11 +833,31 @@
             currentFilter: 'RUN', currentSubFilter: 'ALL', wakeLockObj: null,
             tempPick: null, tempDrop: null, tempDist: 0, tempTime: 0, isStatsVisible: false,
             
+            // Long Press Handlers
+            pressTimer: null, isLongPress: false, startY: 0,
+            
+            startPress: function(id, e) {
+                this.isLongPress = false;
+                this.startY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+                this.pressTimer = setTimeout(() => { 
+                    this.isLongPress = true; 
+                    this.openEditModal(id, e); 
+                }, 600); // 0.6 seconds trigger
+            },
+            
+            cancelPress: function(e) {
+                if (e && (e.type === 'pointermove' || e.type === 'touchmove')) {
+                    let currY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+                    if (Math.abs(currY - this.startY) < 10) return;
+                }
+                if(this.pressTimer) clearTimeout(this.pressTimer);
+            },
+
             SHIFTS: [ { id: 'PRE', start: 0, end: 9 }, { id: 'Q1', start: 9, end: 12 }, { id: 'Q2', start: 12, end: 15 }, { id: 'BT', start: 15, end: 17 }, { id: 'Q3', start: 17, end: 20 }, { id: 'Q4', start: 20, end: 23 }, { id: 'FIN', start: 23, end: 24 } ],
             PLAT_QUICKS: ['Insung', 'Logi', 'Kakao'], PLAT_EATS: ['Kakao', 'Baemin', 'Coupang'],
 
             init: function() {
-                this.orders = this.loadDataSafely('qcp_orders_v201', []);
+                this.orders = this.loadDataSafely('qcp_orders_v203', []);
                 this.orders.forEach(o => { if(o.state === 'FIN') o.state = 'DONE'; });
 
                 this.setAppMode('QUICKS'); this.updateSysTotal(); this.updateShiftBadge();
@@ -846,11 +866,11 @@
                 document.getElementById('sheet-url').value = localStorage.getItem('qcp_url_sync') || '';
                 
                 // 하이브리드 테마 엔진 구성 (Auto / Manual)
-                let themeMode = localStorage.getItem('qcp_theme_mode') || 'auto';
+                let themeMode = localStorage.getItem('qcp_theme_v203') || 'auto';
                 this.applyTheme(themeMode);
                 
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-                    if(localStorage.getItem('qcp_theme_mode') === 'auto') { this.applyTheme('auto'); }
+                    if(localStorage.getItem('qcp_theme_v203') === 'auto') { this.applyTheme('auto'); }
                 });
                 
                 const wlState = localStorage.getItem('qcp_wakelock') === 'ON';
@@ -905,10 +925,10 @@
                 }
                 document.documentElement.setAttribute('data-theme', actualTheme); 
                 document.getElementById('meta-theme-color').setAttribute('content', actualTheme === 'dark' ? '#111315' : '#f8f9fc'); 
-                localStorage.setItem('qcp_theme_mode', mode); 
+                localStorage.setItem('qcp_theme_v203', mode); 
             },
             toggleThemeManual: function() { 
-                let currentMode = localStorage.getItem('qcp_theme_mode') || 'auto';
+                let currentMode = localStorage.getItem('qcp_theme_v203') || 'auto';
                 let newMode = 'dark';
                 if(currentMode === 'auto') {
                     newMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark';
@@ -1086,7 +1106,7 @@
                 if (this.appMode === 'EATS') { newOrder.state = 'DONE'; newOrder.fTime = getNowTimeString(); }
                 else { newOrder.state = 'RUN'; }
 
-                this.orders.unshift(newOrder); localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders));
+                this.orders.unshift(newOrder); localStorage.setItem('qcp_orders_v203', JSON.stringify(this.orders));
                 this.clearInputs(); this.updateSysTotal();
                 switchMainTab('lst', document.getElementById('nav-lst')); showToast("SAVED");
             },
@@ -1108,7 +1128,7 @@
                 this.renderMasterList();
             },
 
-            clearList: function() { if(confirm('CLEAR ALL?')) { this.orders = []; localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); showToast("CLEARED"); } },
+            clearList: function() { if(confirm('CLEAR ALL?')) { this.orders = []; localStorage.setItem('qcp_orders_v203', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); showToast("CLEARED"); } },
 
             renderMasterList: function() {
                 const tbody = document.getElementById('master-list-tbody'); tbody.innerHTML = '';
@@ -1134,6 +1154,11 @@
                     else if (o.state === 'PICK') actBtn = `<button class="btn-icon btn-red" style="width:100%; height:26px;" onclick="QuickCal.stepState('${o.id}', 'DONE', event)">DONE</button>`;
                     else actBtn = '<span class="chip-status" style="background:var(--m3-surface-low); color:var(--m3-muted); padding:2px 4px; font-size:10px; border-radius:4px;">DONE</span>';
                     
+                    // Long press binding to launch EDIT
+                    tr.setAttribute('onpointerdown', `QuickCal.startPress('${o.id}', event)`);
+                    tr.setAttribute('onpointerup', `QuickCal.cancelPress(event)`);
+                    tr.setAttribute('onpointercancel', `QuickCal.cancelPress(event)`);
+                    tr.setAttribute('onpointermove', `QuickCal.cancelPress(event)`);
                     tr.setAttribute('onclick', `QuickCal.triggerFullscreenView('${o.id}')`);
                     
                     let badgeHTML = '';
@@ -1153,15 +1178,13 @@
                         ${memoRender}
                     </td>
                     <td><span style="font-weight:900;">${this.calcNetFare(o.fareK, o.platform).toFixed(1)}k</span>${effStr}</td>
-                    <td>
-                        ${actBtn}
-                        <div style="margin-top:4px; text-align:center;"><button style="background:none; border:none; color:var(--m3-outline); font-size:9px; font-weight:800; padding:2px; cursor:pointer;" onclick="QuickCal.openEditModal('${o.id}', event)">EDIT</button></div>
-                    </td>`;
+                    <td>${actBtn}</td>`;
                     tbody.appendChild(tr);
                 });
             },
 
             triggerFullscreenView: function(id) {
+                if(this.isLongPress) { this.isLongPress = false; return; }
                 const o = this.orders.find(x => x.id === id); if(!o) return;
                 const overlay = document.getElementById('fullscreen-overlay');
                 const content = document.getElementById('fullscreen-overlay-content');
@@ -1208,11 +1231,12 @@
                 o.state = nextState; 
                 if (nextState === 'PICK') o.pTime = getNowTimeString();
                 if (nextState === 'DONE') o.fTime = getNowTimeString();
-                localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); showToast(nextState === 'PICK' ? "PICKED" : "DONE"); 
+                localStorage.setItem('qcp_orders_v203', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); showToast(nextState === 'PICK' ? "PICKED" : "DONE"); 
             },
 
             openEditModal: function(id, e) {
-                e.stopPropagation(); const o = this.orders.find(x => x.id === id); if(!o) return;
+                if(e) e.stopPropagation(); 
+                const o = this.orders.find(x => x.id === id); if(!o) return;
                 document.getElementById('edit-id').value = id; 
                 document.getElementById('edit-plat').value = o.platform;
                 document.getElementById('edit-pick').value = o.startDetail; document.getElementById('edit-drop').value = o.endDetail || '';
@@ -1252,12 +1276,12 @@
                 o.platform = document.getElementById('edit-plat').value; o.startDetail = document.getElementById('edit-pick').value.trim(); o.endDetail = document.getElementById('edit-drop').value.trim();
                 o.fareK = parseFloat(document.getElementById('edit-fare').value) || 0; o.memo = document.getElementById('edit-memo').value.trim(); 
                 o.routeSummary = o.endDetail ? `${this.extractDong(o.startDetail)}➔${this.extractDong(o.endDetail)}` : `[${this.extractDong(o.startDetail)}]`;
-                localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); toggleModal('popEdit'); showToast("UPDATED");
+                localStorage.setItem('qcp_orders_v203', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); toggleModal('popEdit'); showToast("UPDATED");
             },
 
             deleteEditItem: function() {
                 const id = document.getElementById('edit-id').value; this.orders = this.orders.filter(x => x.id !== id);
-                localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); toggleModal('popEdit'); showToast("DELETED");
+                localStorage.setItem('qcp_orders_v203', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); toggleModal('popEdit'); showToast("DELETED");
             },
 
             copyTodayData: function() {
@@ -1288,7 +1312,7 @@
                     
                     const resJson = await res.json();
                     if(resJson.result === "success") {
-                        this.orders = []; localStorage.setItem('qcp_orders_v201', JSON.stringify(this.orders));
+                        this.orders = []; localStorage.setItem('qcp_orders_v203', JSON.stringify(this.orders));
                         if(newDateStr) localStorage.setItem('qcp_last_sync_date', newDateStr);
                         this.renderMasterList(); this.updateSysTotal(); showToast("SYNC & CLEARED");
                     } else showToast("SYNC ERR: RETRY");
