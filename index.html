@@ -122,19 +122,19 @@
         .gps-badge { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); border-radius: 12px; color: #000; font-size: 13px; font-weight: 900; padding: 6px 14px; z-index: 2000; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: none; text-align: center; }
         .gps-road { font-size: 0.85em; color: #555; font-weight: 700; margin-left: 4px; }
 
-        .btn-gps { position: absolute; bottom: 30px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 12px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .btn-gps { position: absolute; bottom: 16px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 12px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
         .btn-gps:active { background: #000; }
         
-        .btn-multi-navi { position: absolute; bottom: 84px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: #005cbb; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 9px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
+        .btn-multi-navi { position: absolute; bottom: 92px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: #005cbb; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 9px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
         
-        .btn-map-lock { position: absolute; bottom: 138px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 16px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .btn-map-lock { position: absolute; bottom: 148px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 16px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
         .btn-map-lock.locked { background: #ba1a1a; color: #fff; border-color: #ba1a1a; }
 
-        .btn-bundle { position: absolute; bottom: 84px; left: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 9px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; transition: background 0.2s; line-height: 1.1; }
+        .btn-bundle { position: absolute; bottom: 92px; left: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 9px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; transition: background 0.2s; line-height: 1.1; }
         .btn-bundle.active { background: var(--m3-error); border-color: var(--m3-error); color: #fff; } /* Stealth Active, no pulsing */
 
         /* Quick Select Container */
-        .quick-sel-container { position: absolute; bottom: 30px; left: 16px; display: flex; gap: 8px; z-index: 2000; overflow-x: auto; max-width: calc(100% - 80px); padding: 12px 4px; align-items: center; }
+        .quick-sel-container { position: absolute; bottom: 16px; left: 16px; display: flex; gap: 8px; z-index: 2000; overflow-x: auto; max-width: calc(100% - 80px); padding: 12px 4px; align-items: center; }
         .q-sel-btn { width: 40px; height: 40px; border-radius: 20px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 15px; background: rgba(0,0,0,0.8); cursor: pointer; color: #fff; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); flex-shrink: 0; }
         .q-sel-btn.active { background: currentColor; color: #000; transform: scale(1.15); }
 
@@ -352,6 +352,22 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="popMultiNavi" onclick="if(event.target===this) toggleModal('popMultiNavi')">
+        <div class="modal-body">
+            <div class="flex-between mb-16">
+                <div class="text-bold" style="font-size:14px;">ROUTE SEQUENCE</div>
+                <button class="btn-icon btn-red" style="width:30px; border-radius:15px; padding:0;" onclick="toggleModal('popMultiNavi')">X</button>
+            </div>
+            <div id="navi-sequence-display" style="font-size:13px; margin-bottom:12px; color:#ff3b30; font-weight:900; text-align:center; word-break:break-all;">SELECT ORDERS</div>
+            <div style="font-size:11px; margin-bottom:8px; color:var(--m3-muted); font-weight:700;">PICKED ORDERS:</div>
+            <div id="navi-order-list" style="max-height:180px; overflow-y:auto; margin-bottom:16px; background:var(--m3-surface-low); padding:12px; border-radius:12px; border:1px solid var(--m3-outline-variant); display:flex; flex-direction:column; gap:6px;"></div>
+            <div class="flex-between">
+                <button class="btn-core" style="flex:0.3; margin-right:8px; background:var(--m3-surface-low); color:var(--m3-error);" onclick="GeosticsOS.resetNaviSequence()">RESET</button>
+                <button class="btn-core" style="flex:0.7;" onclick="GeosticsOS.launchMultiNaviWithSequence()">NAVI</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // ================= UI & COMMON =================
@@ -404,6 +420,7 @@
             seoulCenter: [37.5665, 126.9780], 
             userMarker: null, selectedVectorId: null, hudVisible: true,
             clickedNodes: [], clickedPolyline: null, mapLocked: false,
+            naviSelectedOrders: [],
 
             init: function() {
                 if (this.map) return;
@@ -458,7 +475,7 @@
                     btn.innerHTML = '🔒'; btn.classList.add('locked'); showToast("MAP LOCKED");
                 } else {
                     this.map.dragging.enable(); this.map.touchZoom.enable(); this.map.doubleClickZoom.enable();
-                    this.map.scrollWheelZoom.enable(); if(this.map.keyboard) this.map.keyboard.enable();
+                    this.map.scrollWheelZoom.enable(); if(this.map.keyboard) this.map.keyboard.disable();
                     btn.innerHTML = '🔓'; btn.classList.remove('locked'); showToast("MAP UNLOCKED");
                 }
             },
@@ -771,19 +788,83 @@
             },
 
             executeMultiNavi: function() {
-                if(this.clickedNodes.length === 0) { showToast("SELECT DROPOFFS"); return; }
+                this.naviSelectedOrders = [];
+                this.renderNaviOrderList();
+                toggleModal('popMultiNavi');
+            },
+
+            renderNaviOrderList: function() {
+                const listEl = document.getElementById('navi-order-list');
+                listEl.innerHTML = '';
+                const displayEl = document.getElementById('navi-sequence-display');
+                displayEl.innerText = this.naviSelectedOrders.length > 0 ? this.naviSelectedOrders.map(o => o.displayNo).join(' ➔ ') : 'SELECT ORDERS';
+
+                let pickedOrders = QuickCal.orders.filter(o => o.state === 'PICK');
+                if (pickedOrders.length === 0) {
+                    listEl.innerHTML = '<div style="color:var(--m3-outline); text-align:center; font-size:11px;">NO PICKED ORDERS</div>';
+                    return;
+                }
+
+                pickedOrders.forEach(o => {
+                    const isSelected = this.naviSelectedOrders.some(x => x.id === o.id);
+                    const orderBtn = document.createElement('button');
+                    orderBtn.className = 'btn-core';
+                    orderBtn.style.height = '36px';
+                    orderBtn.style.fontSize = '12px';
+                    orderBtn.style.margin = '0';
+                    if (isSelected) {
+                        orderBtn.style.background = 'var(--m3-primary-cont)';
+                        orderBtn.style.color = 'var(--m3-on-primary-cont)';
+                    } else {
+                        orderBtn.style.background = 'var(--m3-surface)';
+                        orderBtn.style.color = 'var(--m3-surf-text)';
+                        orderBtn.style.border = '1px solid var(--m3-outline-variant)';
+                    }
+                    
+                    orderBtn.innerText = `[${o.displayNo}] ${o.routeSummary}`;
+                    orderBtn.onclick = () => this.toggleNaviOrderSelection(o);
+                    listEl.appendChild(orderBtn);
+                });
+            },
+
+            toggleNaviOrderSelection: function(order) {
+                const index = this.naviSelectedOrders.findIndex(x => x.id === order.id);
+                if (index !== -1) {
+                    this.naviSelectedOrders.splice(index, 1);
+                } else {
+                    this.naviSelectedOrders.push(order);
+                }
+                this.renderNaviOrderList();
+            },
+
+            resetNaviSequence: function() {
+                this.naviSelectedOrders = [];
+                this.renderNaviOrderList();
+            },
+
+            launchMultiNaviWithSequence: function() {
+                if (this.naviSelectedOrders.length === 0) { showToast("SELECT ORDERS FIRST"); return; }
                 
-                let nodes = [...this.clickedNodes];
-                let dest = nodes.pop(); 
-                let vias = nodes.slice(0, 3); // Max 3 vias in KakaoNavi
-                
+                let nodes = [];
+                this.naviSelectedOrders.forEach(o => {
+                    if (o.endCoords) {
+                        nodes.push({ label: `D${o.displayNo}`, lat: o.endCoords.lat, lng: o.endCoords.lng });
+                    }
+                });
+
+                if (nodes.length === 0) { showToast("NO VALID COORDINATES"); return; }
+
+                let dest = nodes.pop();
+                let vias = nodes.slice(0, 3);
+
                 let url = `kakaonavi://navigate?name=${encodeURIComponent(dest.label)}&x=${dest.lng}&y=${dest.lat}`;
-                if(vias.length > 0) {
+                if (vias.length > 0) {
                     let viaStr = vias.map(v => `${v.lng},${v.lat}:${encodeURIComponent(v.label)}`).join('|');
                     url += `&via=${viaStr}`;
                 }
-                
-                showToast(`LAUNCHING MULTI NAVI`);
+
+                showToast("LAUNCHING NAVI");
+                toggleModal('popMultiNavi');
                 setTimeout(() => { window.location.href = url; }, 1000);
             },
 
@@ -1042,7 +1123,7 @@
                     GeosticsOS.storeRouteData(this.tempPick.lat, this.tempPick.lng, this.tempDrop.lat, this.tempDrop.lng, this.tempPick.srt, this.tempDrop.srt, this.tempDist, this.tempTime, this.getHourlyRate());
                     
                     if(!isSilent && document.getElementById('view-radar').classList.contains('active')) {
-                        GeosticsOS.drawAllVectors(this.orders.filter(o => o.state === 'RUN' || o.state === 'PICK'));
+                        GeosticsOS.drawAllVectors(QuickCal.orders.filter(o => o.state === 'RUN' || o.state === 'PICK'));
                     }
                     if(!isSilent) showToast("SYNCED");
                     return true;
@@ -1204,7 +1285,8 @@
                         <div style="font-size:12px; text-transform:uppercase; color:var(--m3-primary); font-weight:800; margin-bottom:8px;">Routing Path Specifics</div>
                         <div style="margin-bottom:10px; font-size:14px; font-weight:700;"><strong style="color:var(--m3-primary)">PICKUP:</strong> ${o.startDetail}</div>
                         <div style="margin-bottom:10px; font-size:14px; font-weight:700;"><strong style="color:var(--m3-error)">DROPOFF:</strong> ${o.endDetail || 'N/A'}</div>
-                        <div style="margin-top:12px; display:flex; gap:8px;">
+                        <div style="font-size:12px; text-transform:uppercase; color:var(--m3-primary); font-weight:800; margin-top:12px; margin-bottom:8px;">Navigation Apps Links</div>
+                        <div style="display:flex; gap:8px;">
                             <a href="tmap://search?name=${encodeURIComponent(o.startDetail)}" class="btn-core flex-center" style="text-decoration:none; height:36px; font-size:12px; background:#000; color:#fff;">PICK TMAP</a>
                             <a href="tmap://search?name=${encodeURIComponent(o.endDetail || o.startDetail)}" class="btn-core flex-center" style="text-decoration:none; height:36px; font-size:12px; background:#000; color:#fff;">DROP TMAP</a>
                         </div>
