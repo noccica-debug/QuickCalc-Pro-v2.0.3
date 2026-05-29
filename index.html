@@ -128,10 +128,13 @@
         .btn-gps:active { background: #000; }
         
         .btn-multi-navi { position: absolute; bottom: 84px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: #005cbb; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 9px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; text-align: center; cursor: pointer; }
+        
+        .btn-map-lock { position: absolute; bottom: 138px; right: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 16px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .btn-map-lock.locked { background: #ba1a1a; color: #fff; border-color: #ba1a1a; }
 
-        .quick-sel-container { position: absolute; bottom: 30px; left: 16px; display: flex; gap: 8px; z-index: 2000; overflow-x: auto; max-width: calc(100% - 80px); padding-bottom: 4px; }
+        .quick-sel-container { position: absolute; bottom: 30px; left: 16px; display: flex; gap: 8px; z-index: 2000; overflow-x: auto; max-width: calc(100% - 80px); padding: 10px 0; align-items: center; }
         .q-sel-btn { width: 40px; height: 40px; border-radius: 20px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 15px; background: rgba(0,0,0,0.8); cursor: pointer; color: #fff; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.3); flex-shrink: 0; }
-        .q-sel-btn.active { background: currentColor; color: #000; transform: scale(1.1); }
+        .q-sel-btn.active { background: currentColor; color: #000; transform: scale(1.15); }
 
         /* Map Markers */
         .marker-dot { width: 14px !important; height: 14px !important; border-radius: 50% !important; border: 2px solid #fff !important; box-shadow: 0 0 8px rgba(0,0,0,0.8) !important; }
@@ -257,8 +260,9 @@
             <div id="radar-hud" class="radar-hud" onclick="GeosticsOS.toggleHUD()"></div>
             <div id="gps-badge" class="gps-badge">📍 <span id="gps-text"></span> <span class="gps-road" id="gps-road"></span></div>
             
-            <button class="btn-gps" onclick="GeosticsOS.fetchManualGPS()">GPS</button>
+            <button class="btn-map-lock" id="btn-map-lock" onclick="GeosticsOS.toggleMapLock()">🔓</button>
             <button class="btn-multi-navi" onclick="GeosticsOS.calculateBundleRoute()">MULTI<br>NAVI</button>
+            <button class="btn-gps" onclick="GeosticsOS.fetchManualGPS()">GPS</button>
             <div id="radar-quick-sel" class="quick-sel-container"></div>
             
             <div id="map"></div>
@@ -366,19 +370,42 @@
             map: null, routeVectors: [], currentRoute: null,
             seoulCenter: [37.5665, 126.9780], 
             userMarker: null, selectedVectorId: null, hudVisible: true,
-            clickedDropoffs: [], clickedPolyline: null,
+            clickedNodes: [], clickedPolyline: null, mapLocked: false,
 
             init: function() {
                 if (this.map) return;
                 const bounds = L.latLngBounds([37.1, 126.5], [37.9, 127.5]);
                 this.map = L.map('map', { zoomControl: false, maxBounds: bounds, minZoom: 10, maxBoundsViscosity: 1.0 }).setView(this.seoulCenter, 12);
                 
-                // Exchanged to Saturated Map Tile (CartoDB Voyager) for high visual recognition
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', { attribution: '' }).addTo(this.map);
                 this.map.attributionControl.setPrefix(false); 
 
                 if (window.ResizeObserver) {
                     new ResizeObserver(() => { if (this.map) this.map.invalidateSize(); }).observe(document.getElementById('view-radar'));
+                }
+            },
+
+            toggleMapLock: function() {
+                this.mapLocked = !this.mapLocked;
+                const btn = document.getElementById('btn-map-lock');
+                if (this.mapLocked) {
+                    this.map.dragging.disable();
+                    this.map.touchZoom.disable();
+                    this.map.doubleClickZoom.disable();
+                    this.map.scrollWheelZoom.disable();
+                    if(this.map.keyboard) this.map.keyboard.disable();
+                    btn.innerHTML = '🔒';
+                    btn.classList.add('locked');
+                    showToast("MAP LOCKED");
+                } else {
+                    this.map.dragging.enable();
+                    this.map.touchZoom.enable();
+                    this.map.doubleClickZoom.enable();
+                    this.map.scrollWheelZoom.enable();
+                    if(this.map.keyboard) this.map.keyboard.enable();
+                    btn.innerHTML = '🔓';
+                    btn.classList.remove('locked');
+                    showToast("MAP UNLOCKED");
                 }
             },
 
@@ -447,9 +474,29 @@
                 if (!this.userMarker) {
                     const pulseIcon = L.divIcon({ className: 'custom-pulse-icon', iconSize: [14, 14], iconAnchor: [7, 7], html: `<div class="pulse-ring"></div><div class="pulse-dot"></div>` });
                     this.userMarker = L.marker([lat, lng], { icon: pulseIcon }).addTo(this.map);
+                    this.userMarker.on('click', () => this.handleGPSClick());
                 } else {
                     this.userMarker.setLatLng([lat, lng]);
+                    const gpsNode = this.clickedNodes.find(n => n.id === 'GPS');
+                    if (gpsNode) {
+                        gpsNode.lat = lat;
+                        gpsNode.lng = lng;
+                        this.renderChainedPath();
+                    }
                 }
+            },
+
+            handleGPSClick: function() {
+                if (!this.userMarker) return;
+                const gpsLatLng = this.userMarker.getLatLng();
+                const existingIdx = this.clickedNodes.findIndex(n => n.id === 'GPS');
+                
+                if (existingIdx !== -1) {
+                    this.clickedNodes.splice(existingIdx, 1);
+                } else {
+                    this.clickedNodes.unshift({ id: 'GPS', label: 'GPS', lat: gpsLatLng.lat, lng: gpsLatLng.lng });
+                }
+                this.renderChainedPath();
             },
 
             reverseGeocode: async function(lat, lng) {
@@ -466,7 +513,6 @@
                         const road = info.roadName || '';
                         const badge = document.getElementById('gps-badge');
                         
-                        // Exclude City/Province string data (서울시/경기도 제외 처리)
                         let cleanDong = dong.replace(/^(서울특별시|경기도|인천광역시|서울시|경기)/g, "").trim();
                         let cleanRoad = road.replace(/^(서울특별시|경기도|인천광역시|서울시|경기)/g, "").trim();
 
@@ -530,14 +576,16 @@
 
                 let hudUpdated = false;
 
+                // Sort orders by displayNo ascending (Left to Right sequence)
+                const renderOrders = [...activeOrders].sort((a,b) => a.displayNo - b.displayNo);
+
                 // 1. Render Active Orders (RUN = Blue, PICK = Green)
-                activeOrders.forEach((o) => {
+                renderOrders.forEach((o) => {
                     if (o.startCoords && o.endCoords) {
                         const isSelected = this.selectedVectorId === o.id;
                         const stateTag = o.state === 'PICK' ? 'PICK' : 'RUN';
                         const vColor = o.state === 'PICK' ? '#10b981' : '#007aff';
                         
-                        // Heightened Saturation/Opacity for Non-Selected Vectors (0.2 -> 0.55)
                         const opac = isSelected ? 1.0 : 0.55;
                         const w = isSelected ? 6 : 4;
 
@@ -547,7 +595,6 @@
                         if(isSelected) { btn.style.backgroundColor = vColor; btn.style.color = '#000'; }
                         else { btn.style.color = vColor; }
                         
-                        // Sync Sequential Index matching the unique order identity layout
                         btn.innerText = o.displayNo;
                         btn.onclick = () => this.drawAllVectors(activeOrders, o.id);
                         qSelContainer.appendChild(btn);
@@ -558,7 +605,6 @@
                         const polyline = L.polyline([[pLat, pLng], [dLat, dLng]], { color: vColor, weight: w, opacity: opac, dashArray: isSelected ? '' : '3, 4' }).addTo(this.map);
                         this.routeVectors.push(polyline);
                         
-                        // Enlarged dynamic bearing indicator arrow hosting sequential numbering inside
                         const bearing = this.calcBearing(pLat, pLng, dLat, dLng);
                         const midLat = (pLat + dLat) / 2; const midLng = (pLng + dLng) / 2;
                         const arrowIcon = L.divIcon({ 
@@ -571,7 +617,6 @@
                         const arrowMarker = L.marker([midLat, midLng], { icon: arrowIcon }).addTo(this.map);
                         this.routeVectors.push(arrowMarker);
 
-                        // Render distinctive dot at Dropoff point for interaction measurement
                         const dropDot = L.circleMarker([dLat, dLng], { radius: 6, fillColor: '#ff3b30', color: '#ffffff', weight: 2, fillOpacity: isSelected ? 1.0 : 0.7 }).addTo(this.map);
                         dropDot.on('click', () => this.handleDropoffChaining(o));
                         this.routeVectors.push(dropDot);
@@ -586,7 +631,7 @@
                     }
                 });
 
-                // 2. Render NEW Route (Orange)
+                // 2. Render NEW Route (Orange) placed at the very end
                 if(this.currentRoute) {
                     const isSelected = this.selectedVectorId === 'NEW';
                     const vColor = '#f39c12';
@@ -600,7 +645,7 @@
                     else { btn.style.color = vColor; }
                     btn.innerText = 'N';
                     btn.onclick = () => this.drawAllVectors(activeOrders, 'NEW');
-                    qSelContainer.insertBefore(btn, qSelContainer.firstChild);
+                    qSelContainer.appendChild(btn);
 
                     const { pLat, pLng, dLat, dLng, srtP, srtD, dist, time, hourly } = this.currentRoute;
                     
@@ -652,42 +697,50 @@
             handleDropoffChaining: function(order) {
                 if(!order.endCoords) return;
                 
-                // If GPS profile exists, connect user coordinate sequence to the destination 
-                if(this.userMarker && this.clickedDropoffs.length === 0) {
-                    const gpsLatLng = this.userMarker.getLatLng();
-                    this.clickedDropoffs.push({ label: 'GPS', lat: gpsLatLng.lat, lng: gpsLatLng.lng });
+                const existingIdx = this.clickedNodes.findIndex(n => n.id === `D${order.displayNo}`);
+                
+                if (existingIdx !== -1) {
+                    this.clickedNodes.splice(existingIdx, 1);
+                } else {
+                    this.clickedNodes.push({ id: `D${order.displayNo}`, label: `D${order.displayNo}`, lat: order.endCoords.lat, lng: order.endCoords.lng });
                 }
-
-                this.clickedDropoffs.push({ label: `D${order.displayNo}`, lat: order.endCoords.lat, lng: order.endCoords.lng });
                 this.renderChainedPath();
             },
 
             renderChainedPath: function() {
                 if(this.clickedPolyline && this.map) {
                     this.map.removeLayer(this.clickedPolyline);
+                    this.clickedPolyline = null;
                 }
-                if(this.clickedDropoffs.length < 2) return;
+                if(this.clickedNodes.length < 2) {
+                    if (this.clickedNodes.length === 0 || this.clickedNodes.length === 1) {
+                        const hud = document.getElementById('radar-hud');
+                        if (hud.innerHTML.includes("[CHAIN]")) hud.style.display = 'none';
+                    }
+                    return;
+                }
 
-                const latLngs = this.clickedDropoffs.map(pt => [pt.lat, pt.lng]);
+                const latLngs = this.clickedNodes.map(pt => [pt.lat, pt.lng]);
                 this.clickedPolyline = L.polyline(latLngs, { color: '#ff3b30', weight: 4, dashArray: '6, 8', opacity: 0.9 }).addTo(this.map);
                 
-                // Cumulative distance/time computation (Haversine formula approximation)
                 let totalMeters = 0;
                 for(let i = 0; i < latLngs.length - 1; i++) {
                     totalMeters += this.map.distance(latLngs[i], latLngs[i+1]);
                 }
                 let totalDistKm = totalMeters / 1000;
-                let totalTimeMin = Math.round(totalDistKm * 2.2); // Saturated urban driving conversion ratio
+                let totalTimeMin = Math.round(totalDistKm * 2.2);
                 if(totalTimeMin === 0) totalTimeMin = 1;
 
-                const chainLabels = this.clickedDropoffs.map(pt => pt.label).join('➔');
+                const chainLabels = this.clickedNodes.map(pt => pt.label).join('➔');
                 const hud = document.getElementById('radar-hud');
+                hud.style.borderColor = '#ff3b30';
+                hud.style.color = '#ff3b30';
                 hud.innerHTML = `[CHAIN] ${chainLabels}<br><span style="color:#ff453a; font-size:12px; font-weight:800;">${totalDistKm.toFixed(1)}km | ${totalTimeMin}min</span>`;
                 this.forceShowHUD();
             },
 
             resetClickedPath: function() {
-                this.clickedDropoffs = [];
+                this.clickedNodes = [];
                 if(this.clickedPolyline && this.map) {
                     this.map.removeLayer(this.clickedPolyline);
                     this.clickedPolyline = null;
@@ -702,19 +755,17 @@
                     showToast("NEED MULTI ORDERS"); return;
                 }
 
-                // Definition logic: complete all pickups first. Determine last pickup location anchor.
                 let lastPickOrder = quicks.find(o => o.state === 'PICK') || quicks[quicks.length - 1];
                 let anchorPt = lastPickOrder.startCoords;
 
-                // Greedy sequence sort evaluating distance parameters
                 let currentPt = anchorPt;
                 let remaining = [...quicks];
                 let optimizedRoute = [];
 
                 while(remaining.length > 0) {
                     remaining.sort((a, b) => {
-                        let distA = Math.hypot(a.endCoords.lat - currentPt.lat, a.endCoords.lng - currentPt.lng);
-                        let distB = Math.hypot(b.endCoords.lat - currentPt.lat, b.endCoords.lng - currentPt.lng);
+                        let distA = this.map.distance([currentPt.lat, currentPt.lng], [a.endCoords.lat, a.endCoords.lng]);
+                        let distB = this.map.distance([currentPt.lat, currentPt.lng], [b.endCoords.lat, b.endCoords.lng]);
                         return distA - distB;
                     });
                     let closest = remaining.shift();
@@ -722,19 +773,29 @@
                     currentPt = closest.endCoords;
                 }
 
-                // Sequential recommendations render formulation
                 let seqStr = optimizedRoute.map(o => o.displayNo).join('➔');
-                let totalFareK = quicks.reduce((sum, o) => sum + QuickCal.netFare(o.fareK, o.platform), 0);
-                let totalTimeMin = quicks.reduce((sum, o) => sum + (o.time || 12), 0);
+                let totalFareK = quicks.reduce((sum, o) => sum + QuickCal.calcNetFare(o.fareK, o.platform), 0);
+                
+                let totalTimeMin = 0;
+                let totalDistKm = 0;
+                let pPt = anchorPt;
+                
+                optimizedRoute.forEach(o => {
+                   let meters = this.map.distance([pPt.lat, pPt.lng], [o.endCoords.lat, o.endCoords.lng]);
+                   totalDistKm += meters / 1000;
+                   totalTimeMin += Math.round((meters / 1000) * 2.2);
+                   pPt = o.endCoords;
+                });
+                
+                if(totalTimeMin === 0) totalTimeMin = 1;
                 let bundleHourly = ((totalFareK / totalTimeMin) * 60).toFixed(1);
 
-                let breakdownText = optimizedRoute.map(o => `D${o.displayNo}:${o.time || 10}m`).join(' | ');
-
                 const hud = document.getElementById('radar-hud');
-                hud.innerHTML = `[BUNDLE] ${seqStr}<br><span style="color:#2ecc71; font-size:12px; font-weight:800;">NET ${totalFareK.toFixed(1)}k | ${bundleHourly}k/h (${totalTimeMin}min)<br>${breakdownText}</span>`;
+                hud.style.borderColor = '#2ecc71';
+                hud.style.color = '#2ecc71';
+                hud.innerHTML = `[BUNDLE] ${seqStr}<br><span style="color:#2ecc71; font-size:12px; font-weight:800;">NET ${totalFareK.toFixed(1)}k | ${bundleHourly}k/h (${totalDistKm.toFixed(1)}km | ${totalTimeMin}min)</span>`;
                 this.forceShowHUD();
 
-                // Trigger multi destinations link structure execution
                 if(optimizedRoute.length > 0) {
                     let firstTarget = optimizedRoute[0];
                     let tmapDeepLink = `tmap://route?startx=${anchorPt.lng}&starty=${anchorPt.lat}&destx=${firstTarget.endCoords.lng}&desty=${firstTarget.endCoords.lat}`;
@@ -867,7 +928,6 @@
             
             cleanRoadAddress: function(str) {
                 if(!str) return "";
-                // Filter and omit city/province elements for optimal screen layout (시도 명칭 생략 필터)
                 return str.replace(/^(서울특별시|경기도|인천광역시|강원도|충청북도|충청남도|전라북도|전라남도|경상북도|경상남도|제주특별자치도|세종특별자치시|서울시|경기|인천)\s+/, "").trim();
             },
 
@@ -900,7 +960,6 @@
                     } catch(e) {} return null;
                 };
 
-                // Filter out and clean up location parameters
                 if(pickIn.value.trim()) { 
                     let pData = await getPoiData(pickIn.value.trim()); 
                     if(pData) { 
@@ -1054,7 +1113,6 @@
                     else if (o.state === 'PICK') actBtn = `<button class="btn-icon btn-red" style="width:100%; height:26px;" onclick="QuickCal.stepState('${o.id}', 'DONE', event)">DONE</button>`;
                     else actBtn = '<span class="chip-status" style="background:var(--m3-surface-low); color:var(--m3-muted); padding:2px 4px; font-size:10px; border-radius:4px;">DONE</span>';
                     
-                    // Bind Fullscreen Detailed Scroller Modal context execution
                     tr.setAttribute('onclick', `QuickCal.triggerFullscreenView('${o.id}')`);
                     
                     let badgeHTML = '';
@@ -1062,7 +1120,6 @@
                         badgeHTML = o.mode === 'QUICKS' ? `<span class="badge-q">Q</span>` : `<span class="badge-e">E</span>`;
                     }
 
-                    // Always show memo text beneath structural metadata summary rows
                     let memoRender = o.memo ? `<div class="tbl-memo">📝 ${o.memo}</div>` : '';
 
                     tr.innerHTML = `
@@ -1107,7 +1164,7 @@
                         </div>
                     </div>
                     <div class="fs-card">
-                        <div style="font-size:12px; text-transform:uppercase; color:var(--m3-primary); font-weight:800; margin-bottom:8px;">Financials & Efficiency</div>
+                        <div style="font-size:12px; text-transform:uppercase; color:var(--m3-primary); font-weight:800; margin-bottom:4px;">Financials & Efficiency</div>
                         <div style="font-size:16px; font-weight:900; color:var(--m3-surf-text); margin-bottom:4px;">NET FARE: ${netRevenueVal}k <span style="font-size:12px; color:var(--m3-muted); font-weight:700;">(Gross: ${o.fareK}k)</span></div>
                         <div style="font-size:13px; font-weight:700; color:var(--m3-primary);">Velocity Index: ${speedMetrics}</div>
                     </div>
@@ -1123,7 +1180,6 @@
                 e.stopPropagation(); 
                 const o = this.orders.find(x => x.id === id); if(!o) return; 
                 
-                // Simple concise confirmation dialog for QUICKS operation tracking
                 if(o.mode === 'QUICKS') {
                     if(!confirm(`Proceed to ${nextState}?`)) return;
                 }
