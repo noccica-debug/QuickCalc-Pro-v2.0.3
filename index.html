@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#111315" id="meta-theme-color">
-    <title>QuickCal Sys Pro (v2.0.3)</title>
+    <title>QuickCal Pro (v2.0.3)</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         /* M3 Based Color Palette */
@@ -195,7 +195,7 @@
 
     <div class="viewport" id="main-viewport">
         <div id="view-ord" class="section active" style="overflow-y:auto;">
-            <div class="app-title">QuickCal Sys Pro</div>
+            <div class="app-title">QuickCal Pro</div>
             <div class="flex-center">
                 <div class="main-toggle">
                     <div class="main-toggle-btn active" id="btn-mode-quicks" onclick="QuickCal.setAppMode('QUICKS')">QUICKS</div>
@@ -322,7 +322,7 @@
                 <button class="btn-core btn-red" onclick="QuickCal.factoryReset()">RESET</button>
                 <button class="btn-core" onclick="QuickCal.saveSystemConfig()">SAVE</button>
             </div>
-            <div class="text-center mt-16" style="font-size:10px; color:var(--m3-outline); font-weight:600;">© 2026 QuickCal Sys Pro. All rights reserved.</div>
+            <div class="text-center mt-16" style="font-size:10px; color:var(--m3-outline); font-weight:600;">© 2026 QuickCal Pro. All rights reserved.</div>
         </div>
     </div>
 
@@ -358,20 +358,25 @@
                 <div class="text-bold" style="font-size:14px; color: var(--m3-primary);">BUNDLE CALCULATION</div>
                 <button class="btn-icon btn-red" style="width:30px; border-radius:15px; padding:0;" onclick="toggleModal('popChainCalc')">X</button>
             </div>
+            <div id="bundle-timer-display" style="font-size:11px; text-align:center; color:var(--m3-primary); font-weight:900; margin-bottom:12px; display:none;">STARTED: --:--</div>
             <div id="chain-sequence-display" style="font-size:12px; margin-bottom:12px; color:var(--m3-primary); font-weight:900; text-align:center; word-break:break-all;">SELECT ORDERS</div>
             <div style="font-size:11px; margin-bottom:8px; color:var(--m3-muted); font-weight:700;">SELECT ACTIVE ORDERS:</div>
             <div id="chain-order-list" style="max-height:150px; overflow-y:auto; margin-bottom:16px; background:var(--m3-surface-low); padding:12px; border-radius:12px; border:1px solid var(--m3-outline-variant);"></div>
             <div class="flex-between mb-8" style="padding-top:10px; border-top:1px solid var(--m3-outline-variant);">
                 <div style="font-size:12px; color:var(--m3-muted); font-weight:800;">TOTAL NET</div>
-                <div style="font-size:18px; font-weight:900; color:#10b981;" id="chain-net-display">0.0k</div>
+                <div style="text-align:right;">
+                    <div style="font-size:18px; font-weight:900; color:#10b981;" id="chain-net-display">0.0k</div>
+                    <div style="font-size:11px; font-weight:700; color:var(--m3-muted);" id="chain-kkm-display">--k/km</div>
+                </div>
             </div>
             <div class="flex-between mb-16">
                 <div style="font-size:12px; color:var(--m3-muted); font-weight:800;">TOTAL DIST</div>
                 <div style="font-size:15px; font-weight:900; color:var(--m3-primary);" id="chain-dist-display">0.0km</div>
             </div>
-            <div class="flex-between gap-12" style="margin-bottom:8px;">
-                <button class="btn-core" style="background:var(--m3-primary);" onclick="GeosticsOS.bundlePick()">B / PICK</button>
-                <button class="btn-core btn-red" onclick="GeosticsOS.bundleDone()">B / DONE</button>
+            <div class="flex-between gap-8" style="margin-bottom:8px;">
+                <button class="btn-core" style="background:var(--m3-surface-low); color:var(--m3-error); flex:0.4;" onclick="GeosticsOS.bundleReset()">B/RESET</button>
+                <button class="btn-core" style="background:var(--m3-primary); flex:0.8;" onclick="GeosticsOS.bundlePick()">B/PICK</button>
+                <button class="btn-core btn-red" style="flex:0.8;" onclick="GeosticsOS.bundleDone()">B/DONE</button>
             </div>
             <button class="btn-core" style="width:100%; background:var(--m3-surface-low); color:var(--m3-surf-text);" onclick="GeosticsOS.applyChainSearch()">FIT MAP</button>
         </div>
@@ -451,6 +456,7 @@
             userMarker: null, selectedVectorId: null, hudVisible: true,
             chainPolyline: null, chainMarkers: [], mapLocked: false,
             naviSelectedOrders: [], chainSelectedOrders: [], bundleStartTime: null,
+            lastCalculatedDist: 0,
 
             init: function() {
                 if (this.map) return;
@@ -716,7 +722,6 @@
             },
 
             openChainCalcModal: function() {
-                this.chainSelectedOrders = []; 
                 const listEl = document.getElementById('chain-order-list');
                 listEl.innerHTML = '';
                 document.getElementById('chain-sequence-display').innerText = 'SELECT ORDERS';
@@ -727,9 +732,10 @@
                 } else {
                     activeOrders.forEach(o => {
                         let net = QuickCal.calcNetFare(o.fareK, o.platform).toFixed(1);
+                        let isChecked = this.chainSelectedOrders.some(x => x.id === o.id) ? 'checked' : '';
                         listEl.innerHTML += `
                         <label style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--m3-outline-variant); cursor:pointer;">
-                            <input type="checkbox" class="chain-chk" value="${o.id}" onchange="GeosticsOS.toggleChainOrder('${o.id}')" style="accent-color:var(--m3-primary); width:16px; height:16px;">
+                            <input type="checkbox" class="chain-chk" value="${o.id}" onchange="GeosticsOS.toggleChainOrder('${o.id}')" ${isChecked} style="accent-color:var(--m3-primary); width:16px; height:16px;">
                             <span style="font-size:12px; font-weight:800; color:var(--m3-surf-text);">[${o.displayNo}] ${o.routeSummary} <span style="color:var(--m3-primary)">${net}k</span></span>
                         </label>`;
                     });
@@ -757,6 +763,16 @@
             },
 
             updateChainCalculation: function() {
+                let timerEl = document.getElementById('bundle-timer-display');
+                if (this.bundleStartTime) {
+                    let d = new Date(this.bundleStartTime);
+                    let tStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                    timerEl.innerText = `[B/PICK] LOG STARTED AT ${tStr}`;
+                    timerEl.style.display = 'block';
+                } else {
+                    timerEl.style.display = 'none';
+                }
+
                 let totalNet = 0;
                 let selectedOrders = this.chainSelectedOrders;
                 selectedOrders.forEach(o => { totalNet += QuickCal.calcNetFare(o.fareK, o.platform); });
@@ -767,45 +783,42 @@
                 if (selectedOrders.length > 0) {
                     let unvisited = [];
                     selectedOrders.forEach(o => {
-                        if (o.startCoords) {
-                            unvisited.push({ type: 'PICK', coords: o.startCoords, name: QuickCal.extractDong(o.startDetail), orderId: o.id, displayNo: o.displayNo });
-                        }
-                        if (o.endCoords && o.endDetail) {
-                            unvisited.push({ type: 'DROP', coords: o.endCoords, name: QuickCal.extractDong(o.endDetail), orderId: o.id, displayNo: o.displayNo });
-                        }
+                        if (o.startCoords) { unvisited.push({ type: 'PICK', coords: o.startCoords, name: QuickCal.extractDong(o.startDetail), orderId: o.id, displayNo: o.displayNo }); }
+                        if (o.endCoords && o.endDetail) { unvisited.push({ type: 'DROP', coords: o.endCoords, name: QuickCal.extractDong(o.endDetail), orderId: o.id, displayNo: o.displayNo }); }
                     });
 
                     let pickedOrderIds = new Set();
                     let currentCoords = null;
-                    if (this.userMarker) {
-                        currentCoords = this.userMarker.getLatLng();
-                    } else if (unvisited.length > 0) {
-                        currentCoords = unvisited[0].coords;
-                    }
+                    if (this.userMarker) { currentCoords = this.userMarker.getLatLng(); } 
+                    else if (unvisited.length > 0) { currentCoords = unvisited[0].coords; }
 
                     while (unvisited.length > 0) {
                         let nextIdx = -1;
                         let minDist = Infinity;
+                        let actualDist = Infinity;
 
                         for (let i = 0; i < unvisited.length; i++) {
                             let node = unvisited[i];
                             if (node.type === 'DROP' && !pickedOrderIds.has(node.orderId)) continue;
-
+                            
                             let d = this.calcCrow(currentCoords.lat, currentCoords.lng, node.coords.lat, node.coords.lng);
-                            if (d < minDist) { minDist = d; nextIdx = i; }
+                            let weightDist = node.type === 'DROP' ? d * 0.8 : d; 
+
+                            if (weightDist < minDist) { minDist = weightDist; actualDist = d; nextIdx = i; }
                         }
 
                         if (nextIdx === -1) nextIdx = 0;
-
                         let bestNode = unvisited.splice(nextIdx, 1)[0];
                         sequence.push(bestNode);
                         if (bestNode.type === 'PICK') pickedOrderIds.add(bestNode.orderId);
-                        distSum += minDist;
+                        if (actualDist !== Infinity) distSum += actualDist;
                         currentCoords = bestNode.coords;
                     }
                 }
-
+                
+                this.lastCalculatedDist = distSum;
                 document.getElementById('chain-net-display').innerText = totalNet.toFixed(1) + 'k';
+                document.getElementById('chain-kkm-display').innerText = distSum > 0 ? (totalNet / distSum).toFixed(1) + 'k/km' : '--k/km';
                 document.getElementById('chain-dist-display').innerHTML = `${distSum.toFixed(1)}km <span style="font-size:10px; color:var(--m3-muted); font-weight:700;">(NET DIST / STRAIGHT)</span>`;
                 
                 const seqDisplay = document.getElementById('chain-sequence-display');
@@ -815,9 +828,7 @@
                             let color = n.type === 'PICK' ? 'var(--m3-primary)' : 'var(--m3-error)';
                             return `<span style="color:${color}">[${n.displayNo}${n.type[0]}]${n.name}</span>`;
                         }).join(' ➔ ');
-                    } else {
-                        seqDisplay.innerText = 'SELECT ORDERS';
-                    }
+                    } else { seqDisplay.innerText = 'SELECT ORDERS'; }
                 }
 
                 let latlngs = sequence.map(n => [n.coords.lat, n.coords.lng]);
@@ -838,14 +849,22 @@
                 }
             },
 
+            bundleReset: function() {
+                this.bundleStartTime = null;
+                this.chainSelectedOrders = [];
+                document.querySelectorAll('.chain-chk').forEach(el => el.checked = false);
+                this.updateChainCalculation();
+                showToast("BUNDLE RESET");
+            },
+
             bundlePick: function() {
                 if (this.chainSelectedOrders.length === 0) { SystemModal.alert("SELECT ORDERS FIRST"); return; }
                 this.bundleStartTime = Date.now();
                 this.chainSelectedOrders.forEach(o => { o.state = 'PICK'; o.pTime = getNowTimeString(); });
                 localStorage.setItem('qcp_orders_v203', JSON.stringify(QuickCal.orders));
                 QuickCal.renderMasterList();
+                this.updateChainCalculation();
                 showToast("BUNDLE LOG STARTED");
-                toggleModal('popChainCalc');
             },
 
             bundleDone: function() {
@@ -864,8 +883,10 @@
                     o.fTime = getNowTimeString();
                 });
                 
+                let kkm = this.lastCalculatedDist > 0 ? (totalNet / this.lastCalculatedDist).toFixed(1) : '--';
                 let kh = ((totalNet / elapsedMin) * 60).toFixed(1);
-                let newLog = { ts: Date.now(), nos: nos.sort((a,b)=>a-b).join(','), net: totalNet, elapsed: elapsedMin, kh: kh };
+                
+                let newLog = { ts: Date.now(), nos: nos.sort((a,b)=>a-b).join(','), net: totalNet, elapsed: elapsedMin, kh: kh, kkm: kkm };
                 
                 let logs = QuickCal.loadDataSafely('qcp_bundle_logs_v203', []);
                 logs.unshift(newLog);
@@ -878,9 +899,8 @@
                 let todayStr = new Date().toISOString().split('T')[0];
                 QuickCal.autoSyncAndClear(todayStr);
                 
-                SystemModal.alert(`BUNDLE SAVED\nNET: ${totalNet.toFixed(1)}k\nTIME: ${elapsedMin}min\nEFF: ${kh}k/h`);
-                this.bundleStartTime = null;
-                this.chainSelectedOrders = [];
+                SystemModal.alert(`BUNDLE SAVED\nNET: ${totalNet.toFixed(1)}k\nTIME: ${elapsedMin}min\nEFF: ${kh}k/h | ${kkm}k/km`);
+                this.bundleReset();
                 this.clearChainPolyline();
                 toggleModal('popChainCalc');
             },
@@ -956,22 +976,19 @@
                 let destOrder = this.naviSelectedOrders[this.naviSelectedOrders.length - 1];
                 let viaOrders = this.naviSelectedOrders.slice(0, this.naviSelectedOrders.length - 1);
 
-                if (!destOrder.endCoords || !destOrder.endCoords.fullLoc) { SystemModal.alert("INVALID COORDINATES OR ADDRESS"); return; }
+                if (!destOrder.endCoords) { SystemModal.alert("INVALID COORDINATES OR ADDRESS"); return; }
 
-                let baseParams = `route?destx=${destOrder.endCoords.lng}&desty=${destOrder.endCoords.lat}&destname=${encodeURIComponent(destOrder.endCoords.fullLoc)}`;
-                
-                if (viaOrders.length > 0) {
-                    let vias = viaOrders.map(v => {
-                        if(!v.endCoords || !v.endCoords.fullLoc) return "";
-                        return `${encodeURIComponent(v.endCoords.fullLoc)},${v.endCoords.lng},${v.endCoords.lat}`;
-                    }).filter(s => s !== "").join("|");
-                    if(vias) baseParams += `&vias=${vias}`;
-                }
+                let baseUrl = `kakaomap://route?ep=${destOrder.endCoords.lat},${destOrder.endCoords.lng}&by=CAR`;
+                let vpParams = ['vp', 'vp2', 'vp3', 'vp4'];
+                viaOrders.forEach((v, i) => {
+                    if (v.endCoords && vpParams[i]) {
+                        baseUrl += `&${vpParams[i]}=${v.endCoords.lat},${v.endCoords.lng}`;
+                    }
+                });
 
-                let intentUrl = `intent://${baseParams}#Intent;scheme=kakaonavi;package=com.locnall.KimGiSa;S.browser_fallback_url=https://play.google.com/store/apps/details?id=com.locnall.KimGiSa;end;`;
-                showToast("LAUNCHING MULTI NAVI");
+                showToast("LAUNCHING KAKAO MAP");
                 toggleModal('popMultiNavi');
-                setTimeout(() => { window.location.href = intentUrl; }, 500);
+                setTimeout(() => { window.location.href = baseUrl; }, 500);
             },
 
             calcBearing: function(lat1, lon1, lat2, lon2) {
@@ -991,7 +1008,7 @@
             }
         };
 
-        // ================= QuickCal Sys Pro (SYSTEM MODULE) =================
+        // ================= QuickCal Pro (SYSTEM MODULE) =================
         const QuickCal = {
             orders: [], appMode: 'QUICKS', selectedPlatform: 'Insung',
             currentFilter: 'RUN', currentSubFilter: 'ALL', wakeLockObj: null,
@@ -1064,13 +1081,14 @@
                 if(logs.length === 0) logHtml += `<div style="font-size:11px; color:var(--m3-outline); text-align:center;">NO BUNDLES YET</div>`;
                 logs.forEach(l => {
                     let d = new Date(l.ts); let tStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+                    let kkmStr = l.kkm ? ` | ${l.kkm}k/km` : '';
                     logHtml += `
                     <div style="background:var(--m3-surface-low); border-radius:8px; padding:10px; margin-bottom:8px; border:1px solid var(--m3-outline-variant);">
                         <div class="flex-between" style="margin-bottom:6px;">
                             <span style="font-weight:900; color:var(--m3-surf-text); font-size:13px;">[${l.nos}]</span>
                             <span style="font-size:10px; color:var(--m3-muted); font-weight:700;">${tStr}</span>
                         </div>
-                        <div style="font-size:12px; color:var(--m3-primary); font-weight:800;">NET ${l.net.toFixed(1)}k | ${l.kh}k/h <span style="color:var(--m3-muted); font-size:11px;">(${l.elapsed}min)</span></div>
+                        <div style="font-size:12px; color:var(--m3-primary); font-weight:800;">NET ${l.net.toFixed(1)}k | ${l.kh}k/h${kkmStr} <span style="color:var(--m3-muted); font-size:11px;">(${l.elapsed}min)</span></div>
                     </div>`;
                 });
                 listEl.innerHTML += logHtml; toggleModal('popTimeTable');
@@ -1117,7 +1135,9 @@
             selectPlatform: function(el, plat) { document.querySelectorAll('#platform-chips .chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.selectedPlatform = plat; this.updateEffBadge(); },
             
             extractDong: function(str) { 
-                if(!str) return ""; let match = str.match(/\(([가-힣]+[0-9]*[동읍면리])\)/); if(match) return match[1].substring(0,2);
+                if(!str) return ""; 
+                let match = str.match(/\(([^)]+)\)/); 
+                if(match) return match[1].trim().substring(0,2);
                 let clean = str.replace(/^(서울특별시|경기도|인천광역시|서울시|경기|서울|인천)\s+/, "").trim();
                 const match2 = clean.match(/([가-힣]+[0-9]*[동읍면리])/); if (match2) return match2[1].substring(0,2); 
                 return clean.split(' ').pop().substring(0,2);
@@ -1138,11 +1158,8 @@
                         const data = await res.json();
                         if(data?.searchPoiInfo?.pois?.poi?.length > 0) {
                             const poi = data.searchPoiInfo.pois.poi[0];
-                            let upper = poi.upperAddrName || '';
-                            let middle = poi.middleAddrName || '';
-                            let lower = poi.lowerAddrName || '';
+                            let upper = poi.upperAddrName || ''; let middle = poi.middleAddrName || ''; let lower = poi.lowerAddrName || '';
                             let fullAddressRoad = poi.newAddressList?.newAddress?.[0]?.fullAddressRoad || '';
-                            
                             let finalStr = '';
                             if (fullAddressRoad) { finalStr = `${fullAddressRoad} (${lower})`; } 
                             else { finalStr = `${upper} ${middle} ${lower}`.trim(); }
