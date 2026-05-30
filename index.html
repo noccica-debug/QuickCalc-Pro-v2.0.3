@@ -221,7 +221,9 @@
                 </div>
                 
                 <div id="eats-inputs" class="map-input-group" style="display:none;">
-                    <div style="position:absolute; top:12px; right:12px;"><input type="checkbox" style="accent-color:var(--m3-primary); width:18px; height:18px;"></div>
+                    <div style="position:absolute; top:12px; right:12px;">
+                        <input type="checkbox" id="chk-hold-eats-pick" style="accent-color:var(--m3-primary); width:18px; height:18px;">
+                    </div>
                     <div class="map-input-row" style="padding-right: 28px;"><input type="text" id="in-pick-eats" placeholder="PICKUP"></div>
                     <div class="map-input-row"><input type="text" id="in-drop-eats" placeholder="DROPOFF"></div>
                 </div>
@@ -1081,7 +1083,7 @@
                 if(logs.length === 0) logHtml += `<div style="font-size:11px; color:var(--m3-outline); text-align:center;">NO BUNDLES YET</div>`;
                 logs.forEach(l => {
                     let d = new Date(l.ts); let tStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-                    let kkmStr = l.kkm ? ` | ${l.kkm}k/km` : '';
+                    let kkmStr = l.kkm ? ` | ${l.kkm}` : '';
                     logHtml += `
                     <div style="background:var(--m3-surface-low); border-radius:8px; padding:10px; margin-bottom:8px; border:1px solid var(--m3-outline-variant);">
                         <div class="flex-between" style="margin-bottom:6px;">
@@ -1204,8 +1206,17 @@
                 if(fare) { const netFare = this.calcNetFare(fare, this.selectedPlatform); badge.innerHTML = `NET ${netFare.toFixed(1)}k | ${this.getHourlyRate()}k/h <span class="sub-txt">(${this.tempDist.toFixed(1)}km | ${this.tempTime}min)</span>`; badge.style.display = 'block'; } else { badge.style.display = 'none'; }
             },
             clearInputs: function() { 
-                ['in-pick-quicks', 'in-drop-quicks', 'in-pick-eats', 'in-drop-eats', 'in-fare', 'in-memo'].forEach(id => { const el = document.getElementById(id); if(el && el.type !== 'checkbox') el.value = ''; }); 
-                this.tempPick = null; this.tempDrop = null; this.tempDist = 0; this.tempTime = 0; this.updateEffBadge(); GeosticsOS.resetRadar();
+                let holdPick = (this.appMode === 'EATS' && document.getElementById('chk-hold-eats-pick')?.checked);
+                
+                ['in-pick-quicks', 'in-drop-quicks', 'in-pick-eats', 'in-drop-eats', 'in-fare', 'in-memo'].forEach(id => { 
+                    if (holdPick && id === 'in-pick-eats') return; 
+                    const el = document.getElementById(id); 
+                    if(el && el.type !== 'checkbox') el.value = ''; 
+                }); 
+                
+                if (!holdPick) { this.tempPick = null; }
+                this.tempDrop = null; this.tempDist = 0; this.tempTime = 0; 
+                this.updateEffBadge(); GeosticsOS.resetRadar();
             },
 
             commitOrder: async function() {
@@ -1284,9 +1295,9 @@
                 let pickLocUrl = o.startCoords && o.startCoords.fullLoc ? o.startCoords.fullLoc : o.startDetail;
                 let dropLocUrl = o.endCoords && o.endCoords.fullLoc ? o.endCoords.fullLoc : (o.endDetail || o.startDetail);
 
-                let pShort = QuickCal.extractDong(o.startDetail).replace(/'/g, "\\'"); if(pShort) pShort += "동";
+                let pShort = QuickCal.extractDong(o.startDetail).replace(/'/g, "\\'");
                 let pFull = pickLocUrl.replace(/'/g, "\\'");
-                let dShort = o.endDetail ? QuickCal.extractDong(o.endDetail).replace(/'/g, "\\'") : 'N/A'; if(dShort !== 'N/A') dShort += "동";
+                let dShort = o.endDetail ? QuickCal.extractDong(o.endDetail).replace(/'/g, "\\'") : 'N/A';
                 let dFull = dropLocUrl.replace(/'/g, "\\'");
 
                 content.innerHTML = `
