@@ -123,7 +123,7 @@
         .eff-badge { background: var(--m3-surface-low); color: var(--m3-primary); font-size: 15px; font-weight: 900; padding: 10px 12px; border-radius: 8px; text-align: center; border: 2px dashed var(--m3-primary); margin-bottom: 12px; display: none; }
         .eff-badge .sub-txt { font-size: 11px; color: var(--m3-muted); font-weight: 700; margin-left: 6px; }
 
-        /* LST Table (Update 2: Re-adjusted Column Widths) */
+        /* LST Table */
         .list-wrapper { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-bottom: 24px; background: var(--m3-surface); border-radius: 12px; border: 1px solid var(--m3-outline-variant); }
         #lst-summary-bar { flex-shrink: 0; background: var(--m3-primary-cont); color: var(--m3-on-primary-cont); text-align: center; font-size: 12px; font-weight: 900; padding: 10px; border-radius: 10px; margin-bottom: 8px; }
         
@@ -133,8 +133,8 @@
         .sheet-table { width: 100%; border-collapse: collapse; font-size: 11px; }
         .sheet-table th { background: var(--m3-surface-low); color: var(--m3-muted); font-weight: 800; padding: 6px 4px; border: 1px solid var(--m3-outline-variant); position: sticky; top: 0; z-index: 2; }
         .sheet-table td { padding: 6px 2px; border: 1px solid var(--m3-outline-variant); color: var(--m3-surf-text); text-align: center; vertical-align: middle; word-break: keep-all; position: relative; }
-        .tbl-route { font-weight: 900; color: var(--m3-surf-text); font-size: 14px; } /* Update 2: ROUTE 텍스트 사이즈/굵기 극대화 */
-        .tbl-time { font-size: 9px; color: var(--m3-muted); margin-top: 2px; font-weight: 700; }
+        .tbl-route { font-weight: 900; color: var(--m3-surf-text); font-size: 14px; }
+        .tbl-time { font-size: 11px; color: var(--m3-muted); margin-top: 2px; font-weight: 700; }
         .tbl-eff { font-size: 9px; color: var(--m3-primary); margin-top: 2px; font-weight: 800; }
 
         /* Fullscreen View Component */
@@ -142,7 +142,7 @@
         .fullscreen-overlay.show { display: flex; animation: viewSlideUp 0.25s cubic-bezier(0.25, 0.8, 0.25, 1); }
         @keyframes viewSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
-        #fullscreen-overlay-content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; }
+        #fullscreen-overlay-content { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start; overflow-y: auto; padding-bottom: 24px; }
         .fs-card { background: var(--m3-surface); border: 1px solid var(--m3-outline-variant); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; justify-content: center; }
         .fs-col-full { grid-column: span 2; }
         .fs-label { font-size: 11px; font-weight: 800; color: var(--m3-muted); text-transform: uppercase; margin-bottom: 4px; }
@@ -172,9 +172,9 @@
         .btn-bundle { position: absolute; bottom: 72px; left: 16px; width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-weight: 900; font-size: 10px; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4); backdrop-filter: blur(4px); cursor: pointer; display: flex; align-items: center; justify-content: center; text-align: center; transition: background 0.2s; line-height: 1.1; }
         .btn-bundle.active { background: var(--m3-error); border-color: var(--m3-error); }
 
-        /* Update 6: POI Mini Buttons */
-        .poi-container { position: absolute; bottom: 16px; left: 72px; display: flex; gap: 10px; z-index: 2000; }
-        .btn-poi { width: 38px; height: 38px; border-radius: 19px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; color: #fff; transition: transform 0.1s; }
+        /* POI Mini Buttons: Moved to right side to prevent overlap with Quick Select */
+        .poi-container { position: absolute; bottom: 184px; right: 16px; display: flex; flex-direction: column; gap: 10px; z-index: 2000; }
+        .btn-poi { width: 44px; height: 44px; border-radius: 22px; background: rgba(30,30,30,0.9); border: 1px solid rgba(255,255,255,0.2); font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.4); cursor: pointer; color: #fff; transition: transform 0.1s; }
         .btn-poi:active { transform: scale(0.9); }
 
         /* Quick Select Container */
@@ -191,7 +191,7 @@
         .pulse-ring { border: 3px solid rgba(0,235,255,0.6); border-radius: 50%; height: 34px; width: 34px; position: absolute; left: -2px; top: -2px; animation: pulsate 1.5s ease-out infinite; z-index: 1; pointer-events: none; }
         @keyframes pulsate { 0% { transform: scale(0.3); opacity: 1; } 100% { transform: scale(1.2); opacity: 0; } }
 
-        /* Modals & Nav (Update 2: 알림창 최대 가로폭 확대) */
+        /* Modals & Nav */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 9000; padding: 20px; backdrop-filter: blur(4px); }
         .modal-overlay.show { display: flex; }
         .modal-body { background: var(--m3-surface); border-radius: 20px; padding: 24px; width: 100%; max-width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); border: 1px solid var(--m3-outline-variant); }
@@ -321,7 +321,7 @@
             
             <div class="list-wrapper">
                 <table class="sheet-table">
-                    <thead><tr><th style="width:8%;">NO</th><th style="width:14%;">SHIFT</th><th style="width:8%;">P</th><th style="width:46%;">ROUTE</th><th style="width:12%;">NET</th><th style="width:12%;">ACT</th></tr></thead>
+                    <thead><tr><th style="width:8%;">NO</th><th style="width:14%;">SHIFT</th><th style="width:8%;">P</th><th style="width:42%;">ROUTE</th><th style="width:14%;">NET</th><th style="width:14%;">ACT</th></tr></thead>
                     <tbody id="master-list-tbody"></tbody>
                 </table>
             </div>
@@ -408,7 +408,7 @@
             <select id="edit-plat" class="select-box mb-12"></select>
             <input type="text" id="edit-pick" class="input-box mb-12" placeholder="PICKUP">
             <input type="text" id="edit-drop" class="input-box mb-12" placeholder="DROPOFF">
-            <input type="number" step="0.1" inputmode="decimal" id="edit-fare" class="input-box mb-12" placeholder="AMT">
+            <input type="number" step="0.1" inputmode="decimal" id="edit-fare" class="input-box mb-12" placeholder="AMT (k)">
             <input type="text" id="edit-memo" class="input-box mb-24" placeholder="NOTE">
             <div class="flex-between gap-12">
                 <button class="btn-core" style="flex:0.3; background:var(--m3-surface-low); color:var(--m3-primary);" onclick="QuickCalc.reSearchEdit()">API</button>
@@ -465,6 +465,28 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // ================= UTILS =================
+        const SystemUtils = {
+            formatTime: function(date) { return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`; },
+            fetchTmapPoi: async function(keyword) {
+                const apiKey = localStorage.getItem('qcp_key_tmap');
+                if(!apiKey) return null;
+                try {
+                    const res = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${encodeURIComponent(keyword)}&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&count=1`, { headers: { 'appKey': apiKey } });
+                    const data = await res.json();
+                    if(data?.searchPoiInfo?.pois?.poi?.length > 0) {
+                        const poi = data.searchPoiInfo.pois.poi[0];
+                        let fullAddressRoad = poi.newAddressList?.newAddress?.[0]?.fullAddressRoad || '';
+                        let lower = poi.lowerAddrName || '';
+                        let finalStr = fullAddressRoad ? `${fullAddressRoad} (${lower})` : `${poi.upperAddrName || ''} ${poi.middleAddrName || ''} ${lower}`.trim();
+                        finalStr = finalStr.replace(/\s+/g, ' ').trim();
+                        return { lat: parseFloat(poi.frontLat || poi.noorLat), lng: parseFloat(poi.frontLon || poi.noorLon), str: finalStr, dong: lower, fullLoc: finalStr };
+                    }
+                } catch(e) { console.error(e); } 
+                return null;
+            }
+        };
+
         // ================= UI & COMMON =================
         let toastTimeout;
         function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.classList.remove('show'), 2000); }
@@ -476,10 +498,7 @@
                 document.getElementById('sys-confirm-btn').onclick = () => { toggleModal('sysConfirm'); onYes(); };
                 toggleModal('sysConfirm');
             },
-            alert: function(msg) {
-                document.getElementById('sys-alert-msg').innerText = msg;
-                toggleModal('sysAlert');
-            }
+            alert: function(msg) { document.getElementById('sys-alert-msg').innerText = msg; toggleModal('sysAlert'); }
         };
         
         function switchMainTab(id, el) { 
@@ -493,7 +512,6 @@
                     GeosticsOS.init(); 
                     if(GeosticsOS.map) {
                         GeosticsOS.map.invalidateSize(); 
-                        // Update 3: 'PICK' 상태 자동 삭제 반영 (RUN 상태만 드로잉)
                         GeosticsOS.drawAllVectors(QuickCalc.orders.filter(o => o.state === 'RUN')); 
                     }
                 }, 300); 
@@ -502,23 +520,19 @@
 
         setInterval(() => {
             const n = new Date();
-            const h = String(n.getHours()).padStart(2,'0');
-            const m = String(n.getMinutes()).padStart(2,'0');
-            document.getElementById('sysClock').innerText = `${h}:${m}`;
+            document.getElementById('sysClock').innerText = SystemUtils.formatTime(n);
             
             const todayStr = n.toISOString().split('T')[0];
             const lastSync = localStorage.getItem('qcp_last_sync_date');
             
-            if (!lastSync) { 
-                localStorage.setItem('qcp_last_sync_date', todayStr); 
-            } else if (lastSync !== todayStr) {
+            if (!lastSync) { localStorage.setItem('qcp_last_sync_date', todayStr); } 
+            else if (lastSync !== todayStr) {
                 localStorage.setItem('qcp_last_sync_date', todayStr); 
                 if(QuickCalc.orders.length > 0 || QuickCalc.loadDataSafely('qcp_bundle_logs_v203', []).length > 0) {
                     QuickCalc.autoSyncAndClear(todayStr);
                 }
             }
         }, 1000);
-        function getNowTimeString() { const n = new Date(); return `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; }
 
         // ================= Geostics Base OS (MAP MODULE) =================
         const GeosticsOS = {
@@ -564,9 +578,7 @@
             forceShowHUD: function() {
                 this.hudVisible = true;
                 const hud = document.getElementById('radar-hud');
-                hud.style.display = 'block';
-                void hud.offsetWidth; 
-                hud.style.opacity = '1';
+                hud.style.display = 'block'; void hud.offsetWidth; hud.style.opacity = '1';
             },
 
             fetchManualGPS: function() {
@@ -578,14 +590,11 @@
                     navigator.geolocation.getCurrentPosition(
                         (position) => { 
                             const lat = position.coords.latitude; const lng = position.coords.longitude;
-                            this.updateUserMarker(lat, lng);
-                            this.processLandmarkGPS(lat, lng);
-                            this.autofitActiveBounds(lat, lng);
+                            this.updateUserMarker(lat, lng); this.processLandmarkGPS(lat, lng); this.autofitActiveBounds(lat, lng);
                         },
                         (err) => { 
                             let msg = "ERROR"; if(err.code === 1) msg = "DENIED"; else if(err.code === 3) msg = "TIMEOUT";
-                            document.getElementById('gps-text').innerText = msg; 
-                            setTimeout(() => badge.style.display = 'none', 2000);
+                            document.getElementById('gps-text').innerText = msg; setTimeout(() => badge.style.display = 'none', 2000);
                         }, 
                         { enableHighAccuracy: true, timeout: 5000, maximumAge: 30000 }
                     );
@@ -594,73 +603,39 @@
             
             processLandmarkGPS: function(lat, lng) {
                 let minD = Infinity; let nearestName = "";
-                if(typeof SUBWAY_DATA !== 'undefined') {
-                    SUBWAY_DATA.forEach(s => {
-                        let d = this.calcCrow(lat, lng, s.lat, s.lng);
-                        if(d < minD) { minD = d; nearestName = s.name; }
-                    });
-                }
+                if(typeof SUBWAY_DATA !== 'undefined') { SUBWAY_DATA.forEach(s => { let d = this.calcCrow(lat, lng, s.lat, s.lng); if(d < minD) { minD = d; nearestName = s.name; } }); }
+                let txt = "GPS READY"; if(minD <= 3.0 && nearestName) txt = `GPS READY (${nearestName}역 ${minD.toFixed(1)}km)`;
                 
-                let txt = "GPS READY";
-                if(minD <= 3.0 && nearestName) {
-                    txt = `GPS READY (${nearestName}역 ${minD.toFixed(1)}km)`;
-                }
-                
-                const badge = document.getElementById('gps-badge');
-                document.getElementById('gps-text').innerText = txt;
-                badge.style.display = 'block';
-                setTimeout(() => badge.style.display = 'none', 2000);
+                const badge = document.getElementById('gps-badge'); document.getElementById('gps-text').innerText = txt;
+                badge.style.display = 'block'; setTimeout(() => badge.style.display = 'none', 2000);
             },
 
-            // Update 6: 3km 반경 POI 스캔 알고리즘
             searchNearestPOI: function(type) {
                 if (!this.userMarker) { SystemModal.alert("GPS NOT READY."); return; }
-                const currentLat = this.userMarker.getLatLng().lat;
-                const currentLng = this.userMarker.getLatLng().lng;
+                const currentLat = this.userMarker.getLatLng().lat; const currentLng = this.userMarker.getLatLng().lng;
                 
                 let targetData = [];
                 if(type === 'SUBWAY' && typeof SUBWAY_DATA !== 'undefined') targetData = SUBWAY_DATA;
                 if(type === 'MALL' && typeof SHOPPING_DATA !== 'undefined') targetData = SHOPPING_DATA;
 
                 if (targetData.length === 0) { showToast("DB ERROR"); return; }
-
                 let minD = Infinity; let nearest = null;
-                targetData.forEach(item => {
-                    let d = this.calcCrow(currentLat, currentLng, item.lat, item.lng);
-                    if (d < minD) { minD = d; nearest = item; }
-                });
+                targetData.forEach(item => { let d = this.calcCrow(currentLat, currentLng, item.lat, item.lng); if (d < minD) { minD = d; nearest = item; } });
 
-                if (minD <= 3.0 && nearest) {
-                    SystemModal.alert(`[${type}] NEAREST IN 3KM\n\n📌 ${nearest.name}\nDIST: ${minD.toFixed(1)} km`);
-                } else {
-                    showToast("NO POI WITHIN 3KM");
-                }
+                if (minD <= 3.0 && nearest) { SystemModal.alert(`[${type}] NEAREST IN 3KM\n\n📌 ${nearest.name}\nDIST: ${minD.toFixed(1)}km`); } 
+                else { showToast("NO POI WITHIN 3KM"); }
             },
 
-            // Update 7: 히트맵 / Hexbin 레이어 토글
             toggleHeatmap: function() {
-                this.isHeatmapOn = !this.isHeatmapOn;
-                const btn = document.getElementById('btn-heatmap');
-                
-                if(!this.isHeatmapOn) {
-                    if(this.heatmapLayer && this.map) this.map.removeLayer(this.heatmapLayer);
-                    btn.classList.remove('active');
-                    return;
-                }
+                this.isHeatmapOn = !this.isHeatmapOn; const btn = document.getElementById('btn-heatmap');
+                if(!this.isHeatmapOn) { if(this.heatmapLayer && this.map) this.map.removeLayer(this.heatmapLayer); btn.classList.remove('active'); return; }
 
                 btn.classList.add('active');
                 let history = QuickCalc.loadDataSafely('qcp_hex_history', []);
-                if(history.length === 0) { 
-                    showToast("NO LOG DATA"); 
-                    this.isHeatmapOn = false; btn.classList.remove('active');
-                    return; 
-                }
+                if(history.length === 0) { showToast("NO LOG DATA"); this.isHeatmapOn = false; btn.classList.remove('active'); return; }
 
-                let circles = history.map(h => L.circleMarker([h.lat, h.lng], {
-                    radius: 12, fillColor: '#ff3b30', color: 'transparent', fillOpacity: 0.25
-                }));
-                this.heatmapLayer = L.layerGroup(circles).addTo(this.map);
-                showToast(`HEATMAP LOADED: ${history.length}`);
+                let circles = history.map(h => L.circleMarker([h.lat, h.lng], { radius: 12, fillColor: '#ff3b30', color: 'transparent', fillOpacity: 0.25 }));
+                this.heatmapLayer = L.layerGroup(circles).addTo(this.map); showToast(`HEATMAP LOADED: ${history.length}`);
             },
 
             autofitActiveBounds: function(fallbackLat, fallbackLng) {
@@ -670,12 +645,8 @@
                 if(this.chainPolyline) activeLayers.push(this.chainPolyline);
                 if(this.userMarker) activeLayers.push(this.userMarker);
                 
-                if(activeLayers.length > 0) {
-                    const group = L.featureGroup(activeLayers);
-                    this.map.fitBounds(group.getBounds().pad(0.15));
-                } else if(fallbackLat && fallbackLng) {
-                    this.map.flyTo([fallbackLat, fallbackLng], 13);
-                }
+                if(activeLayers.length > 0) { this.map.fitBounds(L.featureGroup(activeLayers).getBounds().pad(0.15)); } 
+                else if(fallbackLat && fallbackLng) { this.map.flyTo([fallbackLat, fallbackLng], 13); }
             },
 
             updateUserMarker: function(lat, lng) {
@@ -683,80 +654,51 @@
                 if (!this.userMarker) {
                     const pulseIcon = L.divIcon({ className: 'custom-pulse-icon', iconSize: [30, 30], iconAnchor: [15, 15], html: `<div class="pulse-ring"></div><div class="pulse-dot"></div>` });
                     this.userMarker = L.marker([lat, lng], { icon: pulseIcon }).addTo(this.map);
-                } else {
-                    this.userMarker.setLatLng([lat, lng]);
-                }
+                } else { this.userMarker.setLatLng([lat, lng]); }
                 this.userMarker.setZIndexOffset(9999);
             },
 
             resetRadar: function() {
-                this.currentRoute = null; this.selectedVectorId = null;
-                this.clearVectors(); this.clearChainPolyline();
-                document.getElementById('radar-hud').style.display = 'none';
-                document.getElementById('radar-hud').innerHTML = '';
+                this.currentRoute = null; this.selectedVectorId = null; this.clearVectors(); this.clearChainPolyline();
+                document.getElementById('radar-hud').style.display = 'none'; document.getElementById('radar-hud').innerHTML = '';
                 document.getElementById('radar-quick-sel').innerHTML = '';
             },
 
-            clearVectors: function() {
-                if(!this.map) return; 
-                this.routeVectors.forEach(v => this.map.removeLayer(v));
-                this.routeVectors = [];
-            },
+            clearVectors: function() { if(!this.map) return; this.routeVectors.forEach(v => this.map.removeLayer(v)); this.routeVectors = []; },
+            clearChainPolyline: function() { if(this.chainPolyline && this.map) this.map.removeLayer(this.chainPolyline); this.chainMarkers.forEach(m => { if(this.map) this.map.removeLayer(m); }); this.chainPolyline = null; this.chainMarkers = []; },
 
-            clearChainPolyline: function() {
-                if(this.chainPolyline && this.map) this.map.removeLayer(this.chainPolyline);
-                this.chainMarkers.forEach(m => { if(this.map) this.map.removeLayer(m); });
-                this.chainPolyline = null; this.chainMarkers = [];
-            },
-
-            storeRouteData: function(pLat, pLng, dLat, dLng, srtP, srtD, dist, time, hourly) {
-                this.currentRoute = { pLat, pLng, dLat, dLng, srtP, srtD, dist, time, hourly };
-                this.selectedVectorId = 'NEW';
-            },
+            storeRouteData: function(pLat, pLng, dLat, dLng, srtP, srtD, dist, time, hourly) { this.currentRoute = { pLat, pLng, dLat, dLng, srtP, srtD, dist, time, hourly }; this.selectedVectorId = 'NEW'; },
 
             drawAllVectors: function(activeOrders, forceSelectId = null) {
                 if(!this.map) return;
                 this.clearVectors();
                 
-                const qSelContainer = document.getElementById('radar-quick-sel');
-                qSelContainer.innerHTML = '';
+                const qSelContainer = document.getElementById('radar-quick-sel'); qSelContainer.innerHTML = '';
                 let hasNew = !!this.currentRoute;
                 
                 if (forceSelectId) this.selectedVectorId = forceSelectId;
-                else if (!this.selectedVectorId) {
-                    if (hasNew) this.selectedVectorId = 'NEW';
-                    else if (activeOrders.length > 0) this.selectedVectorId = activeOrders[0].id;
-                }
+                else if (!this.selectedVectorId) { if (hasNew) this.selectedVectorId = 'NEW'; else if (activeOrders.length > 0) this.selectedVectorId = activeOrders[0].id; }
 
                 let hudUpdated = false;
                 const renderOrders = [...activeOrders].sort((a,b) => a.displayNo - b.displayNo);
 
                 renderOrders.forEach((o) => {
                     if (o.startCoords && o.endCoords) {
-                        const isSelected = this.selectedVectorId === o.id;
-                        const vColor = '#007aff';
-                        const opac = isSelected ? 1.0 : 0.55;
-                        const w = isSelected ? 6 : 4;
+                        const isSelected = this.selectedVectorId === o.id; const vColor = '#007aff'; const opac = isSelected ? 1.0 : 0.55; const w = isSelected ? 6 : 4;
 
                         const btn = document.createElement('div');
-                        btn.className = `q-sel-btn ${isSelected ? 'active' : ''}`;
-                        btn.style.borderColor = vColor;
-                        if(isSelected) { btn.style.backgroundColor = vColor; btn.style.color = '#000'; }
-                        else { btn.style.color = vColor; }
-                        btn.innerText = o.displayNo;
-                        btn.onclick = () => this.drawAllVectors(activeOrders, o.id);
+                        btn.className = `q-sel-btn ${isSelected ? 'active' : ''}`; btn.style.borderColor = vColor;
+                        if(isSelected) { btn.style.backgroundColor = vColor; btn.style.color = '#000'; } else { btn.style.color = vColor; }
+                        btn.innerText = o.displayNo; btn.onclick = () => this.drawAllVectors(activeOrders, o.id);
                         qSelContainer.appendChild(btn);
 
-                        const { lat: pLat, lng: pLng } = o.startCoords;
-                        const { lat: dLat, lng: dLng } = o.endCoords;
-                        
+                        const { lat: pLat, lng: pLng } = o.startCoords; const { lat: dLat, lng: dLng } = o.endCoords;
                         const polyline = L.polyline([[pLat, pLng], [dLat, dLng]], { color: vColor, weight: w, opacity: opac, dashArray: isSelected ? '' : '3, 4' }).addTo(this.map);
                         this.routeVectors.push(polyline);
                         
                         const bearing = this.calcBearing(pLat, pLng, dLat, dLng);
                         const distKm = this.calcCrow(pLat, pLng, dLat, dLng).toFixed(1);
                         
-                        // Update 3: 화살표 디자인 및 하차지 끝부분 배치 (dLat, dLng 중심)
                         const arrowIcon = L.divIcon({ 
                             className: 'marker-arrow', iconSize: [80, 50], iconAnchor: [40, 25],
                             html: `<div style="position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;">
@@ -766,52 +708,35 @@
                                 <div style="transform: rotate(${bearing - 90}deg); color: ${vColor}; opacity: ${opac}; font-size: 24px; font-weight: 900; z-index: 1;">➔</div>
                             </div>` 
                         });
-                        const arrowMarker = L.marker([dLat, dLng], { icon: arrowIcon }).addTo(this.map);
-                        this.routeVectors.push(arrowMarker);
+                        const arrowMarker = L.marker([dLat, dLng], { icon: arrowIcon }).addTo(this.map); this.routeVectors.push(arrowMarker);
 
                         const dropDot = L.circleMarker([dLat, dLng], { radius: 8, fillColor: '#ff3b30', color: '#ffffff', weight: 2, fillOpacity: isSelected ? 1.0 : 0.7, className: 'marker-dot' }).addTo(this.map);
-                        dropDot.on('click', () => this.openChainCalcModal());
-                        this.routeVectors.push(dropDot);
+                        dropDot.on('click', () => this.openChainCalcModal()); this.routeVectors.push(dropDot);
 
                         if(isSelected) {
-                            let pSumm = o.routeSummary.split('➔')[0].replace('[','').replace(']','');
-                            let dSumm = o.routeSummary.split('➔')[1] || '';
-                            let cleanP = QuickCalc.sanitize(pSumm);
-                            let cleanD = QuickCalc.sanitize(dSumm);
-                            this.updateHUD(cleanP, cleanD, o.dist, o.time, o.hourly, 'RUN', vColor);
-                            hudUpdated = true;
-                            if(forceSelectId) this.forceShowHUD();
+                            let pSumm = o.routeSummary.split('➔')[0].replace('[','').replace(']',''); let dSumm = o.routeSummary.split('➔')[1] || '';
+                            this.updateHUD(QuickCalc.sanitize(pSumm), QuickCalc.sanitize(dSumm), o.dist, o.time, o.hourly, 'RUN', vColor);
+                            hudUpdated = true; if(forceSelectId) this.forceShowHUD();
                         }
                     }
                 });
 
                 if(this.currentRoute) {
-                    const isSelected = this.selectedVectorId === 'NEW';
-                    const vColor = '#f39c12';
-                    const opac = isSelected ? 1.0 : 0.55;
-                    const w = isSelected ? 6 : 4;
+                    const isSelected = this.selectedVectorId === 'NEW'; const vColor = '#f39c12'; const opac = isSelected ? 1.0 : 0.55; const w = isSelected ? 6 : 4;
 
-                    const btn = document.createElement('div');
-                    btn.className = `q-sel-btn ${isSelected ? 'active' : ''}`;
-                    btn.style.borderColor = vColor;
-                    if(isSelected) { btn.style.backgroundColor = vColor; btn.style.color = '#000'; }
-                    else { btn.style.color = vColor; }
-                    btn.innerText = 'N';
-                    btn.onclick = () => this.drawAllVectors(activeOrders, 'NEW');
-                    qSelContainer.appendChild(btn);
+                    const btn = document.createElement('div'); btn.className = `q-sel-btn ${isSelected ? 'active' : ''}`; btn.style.borderColor = vColor;
+                    if(isSelected) { btn.style.backgroundColor = vColor; btn.style.color = '#000'; } else { btn.style.color = vColor; }
+                    btn.innerText = 'N'; btn.onclick = () => this.drawAllVectors(activeOrders, 'NEW'); qSelContainer.appendChild(btn);
 
                     const { pLat, pLng, dLat, dLng, srtP, srtD, dist, time, hourly } = this.currentRoute;
+                    const polyline = L.polyline([[pLat, pLng], [dLat, dLng]], { color: vColor, weight: w, opacity: opac, dashArray: isSelected ? '' : '5, 5' }).addTo(this.map); this.routeVectors.push(polyline);
+
                     if (isSelected) {
                         const pMarker = L.marker([pLat, pLng], { icon: L.divIcon({ className: 'marker-dot', iconSize: [14, 14] }) }).addTo(this.map);
-                        const dMarker = L.marker([dLat, dLng], { icon: L.divIcon({ className: 'marker-dot', iconSize: [14, 14] }) }).addTo(this.map);
-                        this.routeVectors.push(pMarker, dMarker);
+                        this.routeVectors.push(pMarker);
                     }
-                    const polyline = L.polyline([[pLat, pLng], [dLat, dLng]], { color: vColor, weight: w, opacity: opac, dashArray: isSelected ? '' : '5, 5' }).addTo(this.map);
-                    this.routeVectors.push(polyline);
 
-                    const bearing = this.calcBearing(pLat, pLng, dLat, dLng);
-                    const distKm = this.calcCrow(pLat, pLng, dLat, dLng).toFixed(1);
-                    
+                    const bearing = this.calcBearing(pLat, pLng, dLat, dLng); const distKm = this.calcCrow(pLat, pLng, dLat, dLng).toFixed(1);
                     const arrowIcon = L.divIcon({ 
                         className: 'marker-arrow', iconSize: [80, 50], iconAnchor: [40, 25],
                         html: `<div style="position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;">
@@ -821,13 +746,14 @@
                             <div style="transform: rotate(${bearing - 90}deg); color: ${vColor}; opacity: ${opac}; font-size: 24px; font-weight:900; z-index: 1;">➔</div>
                         </div>` 
                     });
-                    const arrowMarker = L.marker([dLat, dLng], { icon: arrowIcon }).addTo(this.map);
-                    this.routeVectors.push(arrowMarker);
+                    const arrowMarker = L.marker([dLat, dLng], { icon: arrowIcon }).addTo(this.map); this.routeVectors.push(arrowMarker);
+                    
+                    const dropDot = L.circleMarker([dLat, dLng], { radius: 8, fillColor: '#ff3b30', color: '#ffffff', weight: 2, fillOpacity: isSelected ? 1.0 : 0.7, className: 'marker-dot' }).addTo(this.map);
+                    this.routeVectors.push(dropDot);
 
                     if(isSelected) {
                         this.updateHUD(QuickCalc.sanitize(srtP), QuickCalc.sanitize(srtD), dist, time, hourly, 'NEW', vColor);
-                        hudUpdated = true;
-                        if(forceSelectId === 'NEW') { this.forceShowHUD(); this.map.fitBounds(polyline.getBounds(), { padding: [60, 60] }); }
+                        hudUpdated = true; if(forceSelectId === 'NEW') { this.forceShowHUD(); this.map.fitBounds(polyline.getBounds(), { padding: [60, 60] }); }
                     }
                 }
 
@@ -840,13 +766,10 @@
             },
 
             openChainCalcModal: function() {
-                const listEl = document.getElementById('chain-order-list');
-                listEl.innerHTML = '';
-                
+                const listEl = document.getElementById('chain-order-list'); listEl.innerHTML = '';
                 let activeOrders = QuickCalc.orders.filter(o => o.state === 'RUN' || o.state === 'PICK');
-                if(activeOrders.length === 0) {
-                    listEl.innerHTML = '<div style="color:var(--m3-outline); text-align:center; font-size:11px;">NO ACTIVE ORDERS</div>';
-                } else {
+                if(activeOrders.length === 0) { listEl.innerHTML = '<div style="color:var(--m3-outline); text-align:center; font-size:11px;">NO ACTIVE ORDERS</div>'; } 
+                else {
                     activeOrders.forEach(o => {
                         let net = QuickCalc.calcNetFare(o.fareK, o.platform).toFixed(1);
                         let isChecked = this.chainSelectedOrders.some(x => x.id === o.id) ? 'checked' : '';
@@ -858,52 +781,33 @@
                         </label>`;
                     });
                 }
-                this.updateChainCalculation();
-                toggleModal('popChainCalc');
+                this.updateChainCalculation(); toggleModal('popChainCalc');
             },
             
             toggleChainOrder: function(id) {
                 const idx = this.chainSelectedOrders.findIndex(x => x.id === id);
-                if (idx !== -1) {
-                    this.chainSelectedOrders.splice(idx, 1);
-                } else {
-                    const o = QuickCalc.orders.find(x => x.id === id);
-                    if(o) this.chainSelectedOrders.push(o);
-                }
+                if (idx !== -1) { this.chainSelectedOrders.splice(idx, 1); } else { const o = QuickCalc.orders.find(x => x.id === id); if(o) this.chainSelectedOrders.push(o); }
                 this.updateChainCalculation();
             },
 
             calcCrow: function(lat1, lon1, lat2, lon2) {
                 const R = 6371; const dLat = (lat2-lat1)*(Math.PI/180); const dLon = (lon2-lon1)*(Math.PI/180);
                 const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*(Math.PI/180)) * Math.cos(lat2*(Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                return R * c;
+                return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
             },
 
-            // Update 5: 탐욕 알고리즘 고도화 (GPS 기반 하차지 우선 최적화)
             updateChainCalculation: function() {
                 let timerEl = document.getElementById('bundle-timer-display');
                 if (this.bundleStartTime) {
-                    let d = new Date(this.bundleStartTime);
-                    let tStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-                    timerEl.innerText = `[B/PICK] LOG STARTED AT ${tStr}`;
-                    timerEl.style.display = 'block';
-                } else {
-                    timerEl.style.display = 'none';
-                }
+                    timerEl.innerText = `[B/PICK] LOG STARTED AT ${SystemUtils.formatTime(new Date(this.bundleStartTime))}`; timerEl.style.display = 'block';
+                } else { timerEl.style.display = 'none'; }
 
-                let totalNet = 0;
-                this.chainSelectedOrders.forEach(o => { totalNet += QuickCalc.calcNetFare(o.fareK, o.platform); });
-
+                let totalNet = 0; this.chainSelectedOrders.forEach(o => { totalNet += QuickCalc.calcNetFare(o.fareK, o.platform); });
                 let greedySequence = [];
                 
                 if (this.chainSelectedOrders.length > 0) {
                     let unvisitedDrops = [];
-                    this.chainSelectedOrders.forEach(o => {
-                        if (o.endCoords && o.endDetail) unvisitedDrops.push({ type: 'DROP', coords: o.endCoords, displayNo: o.displayNo });
-                    });
-
-                    // 오직 GPS를 Origin으로 강제 고정 (없을경우 첫번째 하차지 사용)
+                    this.chainSelectedOrders.forEach(o => { if (o.endCoords && o.endDetail) unvisitedDrops.push({ type: 'DROP', coords: o.endCoords, displayNo: o.displayNo }); });
                     let currentCoords = this.userMarker ? this.userMarker.getLatLng() : (unvisitedDrops.length > 0 ? unvisitedDrops[0].coords : null);
 
                     if (currentCoords && unvisitedDrops.length > 0) {
@@ -915,21 +819,16 @@
                             }
                             if (nextIdx === -1) nextIdx = 0;
                             let bestNode = unvisitedDrops.splice(nextIdx, 1)[0];
-                            greedySequence.push(bestNode);
-                            currentCoords = bestNode.coords;
+                            greedySequence.push(bestNode); currentCoords = bestNode.coords;
                         }
                     }
                 }
                 
                 let greedyDist = 0;
-                // 최초 GPS Origin 부터의 거리 포함
-                if(this.userMarker && greedySequence.length > 0) {
-                    greedyDist += this.calcCrow(this.userMarker.getLatLng().lat, this.userMarker.getLatLng().lng, greedySequence[0].coords.lat, greedySequence[0].coords.lng);
-                }
+                if(this.userMarker && greedySequence.length > 0) { greedyDist += this.calcCrow(this.userMarker.getLatLng().lat, this.userMarker.getLatLng().lng, greedySequence[0].coords.lat, greedySequence[0].coords.lng); }
                 for(let i=0; i<greedySequence.length-1; i++) greedyDist += this.calcCrow(greedySequence[i].coords.lat, greedySequence[i].coords.lng, greedySequence[i+1].coords.lat, greedySequence[i+1].coords.lng);
                 
                 this.lastCalculatedDist = greedyDist;
-                
                 let activeStr = greedySequence.map(n => `${n.displayNo}(D)`).join(' ➔ ');
                 
                 document.getElementById('chain-seq-compare').innerHTML = `
@@ -943,7 +842,6 @@
                 
                 this.lastGreedySeq = greedySequence.map(n => [n.coords.lat, n.coords.lng]);
                 
-                // Polyline에는 시작점을 포함하여 그림
                 let latlngs = [...this.lastGreedySeq];
                 if(this.userMarker && latlngs.length > 0) latlngs.unshift([this.userMarker.getLatLng().lat, this.userMarker.getLatLng().lng]);
                 
@@ -954,16 +852,15 @@
                 this.clearChainPolyline();
                 if(latlngs && latlngs.length > 1 && this.map) {
                     let pColor = '#ff3b30'; let pWeight = 4; let pDash = '6, 8'; let pOpac = 0.9;
-                    
                     this.chainPolyline = L.polyline(latlngs, { color: pColor, weight: pWeight, dashArray: pDash, opacity: pOpac }).addTo(this.map);
                     
                     for(let i=0; i<latlngs.length-1; i++) {
                         let bearing = this.calcBearing(latlngs[i][0], latlngs[i][1], latlngs[i+1][0], latlngs[i+1][1]);
-                        let midLat = (latlngs[i][0] + latlngs[i+1][0])/2; let midLng = (latlngs[i][1] + latlngs[i+1][1])/2;
                         let distKm = this.calcCrow(latlngs[i][0], latlngs[i][1], latlngs[i+1][0], latlngs[i+1][1]).toFixed(1);
+                        let arrLat = latlngs[i+1][0]; let arrLng = latlngs[i+1][1];
                         
                         let arrowIcon = L.divIcon({ 
-                            className: 'marker-arrow', iconSize: [50, 50], 
+                            className: 'marker-arrow', iconSize: [50, 50], iconAnchor: [25, 25],
                             html: `<div style="position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;">
                                 <div style="background: ${pColor}; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 2; margin-bottom: 2px; white-space:nowrap;">
                                     ${distKm}km
@@ -971,132 +868,88 @@
                                 <div style="transform: rotate(${bearing - 90}deg); color: ${pColor}; font-size: 20px; z-index: 1;">➔</div>
                             </div>` 
                         });
-                        let m = L.marker([midLat, midLng], {icon: arrowIcon}).addTo(this.map);
-                        this.chainMarkers.push(m);
+                        let m = L.marker([arrLat, arrLng], {icon: arrowIcon}).addTo(this.map);
+                        let dot = L.circleMarker([arrLat, arrLng], { radius: 6, fillColor: '#ff3b30', color: '#ffffff', weight: 2, fillOpacity: 0.9, className: 'marker-dot' }).addTo(this.map);
+                        this.chainMarkers.push(m, dot);
                     }
                 }
             },
 
-            // Update 4: 카카오 멀티 내비 URL Scheme 실행
             launchKakaoMultiNavi: function() {
-                if(this.lastGreedySeq.length === 0) { SystemModal.alert("NO DROPOFF SEQUENCE."); return; }
-                
-                let spLat = this.userMarker ? this.userMarker.getLatLng().lat : this.lastGreedySeq[0][0];
-                let spLng = this.userMarker ? this.userMarker.getLatLng().lng : this.lastGreedySeq[0][1];
-                let epLat = this.lastGreedySeq[this.lastGreedySeq.length-1][0];
-                let epLng = this.lastGreedySeq[this.lastGreedySeq.length-1][1];
-
+                if(this.lastGreedySeq.length === 0) { SystemModal.alert("NO ROUTE AVAILABLE"); return; }
+                let spLat = this.userMarker ? this.userMarker.getLatLng().lat : this.lastGreedySeq[0][0]; let spLng = this.userMarker ? this.userMarker.getLatLng().lng : this.lastGreedySeq[0][1];
+                let epLat = this.lastGreedySeq[this.lastGreedySeq.length-1][0]; let epLng = this.lastGreedySeq[this.lastGreedySeq.length-1][1];
                 let url = `kakaomap://route?sp=${spLat},${spLng}&ep=${epLat},${epLng}&by=CAR`;
 
-                // 중간 경유지가 존재 시 멀티 내비 지원 파라미터(vp) 추가
                 if(this.lastGreedySeq.length > 1) {
                     let vpLat = this.userMarker ? this.lastGreedySeq[0][0] : (this.lastGreedySeq.length > 2 ? this.lastGreedySeq[1][0] : null);
                     let vpLng = this.userMarker ? this.lastGreedySeq[0][1] : (this.lastGreedySeq.length > 2 ? this.lastGreedySeq[1][1] : null);
-                    if (vpLat && vpLng) {
-                        url += `&vp=${vpLat},${vpLng}`;
-                    }
+                    if (vpLat && vpLng) { url += `&vp=${vpLat},${vpLng}`; }
                 }
-                
-                window.location.href = url;
-                showToast("LAUNCHING KAKAO MAP");
+                window.location.href = url; showToast("LAUNCHING KAKAO MAP");
             },
 
             editBundleTimer: function() {
                 if(!this.bundleStartTime) return;
-                let d = new Date(this.bundleStartTime);
-                let currentStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-                document.getElementById('edit-bundle-time').value = currentStr;
+                document.getElementById('edit-bundle-time').value = SystemUtils.formatTime(new Date(this.bundleStartTime));
                 toggleModal('popTimerEdit');
             },
 
             saveBundleTimer: function() {
                 let newTime = document.getElementById('edit-bundle-time').value;
                 if(newTime && /^\d{2}:\d{2}$/.test(newTime)) {
-                    let [h, m] = newTime.split(':');
-                    let d = new Date(this.bundleStartTime);
-                    d.setHours(parseInt(h), parseInt(m), 0, 0);
-                    this.bundleStartTime = d.getTime();
-                    this.updateChainCalculation();
-                    toggleModal('popTimerEdit');
-                    showToast("TIME UPDATED");
-                } else {
-                    showToast("INVALID TIME");
-                }
+                    let [h, m] = newTime.split(':'); let d = new Date(this.bundleStartTime);
+                    d.setHours(parseInt(h), parseInt(m), 0, 0); this.bundleStartTime = d.getTime();
+                    this.updateChainCalculation(); toggleModal('popTimerEdit'); showToast("TIME UPDATED");
+                } else { showToast("INVALID TIME"); }
             },
 
-            bundleReset: function() {
-                this.bundleStartTime = null;
-                this.chainSelectedOrders = [];
-                document.querySelectorAll('.chain-chk').forEach(el => el.checked = false);
-                this.updateChainCalculation();
-                showToast("BUNDLE RESET");
-            },
+            bundleReset: function() { this.bundleStartTime = null; this.chainSelectedOrders = []; document.querySelectorAll('.chain-chk').forEach(el => el.checked = false); this.updateChainCalculation(); showToast("BUNDLE RESET"); },
 
             bundlePick: function() {
                 if (this.chainSelectedOrders.length === 0) { SystemModal.alert("SELECT ORDERS FIRST"); return; }
                 this.bundleStartTime = Date.now();
-                this.chainSelectedOrders.forEach(o => { o.state = 'PICK'; o.pTime = getNowTimeString(); });
+                this.chainSelectedOrders.forEach(o => { o.state = 'PICK'; o.pTime = SystemUtils.formatTime(new Date()); });
                 QuickCalc.safeSetStorage('qcp_orders_v203', JSON.stringify(QuickCalc.orders));
-                QuickCalc.renderMasterList();
-                this.updateChainCalculation();
-                showToast("BUNDLE LOG STARTED");
+                QuickCalc.renderMasterList(); this.updateChainCalculation(); showToast("BUNDLE LOG STARTED");
             },
 
             bundleDone: function() {
                 if (!this.bundleStartTime) { SystemModal.alert("START BUNDLE FIRST (TAP B/PICK)"); return; }
                 if (this.chainSelectedOrders.length === 0) { SystemModal.alert("SELECT ORDERS FIRST"); return; }
                 
-                let elapsedMin = Math.round((Date.now() - this.bundleStartTime) / 60000);
-                if (elapsedMin === 0) elapsedMin = 1;
-                
-                let totalNet = 0;
-                let nos = [];
+                let elapsedMin = Math.round((Date.now() - this.bundleStartTime) / 60000); if (elapsedMin === 0) elapsedMin = 1;
+                let totalNet = 0; let nos = [];
                 this.chainSelectedOrders.forEach(o => {
-                    totalNet += QuickCalc.calcNetFare(o.fareK, o.platform);
-                    nos.push(o.displayNo);
-                    o.state = 'DONE';
-                    o.fTime = getNowTimeString();
+                    totalNet += QuickCalc.calcNetFare(o.fareK, o.platform); nos.push(o.displayNo);
+                    o.state = 'DONE'; o.fTime = SystemUtils.formatTime(new Date());
                 });
                 
                 let kkm = this.lastCalculatedDist > 0 ? (totalNet / this.lastCalculatedDist).toFixed(1) : '--';
                 let kh = ((totalNet / elapsedMin) * 60).toFixed(1);
                 
                 let newLog = { ts: Date.now(), nos: nos.sort((a,b)=>a-b).join(','), net: totalNet, elapsed: elapsedMin, kh: kh, kkm: kkm };
+                let logs = QuickCalc.loadDataSafely('qcp_bundle_logs_v203', []); logs.unshift(newLog);
+                QuickCalc.safeSetStorage('qcp_bundle_logs_v203', JSON.stringify(logs)); QuickCalc.safeSetStorage('qcp_orders_v203', JSON.stringify(QuickCalc.orders));
                 
-                let logs = QuickCalc.loadDataSafely('qcp_bundle_logs_v203', []);
-                logs.unshift(newLog);
-                QuickCalc.safeSetStorage('qcp_bundle_logs_v203', JSON.stringify(logs));
-                QuickCalc.safeSetStorage('qcp_orders_v203', JSON.stringify(QuickCalc.orders));
-                
-                QuickCalc.updateSysTotal();
-                QuickCalc.renderMasterList();
-                
-                let todayStr = new Date().toISOString().split('T')[0];
-                QuickCalc.autoSyncAndClear(todayStr);
+                QuickCalc.updateSysTotal(); QuickCalc.renderMasterList();
+                let todayStr = new Date().toISOString().split('T')[0]; QuickCalc.autoSyncAndClear(todayStr);
                 
                 SystemModal.alert(`BUNDLE SAVED\nNET: ${totalNet.toFixed(1)}k\nTIME: ${elapsedMin}min\nEFF: ${kh}k/h | ${kkm}k/km`);
-                this.bundleReset();
-                this.clearChainPolyline();
-                toggleModal('popChainCalc');
+                this.bundleReset(); this.clearChainPolyline(); toggleModal('popChainCalc');
             },
 
-            applyChainSearch: function() {
-                toggleModal('popChainCalc');
-                this.drawChainPolyline(this.lastGreedySeq);
-                this.autofitActiveBounds();
-            },
+            applyChainSearch: function() { toggleModal('popChainCalc'); this.drawChainPolyline(this.lastGreedySeq); this.autofitActiveBounds(); },
 
             calcBearing: function(lat1, lon1, lat2, lon2) {
                 const toRad = deg => deg * Math.PI / 180; const toDeg = rad => rad * 180 / Math.PI;
                 const dLon = toRad(lon2 - lon1); lat1 = toRad(lat1); lat2 = toRad(lat2);
-                const y = Math.sin(dLon) * Math.cos(lat2);
-                const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+                const y = Math.sin(dLon) * Math.cos(lat2); const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
                 return (toDeg(Math.atan2(y, x)) + 360) % 360;
             },
 
             updateHUD: function(pName, dName, distKm, timeMin, effHourly, status, themeColor) {
-                const hud = document.getElementById('radar-hud');
-                if(!pName) { hud.style.display = 'none'; return; }
+                const hud = document.getElementById('radar-hud'); if(!pName) { hud.style.display = 'none'; return; }
                 hud.style.borderColor = themeColor; hud.style.color = themeColor;
                 hud.innerHTML = `[${status}] ${pName} ➔ ${dName || '--'}<br><span style="color:#fff; font-size:12px; font-weight:700;">${distKm.toFixed(1)}km | ${timeMin}min | ${effHourly}k/h (NET)</span>`;
                 if(this.hudVisible) { hud.style.display = 'block'; hud.style.opacity = '1'; }
@@ -1110,78 +963,34 @@
             tempPick: null, tempDrop: null, tempDist: 0, tempTime: 0, isStatsVisible: false,
             pressTimer: null, isLongPress: false, startY: 0,
             
-            sanitize: function(str) {
-                if (!str) return '';
-                return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-            },
+            sanitize: function(str) { return str ? String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;') : ''; },
+            safeSetStorage: function(key, data) { try { localStorage.setItem(key, data); } catch(e) { SystemModal.alert("STORAGE FULL: PLEASE CLEAR OLD DATA."); console.error(e); } },
 
-            safeSetStorage: function(key, data) {
-                try {
-                    localStorage.setItem(key, data);
-                } catch(e) {
-                    SystemModal.alert("STORAGE FULL: PLEASE CLEAR OLD DATA.");
-                    console.error("Storage Quota Exceeded", e);
-                }
-            },
+            toggleEatsPin: function(isChecked) { localStorage.setItem('qcp_eats_pin', isChecked ? 'ON' : 'OFF'); if(isChecked) { this.saveEatsPinValue(document.getElementById('in-pick-eats').value); } },
+            saveEatsPinValue: function(val) { if(document.getElementById('chk-pin-eats') && document.getElementById('chk-pin-eats').checked) { localStorage.setItem('qcp_eats_pin_val', val); } },
 
-            toggleEatsPin: function(isChecked) {
-                localStorage.setItem('qcp_eats_pin', isChecked ? 'ON' : 'OFF');
-                if(isChecked) {
-                    this.saveEatsPinValue(document.getElementById('in-pick-eats').value);
-                }
-            },
-
-            saveEatsPinValue: function(val) {
-                if(document.getElementById('chk-pin-eats') && document.getElementById('chk-pin-eats').checked) {
-                    localStorage.setItem('qcp_eats_pin_val', val);
-                }
-            },
-
-            startPress: function(id, e) {
-                this.isLongPress = false; this.startY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-                this.pressTimer = setTimeout(() => { this.isLongPress = true; this.openEditModal(id, e); }, 600);
-            },
-            cancelPress: function(e) {
-                if (e && (e.type === 'pointermove' || e.type === 'touchmove')) {
-                    let currY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-                    if (Math.abs(currY - this.startY) < 10) return;
-                }
-                if(this.pressTimer) clearTimeout(this.pressTimer);
-            },
+            startPress: function(id, e) { this.isLongPress = false; this.startY = e.clientY || (e.touches && e.touches[0].clientY) || 0; this.pressTimer = setTimeout(() => { this.isLongPress = true; this.openEditModal(id, e); }, 600); },
+            cancelPress: function(e) { if (e && (e.type === 'pointermove' || e.type === 'touchmove')) { let currY = e.clientY || (e.touches && e.touches[0].clientY) || 0; if (Math.abs(currY - this.startY) < 10) return; } if(this.pressTimer) clearTimeout(this.pressTimer); },
 
             SHIFTS: [ { id: 'PRE', start: 0, end: 9 }, { id: 'Q1', start: 9, end: 12 }, { id: 'Q2', start: 12, end: 15 }, { id: 'BT', start: 15, end: 17 }, { id: 'Q3', start: 17, end: 20 }, { id: 'Q4', start: 20, end: 23 }, { id: 'FIN', start: 23, end: 24 } ],
             PLAT_QUICKS: ['Insung', 'Logi', 'Kakao'], PLAT_EATS: ['Kakao', 'Baemin', 'Coupang'],
 
             init: function() {
-                this.orders = this.loadDataSafely('qcp_orders_v203', []);
-                this.orders.forEach(o => { if(o.state === 'FIN') o.state = 'DONE'; });
-
+                this.orders = this.loadDataSafely('qcp_orders_v203', []); this.orders.forEach(o => { if(o.state === 'FIN') o.state = 'DONE'; });
                 this.setAppMode('QUICKS'); this.updateSysTotal(); this.updateShiftBadge();
                 
                 document.getElementById('tmap-key').value = localStorage.getItem('qcp_key_tmap') || '';
                 document.getElementById('kakao-key').value = localStorage.getItem('qcp_key_kakao') || '';
                 document.getElementById('sheet-url').value = localStorage.getItem('qcp_url_sync') || '';
                 
-                let themeMode = localStorage.getItem('qcp_theme_v203') || 'auto';
-                this.applyTheme(themeMode);
+                let themeMode = localStorage.getItem('qcp_theme_v203') || 'auto'; this.applyTheme(themeMode);
                 let actualTheme = themeMode === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : themeMode;
                 document.getElementById('set-darkmode').checked = actualTheme === 'dark';
-
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => { if(localStorage.getItem('qcp_theme_v203') === 'auto') { this.applyTheme('auto'); } });
                 
-                const wlState = localStorage.getItem('qcp_wakelock') === 'ON';
-                document.getElementById('set-wakelock').checked = wlState;
-                if(wlState) this.toggleWakeLock(true);
-
-                const isEatsPinned = localStorage.getItem('qcp_eats_pin') === 'ON';
-                const chkEats = document.getElementById('chk-pin-eats');
-                if (chkEats) {
-                    chkEats.checked = isEatsPinned;
-                    if (isEatsPinned) {
-                        const savedVal = localStorage.getItem('qcp_eats_pin_val') || '';
-                        document.getElementById('in-pick-eats').value = savedVal;
-                    }
-                }
+                const wlState = localStorage.getItem('qcp_wakelock') === 'ON'; document.getElementById('set-wakelock').checked = wlState; if(wlState) this.toggleWakeLock(true);
+                const isEatsPinned = localStorage.getItem('qcp_eats_pin') === 'ON'; const chkEats = document.getElementById('chk-pin-eats');
+                if (chkEats) { chkEats.checked = isEatsPinned; if (isEatsPinned) { document.getElementById('in-pick-eats').value = localStorage.getItem('qcp_eats_pin_val') || ''; } }
             },
 
             loadDataSafely: function(k, def) { try { let d = localStorage.getItem(k); return d ? JSON.parse(d) : def; } catch(e) { return def; } },
@@ -1190,8 +999,7 @@
             updateShiftBadge: function() { const h = new Date().getHours(); const s = this.SHIFTS.find(x => h >= x.start && h < x.end) || this.SHIFTS[0]; document.getElementById('sysQtrBadge').innerText = s.id; return s.id; },
             
             openTimeTable: function() {
-                const listEl = document.getElementById('timetable-list'); listEl.innerHTML = '';
-                const currentH = new Date().getHours();
+                const listEl = document.getElementById('timetable-list'); listEl.innerHTML = ''; const currentH = new Date().getHours();
                 
                 this.SHIFTS.forEach(s => {
                     const isActive = (currentH >= s.start && currentH < s.end);
@@ -1199,13 +1007,12 @@
                     const sStart = String(s.start).padStart(2,'0') + ':00'; const sEnd = String(s.end).padStart(2,'0') + ':00';
                     let sOrders = this.orders.filter(o => o.shift === s.id && o.state === 'DONE');
                     let sK = sOrders.reduce((sum, o) => sum + this.calcNetFare(o.fareK, o.platform), 0).toFixed(1);
-                    let sCnt = sOrders.length;
                     
                     listEl.innerHTML += `
                     <div style="${borderStyle} padding: 12px; border-radius: 10px; background: var(--m3-surface-low); display:flex; justify-content:space-between; align-items:center;">
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span style="font-weight:900; color: ${isActive ? 'var(--m3-primary)' : 'var(--m3-surf-text)'}">${s.id}</span>
-                            <span class="shift-stats" style="display:${this.isStatsVisible ? 'block' : 'none'}; font-size:10px; color:var(--m3-muted); font-weight:700;">${sK}k | ${sCnt} calls</span>
+                            <span class="shift-stats" style="display:${this.isStatsVisible ? 'block' : 'none'}; font-size:10px; color:var(--m3-muted); font-weight:700;">${sK}k | ${sOrders.length} calls</span>
                         </div>
                         <span style="font-size:12px; font-weight:700; color:var(--m3-muted);">${sStart} ~ ${sEnd}</span>
                     </div>`;
@@ -1215,9 +1022,7 @@
                 let logHtml = `<div style="font-size:12px; text-transform:uppercase; color:var(--m3-primary); font-weight:900; margin-top:16px; margin-bottom:8px; border-bottom:1px solid var(--m3-outline-variant); padding-bottom:4px;">BUNDLE LOGS</div>`;
                 if(logs.length === 0) logHtml += `<div style="font-size:11px; color:var(--m3-outline); text-align:center;">NO BUNDLES YET</div>`;
                 logs.forEach(l => {
-                    let d = new Date(l.ts); let tStr = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-                    let kkmStr = l.kkm ? ` | ${l.kkm}k/km` : '';
-                    let safeNos = this.sanitize(l.nos);
+                    let tStr = SystemUtils.formatTime(new Date(l.ts)); let kkmStr = l.kkm ? ` | ${l.kkm}k/km` : ''; let safeNos = this.sanitize(l.nos);
                     logHtml += `
                     <div style="background:var(--m3-surface-low); border-radius:8px; padding:10px; margin-bottom:8px; border:1px solid var(--m3-outline-variant);">
                         <div class="flex-between" style="margin-bottom:6px;">
@@ -1230,29 +1035,19 @@
                 listEl.innerHTML += logHtml; toggleModal('popTimeTable');
             },
 
-            toggleTimeTableStats: function() {
-                this.isStatsVisible = !this.isStatsVisible;
-                document.querySelectorAll('.shift-stats').forEach(el => { el.style.display = this.isStatsVisible ? 'block' : 'none'; if(this.isStatsVisible) el.style.animation = "fadeIn 0.2s ease"; });
-            },
+            toggleTimeTableStats: function() { this.isStatsVisible = !this.isStatsVisible; document.querySelectorAll('.shift-stats').forEach(el => { el.style.display = this.isStatsVisible ? 'block' : 'none'; if(this.isStatsVisible) el.style.animation = "fadeIn 0.2s ease"; }); },
 
             applyTheme: function(mode) { 
-                let actualTheme = mode;
-                if(mode === 'auto') { actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
-                document.documentElement.setAttribute('data-theme', actualTheme); 
-                document.getElementById('meta-theme-color').setAttribute('content', actualTheme === 'dark' ? '#111315' : '#f8f9fc'); 
+                let actualTheme = mode; if(mode === 'auto') { actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+                document.documentElement.setAttribute('data-theme', actualTheme); document.getElementById('meta-theme-color').setAttribute('content', actualTheme === 'dark' ? '#111315' : '#f8f9fc'); 
                 localStorage.setItem('qcp_theme_v203', mode); 
             },
-            toggleThemeManualCheckbox: function(isChecked) {
-                let newMode = isChecked ? 'dark' : 'light';
-                this.applyTheme(newMode);
-            },
+            toggleThemeManualCheckbox: function(isChecked) { this.applyTheme(isChecked ? 'dark' : 'light'); },
             async toggleWakeLock(isSet) { if('wakeLock' in navigator) { try { if(isSet) this.wakeLockObj = await navigator.wakeLock.request('screen'); else if(this.wakeLockObj) { await this.wakeLockObj.release(); this.wakeLockObj = null; } localStorage.setItem('qcp_wakelock', isSet ? 'ON' : 'OFF'); } catch(e){} } },
             factoryReset: function() { SystemModal.confirm('FACTORY RESET?', () => { localStorage.clear(); location.reload(); }); },
             
             saveSystemConfig: function() { 
-                localStorage.setItem('qcp_key_tmap', document.getElementById('tmap-key').value.trim()); 
-                localStorage.setItem('qcp_key_kakao', document.getElementById('kakao-key').value.trim()); 
-                localStorage.setItem('qcp_url_sync', document.getElementById('sheet-url').value.trim());
+                localStorage.setItem('qcp_key_tmap', document.getElementById('tmap-key').value.trim()); localStorage.setItem('qcp_key_kakao', document.getElementById('kakao-key').value.trim()); localStorage.setItem('qcp_url_sync', document.getElementById('sheet-url').value.trim());
                 toggleModal('popSet'); showToast("SAVED"); 
             },
 
@@ -1269,52 +1064,21 @@
             selectPlatform: function(el, plat) { document.querySelectorAll('#platform-chips .chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); this.selectedPlatform = plat; this.updateEffBadge(); },
             
             extractDong: function(str) { 
-                if(!str) return "";
-                let target = "";
-                let match = str.match(/\(([^)]+)\)/);
-                if(match) { 
-                    target = match[1]; 
-                } else {
-                    let clean = str.replace(/^(서울특별시|경기도|인천광역시|서울시|경기|서울|인천)\s+/, "").trim();
-                    let match2 = clean.match(/([가-힣]+[0-9]*[동읍면리])/);
-                    target = match2 ? match2[1] : clean.split(' ').pop();
-                }
-                target = target.replace(/[동읍면리]$/, '');
-                return target.trim().substring(0, 2);
+                if(!str) return ""; let target = ""; let match = str.match(/\(([^)]+)\)/);
+                if(match) { target = match[1]; } else { let clean = str.replace(/^(서울특별시|경기도|인천광역시|서울시|경기|서울|인천)\s+/, "").trim(); let match2 = clean.match(/([가-힣]+[0-9]*[동읍면리])/); target = match2 ? match2[1] : clean.split(' ').pop(); }
+                return target.replace(/[동읍면리]$/, '').trim().substring(0, 2);
             },
 
             searchTmapActive: async function(isSilent = false) {
-                const apiKey = localStorage.getItem('qcp_key_tmap');
-                if(!apiKey) { if(!isSilent) SystemModal.alert("TMAP KEY REQUIRED"); return false; }
+                const apiKey = localStorage.getItem('qcp_key_tmap'); if(!apiKey) { if(!isSilent) SystemModal.alert("TMAP KEY REQUIRED"); return false; }
                 let pickIn = document.getElementById('in-pick-quicks'); let dropIn = document.getElementById('in-drop-quicks');
                 
                 this.tempPick = null; this.tempDrop = null; this.tempDist = 0; this.tempTime = 0;
                 if(!pickIn.value.trim() && !dropIn.value.trim()) { if(!isSilent) showToast("NO INPUT"); return false; }
                 if(!isSilent) showToast("SEARCHING...");
 
-                const getPoiData = async (keyword) => {
-                    try {
-                        const res = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${encodeURIComponent(keyword)}&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&count=1`, { headers: { 'appKey': apiKey } });
-                        const data = await res.json();
-                        if(data?.searchPoiInfo?.pois?.poi?.length > 0) {
-                            const poi = data.searchPoiInfo.pois.poi[0];
-                            let fullAddressRoad = poi.newAddressList?.newAddress?.[0]?.fullAddressRoad || '';
-                            let lower = poi.lowerAddrName || '';
-                            let finalStr = '';
-                            if (fullAddressRoad) { 
-                                finalStr = `${fullAddressRoad} (${lower})`; 
-                            } else { 
-                                finalStr = `${poi.upperAddrName || ''} ${poi.middleAddrName || ''} ${lower}`.trim(); 
-                            }
-                            finalStr = finalStr.replace(/\s+/g, ' ').trim();
-                            
-                            return { lat: parseFloat(poi.frontLat || poi.noorLat), lng: parseFloat(poi.frontLon || poi.noorLon), str: finalStr, dong: lower, fullLoc: finalStr };
-                        }
-                    } catch(e) { showToast("API ERROR"); console.error(e); } return null;
-                };
-
-                if(pickIn.value.trim()) { let pData = await getPoiData(pickIn.value.trim()); if(pData) { pickIn.value = pData.str; this.tempPick = {lat: pData.lat, lng: pData.lng, str: pData.str, fullLoc: pData.fullLoc, srt: this.extractDong(pData.dong || pData.str)}; } }
-                if(dropIn.value.trim()) { let dData = await getPoiData(dropIn.value.trim()); if(dData) { dropIn.value = dData.str; this.tempDrop = {lat: dData.lat, lng: dData.lng, str: dData.str, fullLoc: dData.fullLoc, srt: this.extractDong(dData.dong || dData.str)}; } }
+                if(pickIn.value.trim()) { let pData = await SystemUtils.fetchTmapPoi(pickIn.value.trim()); if(pData) { pickIn.value = pData.str; this.tempPick = {lat: pData.lat, lng: pData.lng, str: pData.str, fullLoc: pData.fullLoc, srt: this.extractDong(pData.dong || pData.str)}; } }
+                if(dropIn.value.trim()) { let dData = await SystemUtils.fetchTmapPoi(dropIn.value.trim()); if(dData) { dropIn.value = dData.str; this.tempDrop = {lat: dData.lat, lng: dData.lng, str: dData.str, fullLoc: dData.fullLoc, srt: this.extractDong(dData.dong || dData.str)}; } }
                 
                 if(this.tempPick && this.tempDrop) {
                     try {
@@ -1325,9 +1089,8 @@
                     this.updateEffBadge();
                     GeosticsOS.storeRouteData(this.tempPick.lat, this.tempPick.lng, this.tempDrop.lat, this.tempDrop.lng, this.tempPick.srt, this.tempDrop.srt, this.tempDist, this.tempTime, this.getHourlyRate());
                     
-                    // Update 3: Syncing Maps - 오직 RUN 상태인 오더 벡터만 드로잉
                     if(!isSilent && document.getElementById('view-map').classList.contains('active')) { GeosticsOS.drawAllVectors(this.orders.filter(o => o.state === 'RUN')); }
-                    if(!isSilent) showToast("SYNCED");
+                    if(!isSilent) showToast("SYNC COMPLETE");
                     return true;
                 }
                 return false;
@@ -1339,10 +1102,7 @@
                 showToast("LAUNCHING KAKAO MAP");
             },
 
-            getHourlyRate: function() {
-                const fare = parseFloat(document.getElementById('in-fare').value) || 0; if(!fare || !this.tempTime) return '--';
-                const netFare = this.calcNetFare(fare, this.selectedPlatform); return ((netFare / this.tempTime) * 60).toFixed(1);
-            },
+            getHourlyRate: function() { const fare = parseFloat(document.getElementById('in-fare').value) || 0; if(!fare || !this.tempTime) return '--'; const netFare = this.calcNetFare(fare, this.selectedPlatform); return ((netFare / this.tempTime) * 60).toFixed(1); },
             updateEffBadge: function() {
                 const badge = document.getElementById('eff-badge'); if(this.appMode !== 'QUICKS' || !this.tempTime) { badge.style.display = 'none'; return; }
                 const fare = parseFloat(document.getElementById('in-fare').value) || 0;
@@ -1351,20 +1111,14 @@
             clearInputs: function() { 
                 ['in-pick-quicks', 'in-drop-quicks', 'in-pick-eats', 'in-drop-eats', 'in-fare', 'in-memo'].forEach(id => { 
                     const el = document.getElementById(id); 
-                    if(el) {
-                        if (id === 'in-pick-eats' && document.getElementById('chk-pin-eats') && document.getElementById('chk-pin-eats').checked) {
-                            return; 
-                        }
-                        if(el.type !== 'checkbox') el.value = ''; 
-                    }
+                    if(el) { if (id === 'in-pick-eats' && document.getElementById('chk-pin-eats') && document.getElementById('chk-pin-eats').checked) { return; } if(el.type !== 'checkbox') el.value = ''; }
                 }); 
                 this.tempPick = null; this.tempDrop = null; this.tempDist = 0; this.tempTime = 0; this.updateEffBadge(); GeosticsOS.resetRadar();
             },
 
             commitOrder: async function() {
                 let startId = this.appMode === 'QUICKS' ? 'in-pick-quicks' : 'in-pick-eats'; let endId = this.appMode === 'QUICKS' ? 'in-drop-quicks' : 'in-drop-eats';
-                const fareK = parseFloat(document.getElementById('in-fare').value) || 0;
-                const startTxt = document.getElementById(startId).value.trim(); const endTxt = document.getElementById(endId).value.trim();
+                const fareK = parseFloat(document.getElementById('in-fare').value) || 0; const startTxt = document.getElementById(startId).value.trim(); const endTxt = document.getElementById(endId).value.trim();
                 
                 if(!startTxt || !fareK) { SystemModal.alert("INVALID INPUT"); return; }
                 if (this.appMode === 'QUICKS' && ((startTxt && !this.tempPick) || (endTxt && !this.tempDrop))) { showToast("SEARCHING..."); await this.searchTmapActive(true); }
@@ -1380,7 +1134,7 @@
                     endCoords: this.tempDrop ? {lat: this.tempDrop.lat, lng: this.tempDrop.lng, fullLoc: this.tempDrop.fullLoc || endTxt} : null
                 };
 
-                if (this.appMode === 'EATS') { newOrder.state = 'DONE'; newOrder.fTime = getNowTimeString(); } else { newOrder.state = 'RUN'; }
+                if (this.appMode === 'EATS') { newOrder.state = 'DONE'; newOrder.fTime = SystemUtils.formatTime(new Date()); } else { newOrder.state = 'RUN'; }
                 this.orders.unshift(newOrder); this.safeSetStorage('qcp_orders_v203', JSON.stringify(this.orders));
                 this.clearInputs(); this.updateSysTotal(); switchMainTab('lst', document.getElementById('nav-lst')); showToast("SAVED");
             },
@@ -1410,10 +1164,7 @@
                     tr.setAttribute('onpointerdown', `QuickCalc.startPress('${o.id}', event)`); tr.setAttribute('onpointerup', `QuickCalc.cancelPress(event)`); tr.setAttribute('onpointercancel', `QuickCalc.cancelPress(event)`); tr.setAttribute('onpointermove', `QuickCalc.cancelPress(event)`); tr.setAttribute('onclick', `QuickCalc.triggerFullscreenView('${o.id}')`);
                     
                     let badgeHTML = ''; if (this.currentFilter === 'DONE' && this.currentSubFilter === 'ALL') { badgeHTML = o.mode === 'QUICKS' ? `<span class="badge-q">Q</span>` : `<span class="badge-e">E</span>`; }
-                    let sanitizedRoute = this.sanitize(o.routeSummary);
-
-                    // Update 2: 플랫폼 첫 글자 이니셜 표기 및 UI 축약
-                    let platInitial = o.platform.charAt(0);
+                    let sanitizedRoute = this.sanitize(o.routeSummary); let platInitial = o.platform.charAt(0);
 
                     tr.innerHTML = `
                     <td>${o.displayNo}</td>
@@ -1434,22 +1185,18 @@
                 const o = this.orders.find(x => x.id === id); if(!o) return;
                 const overlay = document.getElementById('fullscreen-overlay'); const content = document.getElementById('fullscreen-overlay-content');
                 let netRevenueVal = this.calcNetFare(o.fareK, o.platform).toFixed(1);
-                let speedMetrics = (o.dist && o.time) ? `${o.hourly} k/h (${o.dist.toFixed(1)}km | ${o.time}m)` : 'N/A';
+                let speedMetrics = (o.dist && o.time) ? `${o.hourly}k/h (${o.dist.toFixed(1)}km | ${o.time}min)` : 'N/A';
                 
                 let pickLocUrl = o.startCoords && o.startCoords.fullLoc ? o.startCoords.fullLoc : o.startDetail;
                 let dropLocUrl = o.endCoords && o.endCoords.fullLoc ? o.endCoords.fullLoc : (o.endDetail || o.startDetail);
 
-                let pShort = QuickCalc.extractDong(o.startDetail).replace(/'/g, "\\'"); 
-                let pFull = pickLocUrl.replace(/'/g, "\\'");
-                let dShort = o.endDetail ? QuickCalc.extractDong(o.endDetail).replace(/'/g, "\\'") : 'N/A'; 
-                let dFull = dropLocUrl.replace(/'/g, "\\'");
+                let pShort = QuickCalc.extractDong(o.startDetail).replace(/'/g, "\\'"); let pFull = pickLocUrl.replace(/'/g, "\\'");
+                let dShort = o.endDetail ? QuickCalc.extractDong(o.endDetail).replace(/'/g, "\\'") : 'N/A'; let dFull = dropLocUrl.replace(/'/g, "\\'");
 
                 let pickTmapUrl = (o.startCoords && o.startCoords.lng && o.startCoords.lat) ? `tmap://route?goalname=${encodeURIComponent(pShort)}&goalx=${o.startCoords.lng}&goaly=${o.startCoords.lat}` : `tmap://search?name=${encodeURIComponent(pickLocUrl)}`;
                 let dropTmapUrl = (o.endCoords && o.endCoords.lng && o.endCoords.lat) ? `tmap://route?goalname=${encodeURIComponent(dShort)}&goalx=${o.endCoords.lng}&goaly=${o.endCoords.lat}` : `tmap://search?name=${encodeURIComponent(dropLocUrl)}`;
 
-                let safePShort = this.sanitize(pShort); let safePFull = this.sanitize(pFull);
-                let safeDShort = this.sanitize(dShort); let safeDFull = this.sanitize(dFull);
-                let safeMemo = this.sanitize(o.memo || 'NO MEMO');
+                let safePShort = this.sanitize(pShort); let safePFull = this.sanitize(pFull); let safeDShort = this.sanitize(dShort); let safeDFull = this.sanitize(dFull); let safeMemo = this.sanitize(o.memo || 'NO MEMO');
 
                 content.innerHTML = `
                     <div class="fs-card fs-col-full">
@@ -1476,11 +1223,11 @@
                             <a href="${dropTmapUrl}" class="btn-core flex-center" style="text-decoration:none; height:36px; font-size:12px; background:#000; color:#fff;">DROP NAVI</a>
                         </div>
                     </div>
-                    <div class="fs-card">
+                    <div class="fs-card fs-col-full">
                         <div class="fs-label">EFFICIENCY</div>
                         <div class="fs-val">${speedMetrics}</div>
                     </div>
-                    <div class="fs-card">
+                    <div class="fs-card fs-col-full">
                         <div class="fs-label">MEMO</div>
                         <div class="fs-val" style="color:#f39c12; font-size:12px;">${safeMemo}</div>
                     </div>
@@ -1497,16 +1244,11 @@
             
             executeStepState: function(o, nextState) {
                 o.state = nextState; 
-                if (nextState === 'PICK') o.pTime = getNowTimeString();
-                if (nextState === 'DONE') o.fTime = getNowTimeString();
-                this.safeSetStorage('qcp_orders_v203', JSON.stringify(this.orders)); 
-                this.renderMasterList(); 
-                this.updateSysTotal(); 
+                if (nextState === 'PICK') o.pTime = SystemUtils.formatTime(new Date());
+                if (nextState === 'DONE') o.fTime = SystemUtils.formatTime(new Date());
+                this.safeSetStorage('qcp_orders_v203', JSON.stringify(this.orders)); this.renderMasterList(); this.updateSysTotal(); 
                 
-                // Update 3: 픽업 전환 시 맵 데이터 리프레시 (벡터에서 제거)
-                if(document.getElementById('view-map').classList.contains('active')) {
-                    GeosticsOS.drawAllVectors(this.orders.filter(ord => ord.state === 'RUN'));
-                }
+                if(document.getElementById('view-map').classList.contains('active')) { GeosticsOS.drawAllVectors(this.orders.filter(ord => ord.state === 'RUN')); }
                 showToast(nextState === 'PICK' ? "PICKED" : "DONE"); 
             },
 
@@ -1514,17 +1256,10 @@
                 if(e) e.stopPropagation(); 
                 const o = this.orders.find(x => x.id === id); if(!o) return;
                 document.getElementById('edit-id').value = id;
-
-                const platSelect = document.getElementById('edit-plat');
-                platSelect.innerHTML = '';
+                const platSelect = document.getElementById('edit-plat'); platSelect.innerHTML = '';
                 const pArr = o.mode === 'QUICKS' ? this.PLAT_QUICKS : this.PLAT_EATS;
-                pArr.forEach(p => {
-                    const opt = document.createElement('option');
-                    opt.value = p; opt.innerText = p;
-                    platSelect.appendChild(opt);
-                });
+                pArr.forEach(p => { const opt = document.createElement('option'); opt.value = p; opt.innerText = p; platSelect.appendChild(opt); });
                 platSelect.value = o.platform;
-
                 document.getElementById('edit-pick').value = o.startDetail; document.getElementById('edit-drop').value = o.endDetail || '';
                 document.getElementById('edit-fare').value = o.fareK; document.getElementById('edit-memo').value = o.memo || '';
                 toggleModal('popEdit');
@@ -1532,32 +1267,10 @@
             
             reSearchEdit: async function() {
                 const pTxt = document.getElementById('edit-pick').value.trim(); const dTxt = document.getElementById('edit-drop').value.trim();
-                if(!pTxt && !dTxt) return;
-                showToast("SEARCHING...");
-                const apiKey = localStorage.getItem('qcp_key_tmap');
-                const getPoiData = async (keyword) => {
-                    try {
-                        const res = await fetch(`https://apis.openapi.sk.com/tmap/pois?version=1&searchKeyword=${encodeURIComponent(keyword)}&reqCoordType=WGS84GEO&resCoordType=WGS84GEO&count=1`, { headers: { 'appKey': apiKey } });
-                        const data = await res.json();
-                        if(data?.searchPoiInfo?.pois?.poi?.length > 0) {
-                            const poi = data.searchPoiInfo.pois.poi[0];
-                            let fullAddressRoad = poi.newAddressList?.newAddress?.[0]?.fullAddressRoad || '';
-                            let lower = poi.lowerAddrName || '';
-                            let finalStr = '';
-                            if (fullAddressRoad) { 
-                                finalStr = `${fullAddressRoad} (${lower})`; 
-                            } else { 
-                                finalStr = `${poi.upperAddrName || ''} ${poi.middleAddrName || ''} ${lower}`.trim(); 
-                            }
-                            finalStr = finalStr.replace(/\s+/g, ' ').trim();
-                            return { lat: parseFloat(poi.frontLat || poi.noorLat), lng: parseFloat(poi.frontLon || poi.noorLon), fullLoc: finalStr };
-                        }
-                    } catch(e) { showToast("API ERROR"); console.error(e); } return null;
-                };
-
+                if(!pTxt && !dTxt) return; showToast("SEARCHING...");
                 const id = document.getElementById('edit-id').value; const o = this.orders.find(x => x.id === id); if(!o) return;
-                if(pTxt) { let pData = await getPoiData(pTxt); if(pData) { o.startCoords = {lat: pData.lat, lng: pData.lng, fullLoc: pData.fullLoc || pTxt}; } }
-                if(dTxt) { let dData = await getPoiData(dTxt); if(dData) { o.endCoords = {lat: dData.lat, lng: dData.lng, fullLoc: dData.fullLoc || dTxt}; } }
+                if(pTxt) { let pData = await SystemUtils.fetchTmapPoi(pTxt); if(pData) { o.startCoords = {lat: pData.lat, lng: pData.lng, fullLoc: pData.fullLoc || pTxt}; } }
+                if(dTxt) { let dData = await SystemUtils.fetchTmapPoi(dTxt); if(dData) { o.endCoords = {lat: dData.lat, lng: dData.lng, fullLoc: dData.fullLoc || dTxt}; } }
                 showToast("COORDS SYNCED");
             },
 
@@ -1575,33 +1288,21 @@
             },
 
             copyTodayData: function() {
-                let sorted = this.orders.sort((a,b) => a.timestamp - b.timestamp);
-                let buf = `NO\tSHIFT\tPLAT\tPICKUP\tDROPOFF\tFARE\tMEMO\n`;
+                let sorted = this.orders.sort((a,b) => a.timestamp - b.timestamp); let buf = `NO\tSHIFT\tPLAT\tPICKUP\tDROPOFF\tFARE\tMEMO\n`;
                 buf += sorted.map(o => `${o.displayNo}\t${o.shift}\t${o.platform}\t${this.extractDong(o.startDetail)}\t${this.extractDong(o.endDetail)}\t${Math.round(this.calcNetFare(o.fareK, o.platform)*1000)}\t${o.memo||''}`).join('\n'); 
                 navigator.clipboard.writeText(buf).then(()=>showToast("COPIED")).catch(()=>showToast("COPY ERR")); 
             },
 
-            // Update 7: Hexbin 누적 기록을 위한 FIFO 스토리지 저장
             autoSyncAndClear: async function(newDateStr) {
                 if (this.orders.length === 0 && this.loadDataSafely('qcp_bundle_logs_v203', []).length === 0) return;
                 
-                // Hexbin 데이터를 위한 로컬 압축 (1달치 한정)
-                let hexHistory = this.loadDataSafely('qcp_hex_history', []);
-                let nowTime = Date.now();
-                let thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-                
-                this.orders.forEach(o => {
-                    if (o.startCoords) hexHistory.push({ lat: o.startCoords.lat, lng: o.startCoords.lng, ts: nowTime });
-                    if (o.endCoords) hexHistory.push({ lat: o.endCoords.lat, lng: o.endCoords.lng, ts: nowTime });
-                });
-                
-                hexHistory = hexHistory.filter(item => (nowTime - item.ts) < thirtyDaysMs);
-                this.safeSetStorage('qcp_hex_history', JSON.stringify(hexHistory));
+                let hexHistory = this.loadDataSafely('qcp_hex_history', []); let nowTime = Date.now(); let thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+                this.orders.forEach(o => { if (o.startCoords) hexHistory.push({ lat: o.startCoords.lat, lng: o.startCoords.lng, ts: nowTime }); if (o.endCoords) hexHistory.push({ lat: o.endCoords.lat, lng: o.endCoords.lng, ts: nowTime }); });
+                hexHistory = hexHistory.filter(item => (nowTime - item.ts) < thirtyDaysMs); this.safeSetStorage('qcp_hex_history', JSON.stringify(hexHistory));
 
                 const url = localStorage.getItem('qcp_url_sync'); if (!url) {
                     this.orders = []; this.safeSetStorage('qcp_orders_v203', JSON.stringify(this.orders)); this.safeSetStorage('qcp_bundle_logs_v203', JSON.stringify([])); 
-                    this.renderMasterList(); this.updateSysTotal(); showToast("LOCAL RESET (NO SYNC)");
-                    return;
+                    this.renderMasterList(); this.updateSysTotal(); showToast("DATA CLEARED"); return;
                 }
                 
                 try {
@@ -1613,16 +1314,12 @@
                     const bundleLogs = this.loadDataSafely('qcp_bundle_logs_v203', []);
                     const finalPayload = { date: new Date().toISOString().split('T')[0], data: payloadData, bundles: bundleLogs };
                     
-                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(finalPayload) });
-                    const resText = await res.text();
+                    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(finalPayload) }); await res.text();
                     
                     this.orders = []; this.safeSetStorage('qcp_orders_v203', JSON.stringify(this.orders)); this.safeSetStorage('qcp_bundle_logs_v203', JSON.stringify([])); 
-                    this.renderMasterList(); this.updateSysTotal(); showToast("SYNC & CLEARED");
+                    this.renderMasterList(); this.updateSysTotal(); showToast("SYNC COMPLETE");
                     
-                } catch (error) { 
-                    showToast("SYNC ERROR"); console.error(error);
-                    localStorage.removeItem('qcp_last_sync_date'); 
-                }
+                } catch (error) { showToast("SYNC ERROR"); console.error(error); localStorage.removeItem('qcp_last_sync_date'); }
             }
         };
 
